@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'enrol_stripe', language 'en'.
+ * Strings for component 'enrol_stripepayment', language 'en'.
  *
- * @package    enrol_stripe
+ * @package    enrol_stripepayment
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -53,7 +53,7 @@ $string['stripe:manage'] = 'Manage enrolled users';
 $string['stripe:unenrol'] = 'Unenrol users from course';
 $string['stripe:unenrolself'] = 'Unenrol self from the course';
 $string['stripeaccepted'] = 'Stripe payments accepted';
-$string['pluginname'] = 'Stripe';
+$string['pluginname'] = 'Stripe Payment';
 $string['pluginname_desc'] = 'The Stripe module allows you to set up paid courses.  If the cost for any course is zero, then students are not asked to pay for entry.  There is a site-wide cost that you set here as a default for the whole site and then a course setting that you can set for each course individually. The course cost overrides the site cost.';
 $string['sendpaymentbutton'] = 'Send payment via Stripe';
 $string['status'] = 'Allow Stripe enrolments';

@@ -17,14 +17,16 @@
 /**
  * Stripe enrolment plugin version specification.
  *
- * @package    enrol_stripe
+ * @package    enrol_stripepayment
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015051100;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2015050500;        // Requires this Moodle version.
-$plugin->component = 'enrol_stripe';    // Full name of the plugin (used for diagnostics).
+$plugin->version   = 2015112800;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->requires  = 2013051401;        // Requires this Moodle version.
+$plugin->component = 'enrol_stripepayment';    // Full name of the plugin (used for diagnostics).
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '1.0 (Build: 2015112818)';
 $plugin->cron      = 60;

@@ -22,7 +22,7 @@
  * If Stripe verifies this then it sets up the enrolment for that
  * user.
  *
- * @package    enrol_stripe
+ * @package    enrol_stripepayment
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,7 +40,7 @@ require_once($CFG->libdir . '/filelib.php');
 require_login();
 // Stripe does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
-set_exception_handler('enrol_stripe_charhge_exception_handler');
+set_exception_handler('enrol_stripepayment_charhge_exception_handler');
 
 // Keep out casual intruders.
 if (empty($_POST) or !empty($_GET)) {
@@ -90,7 +90,7 @@ if ($data->courseid != $plugininstance->courseid) {
     redirect($CFG->wwwroot);
 }
 
-$plugin = enrol_get_plugin('stripe');
+$plugin = enrol_get_plugin('stripepayment');
 
 // Check that amount paid is the correct amount.
 if ( (float) $plugininstance->cost <= 0 ) {
@@ -125,7 +125,7 @@ try {
 
     // ALL CLEAR !
 
-    $DB->insert_record("enrol_stripe", $data);
+    $DB->insert_record("enrol_stripepayment", $data);
 
     if ($plugininstance->enrolperiod) {
             $timestart = time();
@@ -160,8 +160,8 @@ try {
 
             $eventdata = new stdClass();
             $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_stripe';
-            $eventdata->name              = 'stripe_enrolment';
+            $eventdata->component         = 'enrol_stripepayment';
+            $eventdata->name              = 'stripepayment_enrolment';
             $eventdata->userfrom          = empty($teacher) ? core_user::get_support_user() : $teacher;
             $eventdata->userto            = $user;
             $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
@@ -178,8 +178,8 @@ try {
 
             $eventdata = new stdClass();
             $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_stripe';
-            $eventdata->name              = 'stripe_enrolment';
+            $eventdata->component         = 'enrol_stripepayment';
+            $eventdata->name              = 'stripepayment_enrolment';
             $eventdata->userfrom          = $user;
             $eventdata->userto            = $teacher;
             $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
@@ -197,8 +197,8 @@ try {
         foreach ($admins as $admin) {
             $eventdata = new stdClass();
             $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_stripe';
-            $eventdata->name              = 'stripe_enrolment';
+            $eventdata->component         = 'enrol_stripepayment';
+            $eventdata->name              = 'stripepayment_enrolment';
             $eventdata->userfrom          = $user;
             $eventdata->userto            = $admin;
             $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
@@ -264,7 +264,7 @@ catch (Stripe_InvalidRequestError $e) {
     // --- HELPER FUNCTIONS --------------------------------------------------------------------------------------!
 
 
-function message_stripe_error_to_admin($subject, $data) {
+function message_stripepayment_error_to_admin($subject, $data) {
     $admin = get_admin();
     $site = get_site();
 
@@ -276,11 +276,11 @@ function message_stripe_error_to_admin($subject, $data) {
 
     $eventdata = new stdClass();
     $eventdata->modulename        = 'moodle';
-    $eventdata->component         = 'enrol_stripe';
-    $eventdata->name              = 'stripe_enrolment';
+    $eventdata->component         = 'enrol_stripepayment';
+    $eventdata->name              = 'stripepayment_enrolment';
     $eventdata->userfrom          = $admin;
     $eventdata->userto            = $admin;
-    $eventdata->subject           = "STRIPE ERROR: ".$subject;
+    $eventdata->subject           = "STRIPE PAYMENT ERROR: ".$subject;
     $eventdata->fullmessage       = $message;
     $eventdata->fullmessageformat = FORMAT_PLAIN;
     $eventdata->fullmessagehtml   = '';

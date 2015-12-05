@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="enrol_stripe" COMMENT="Holds all known information about Stripe transactions">
+    <TABLE NAME="enrol_stripepayment" COMMENT="Holds all known information about Stripe transactions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="business" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
