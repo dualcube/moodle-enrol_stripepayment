@@ -32,7 +32,10 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_stripepayment_plugin extends enrol_plugin {
-
+    /**
+     * Lists all currencies available for plugin.
+     * @return $currencies
+     */
     public function get_currencies() {
         // See https://www.stripe.com/cgi-bin/webscr?cmd=p/sell/mc/mc_intro-outside,
         // 3-character ISO-4217: https://cms.stripe.com/us/cgi-bin/?cmd=
@@ -77,22 +80,37 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         }
         return array();
     }
-
+    /**
+     * Lists all protected user roles.
+     * @return bool(true or false)
+     */
     public function roles_protected() {
         // Users with role assign cap may tweak the roles later.
         return false;
     }
-
+    /**
+     * Defines if user can be unenrolled.
+     * @param stdClass $instance of the plugin
+     * @return bool(true or false)
+     */
     public function allow_unenrol(stdClass $instance) {
         // Users with unenrol cap may unenrol other users manually - requires enrol/stripe:unenrol.
         return true;
     }
-
+    /**
+     * Defines if user can be managed from admin.
+     * @param stdClass $instance of the plugin
+     * @return bool(true or false)
+     */
     public function allow_manage(stdClass $instance) {
         // Users with manage cap may tweak period and status - requires enrol/stripe:manage.
         return true;
     }
-
+    /**
+     * Defines if 'enrol me' link will be shown on course page.
+     * @param stdClass $instance of the plugin
+     * @return bool(true or false)
+     */
     public function show_enrolme_link(stdClass $instance) {
         return ($instance->status == ENROL_INSTANCE_ENABLED);
     }
@@ -100,7 +118,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     /**
      * Sets up navigation entries.
      *
-     * @param object $instance
+     * @param navigation_node $instancesnode
+     * @param stdClass $instance
      * @return void
      */
     public function add_course_navigation($instancesnode, stdClass $instance) {
@@ -148,7 +167,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $context = context_course::instance($courseid, MUST_EXIST);
 
         if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/stripepayment:config', $context)) {
-            return NULL;
+            return null;
         }
 
         // Multiple instances supported - different cost for different roles.
@@ -162,7 +181,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param stdClass $instance
      * @return string html text, usually a form in a text box
      */
-    function enrol_page_hook(stdClass $instance) {
+    public function enrol_page_hook(stdClass $instance) {
         global $CFG, $USER, $OUTPUT, $PAGE, $DB;
 
         ob_start();
@@ -277,8 +296,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param restore_enrolments_structure_step $step
      * @param stdClass $data
      * @param stdClass $instance
-     * @param int $oldinstancestatus
      * @param int $userid
+     * @param int $oldinstancestatus
      */
     public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
         $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);
@@ -309,7 +328,10 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         }
         return $actions;
     }
-
+    /**
+     * Set up cron for the plugin (if any).
+     *
+     */
     public function cron() {
         $trace = new text_progress_trace();
         $this->process_expirations($trace);

@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Course wise edit form.
+ * 
  * Adds new instance of enrol_stripepayment to specified course
  * or edits current instance.
  *
@@ -26,10 +28,17 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/formslib.php');
-
+/**
+ * Sets up moodle edit form class methods.
+ * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class enrol_stripepayment_edit_form extends moodleform {
-
-    function definition() {
+    /**
+     * Sets up moodle form.
+     * @return void
+     */
+    public function definition() {
         $mform = $this->_form;
 
         list($instance, $plugin, $context) = $this->_customdata;
@@ -90,8 +99,13 @@ class enrol_stripepayment_edit_form extends moodleform {
 
         $this->set_data($instance);
     }
-
-    function validation($data, $files) {
+    /**
+     * Sets up moodle form validation.
+     * @param stdClass $data
+     * @param stdClass $files
+     * @return $error error list
+     */
+    public function validation($data, $files) {
         global $DB, $CFG;
         $errors = parent::validation($data, $files);
 

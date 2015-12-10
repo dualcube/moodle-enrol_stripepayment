@@ -219,7 +219,7 @@ try {
 
     $fullname = format_string($course->fullname, true, array('context' => $context));
 
-    if (is_enrolled($context, NULL, '', true)) { // TODO: use real stripe check.
+    if (is_enrolled($context, null, '', true)) { // TODO: use real stripe check.
         redirect($destination, get_string('paymentthanks', '', $fullname));
 
     } else {   // Somehow they aren't enrolled yet!
@@ -263,7 +263,12 @@ catch (Stripe_InvalidRequestError $e) {
 
     // --- HELPER FUNCTIONS --------------------------------------------------------------------------------------!
 
-
+/**
+ * Send payment error message to the admin.
+ *
+ * @param string $subject
+ * @param stdClass $data
+ */
 function message_stripepayment_error_to_admin($subject, $data) {
     $admin = get_admin();
     $site = get_site();

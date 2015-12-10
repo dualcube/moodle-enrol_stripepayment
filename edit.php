@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Course wise edit settings.
+ * 
  * Adds new instance of enrol_stripepayment to specified course
  * or edits current instance.
  *
@@ -58,7 +60,7 @@ if ($instanceid) {
     $instance->courseid = $course->id;
 }
 
-$mform = new enrol_stripepayment_edit_form(NULL, array($instance, $plugin, $context));
+$mform = new enrol_stripepayment_edit_form(null, array($instance, $plugin, $context));
 
 if ($mform->is_cancelled()) {
     redirect($return);
