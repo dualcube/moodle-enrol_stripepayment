@@ -40,7 +40,7 @@ require_once($CFG->libdir . '/filelib.php');
 require_login();
 // Stripe does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
-set_exception_handler('enrol_stripepayment_charhge_exception_handler');
+set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
 // Keep out casual intruders.
 if (empty($_POST) or !empty($_GET)) {
@@ -62,31 +62,31 @@ $data->timeupdated      = time();
 // Get the user and course records.
 
 if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
-    message_stripe_error_to_admin("Not a valid user id", $data);
+    message_stripepayment_error_to_admin("Not a valid user id", $data);
     redirect($CFG->wwwroot);
 }
 
 if (! $course = $DB->get_record("course", array("id" => $data->courseid))) {
-    message_stripe_error_to_admin("Not a valid course id", $data);
+    message_stripepayment_error_to_admin("Not a valid course id", $data);
     redirect($CFG->wwwroot);
 }
 
 if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
-    message_stripe_error_to_admin("Not a valid context id", $data);
+    message_stripepayment_error_to_admin("Not a valid context id", $data);
     redirect($CFG->wwwroot);
 }
 
 $PAGE->set_context($context);
 
 if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
-    message_stripe_error_to_admin("Not a valid instance id", $data);
+    message_stripepayment_error_to_admin("Not a valid instance id", $data);
     redirect($CFG->wwwroot);
 }
 
  // If currency is incorrectly set then someone maybe trying to cheat the system.
 
 if ($data->courseid != $plugininstance->courseid) {
-    message_stripe_error_to_admin("Course Id does not match to the course settings, received: ".$data->courseid, $data);
+    message_stripepayment_error_to_admin("Course Id does not match to the course settings, received: ".$data->courseid, $data);
     redirect($CFG->wwwroot);
 }
 
@@ -210,12 +210,7 @@ try {
         }
     }
 
-    if (!empty($SESSION->wantsurl)) {
-        $destination = $SESSION->wantsurl;
-        unset($SESSION->wantsurl);
-    } else {
-        $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
-    }
+    $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
 
     $fullname = format_string($course->fullname, true, array('context' => $context));
 
