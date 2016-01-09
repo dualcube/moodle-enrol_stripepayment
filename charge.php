@@ -271,7 +271,7 @@ function message_stripepayment_error_to_admin($subject, $data) {
     $message = "$site->fullname:  Transaction failed.\n\n$subject\n\n";
 
     foreach ($data as $key => $value) {
-        $message .= "$key => $value\n";
+        $message .= s($key) ." => ". s($value)."\n";
     }
 
     $eventdata = new stdClass();

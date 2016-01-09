@@ -59,3 +59,4 @@ $string['sendpaymentbutton'] = 'Send payment via Stripe';
 $string['status'] = 'Allow Stripe enrolments';
 $string['status_desc'] = 'Allow users to use Stripe to enrol into a course by default.';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
+$string['messageprovider:stripepayment_enrolment'] = 'Message Provider';
