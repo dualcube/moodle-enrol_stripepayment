@@ -49,9 +49,10 @@ if (empty($_POST) or !empty($_GET)) {
 
 $data = new stdClass();
 
-foreach ($_POST as $key => $value) {
-    $data->$key = $value;
-}
+$data->custom = required_param('custom', PARAM_ALPHANUMEXT);
+$data->amount = required_param('amount', PARAM_ALPHANUMEXT);
+$data->currency_code = required_param('currency_code', PARAM_ALPHANUMEXT);
+
 $custom = explode('-', $data->custom);
 $data->userid           = (int)$custom[0];
 $data->courseid         = (int)$custom[1];
@@ -112,7 +113,7 @@ try {
     $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
       "currency" => $plugininstance->currency,
-      "card" => $_POST['stripeToken'],
+      "card" => required_param('stripeToken', PARAM_ALPHANUMEXT),
       "description" => "Charge for Course Enrolment Cost."
     ));
     // Send the file, this line will be reached if no error was thrown above.
