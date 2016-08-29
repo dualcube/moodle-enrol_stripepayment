@@ -69,6 +69,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('enrol_stripepayment/currency',
     get_string('currency', 'enrol_stripepayment'), '', 'USD', $stripecurrencies));
 
+    $settings->add(new admin_setting_configtext('enrol_stripepayment/maxenrolled',
+        get_string('maxenrolled', 'enrol_stripepayment'), get_string('maxenrolled_help', 'enrol_stripepayment'), 0, PARAM_INT));
+
     if (!during_initial_install()) {
         $options = get_default_enrol_roles(context_system::instance());
         $student = get_archetype_roles('student');

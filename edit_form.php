@@ -28,6 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/formslib.php');
+require_once('lib.php');
 /**
  * Sets up moodle edit form class methods.
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
@@ -68,6 +69,11 @@ class enrol_stripepayment_edit_form extends moodleform {
         }
         $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_stripepayment'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('roleid'));
+
+        $mform->addElement('text', 'customint3', get_string('maxenrolled', 'enrol_stripepayment'));
+        $mform->setDefault('maxenrolled', 'customint3');
+        $mform->addHelpButton('customint3', 'maxenrolled', 'enrol_stripepayment');
+        $mform->setType('customint3', PARAM_INT);
 
         $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_stripepayment'),
         array('optional' => true, 'defaultunit' => 86400));

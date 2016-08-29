@@ -184,6 +184,12 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     public function enrol_page_hook(stdClass $instance) {
         global $CFG, $USER, $OUTPUT, $PAGE, $DB;
 
+        $enrolstatus = $this->can_stripepayment_enrol($instance);
+
+        if (!$enrolstatus) {
+            return get_string('maxenrolledreached', 'enrol_stripepayment');
+        }
+
         ob_start();
 
         if ($DB->record_exists('user_enrolments', array('userid' => $USER->id, 'enrolid' => $instance->id))) {
@@ -260,6 +266,46 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         return $OUTPUT->box(ob_get_clean());
     }
 
+    public function can_stripepayment_enrol(stdClass $instance) {
+        global $CFG, $DB, $OUTPUT, $USER;
+
+        if ($instance->customint3 > 0) {
+            // Max enrol limit specified.
+            $count = $DB->count_records('user_enrolments', array('enrolid' => $instance->id));
+
+            if ($count >= $instance->customint3) {
+                // Bad luck, no more stripepayment enrolments here.
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
+    /**
+     * Returns localised name of enrol instance
+     *
+     * @param stdClass $instance (null is accepted too)
+     * @return string
+     */
+    public function get_instance_name($instance) {
+        global $DB;
+
+        if (empty($instance->name)) {
+            if (!empty($instance->roleid) and $role = $DB->get_record('role', array('id'=>$instance->roleid))) {
+                $role = ' (' . role_get_name($role, context_course::instance($instance->courseid, IGNORE_MISSING)) . ')';
+            } else {
+                $role = '';
+            }
+            $enrol = $this->get_name();
+            return get_string('pluginname', 'enrol_'.$enrol) . $role;
+        } else {
+            return format_string($instance->name);
+        }
+    }
+
+
     /**
      * Restore instance and map settings.
      *
@@ -279,6 +325,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 'roleid'     => $data->roleid,
                 'cost'       => $data->cost,
                 'currency'   => $data->currency,
+
             );
         }
         if ($merge and $instances = $DB->get_records('enrol', $merge, 'id')) {
