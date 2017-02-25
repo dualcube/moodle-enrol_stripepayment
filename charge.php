@@ -114,7 +114,7 @@ try {
       "currency" => $plugininstance->currency,
       "card" => $_POST['stripeToken'],
       "description" => "Charge for Course Enrolment Cost.",
-      "receipt_email" => $_POST['email']
+      "receipt_email" => $_POST['stripeEmail']
     ));
     // Send the file, this line will be reached if no error was thrown above.
     $data->txn_id = $charge->balance_transaction;
