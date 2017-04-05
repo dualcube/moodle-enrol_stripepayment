@@ -109,6 +109,10 @@ try {
     require_once('Stripe/lib/Stripe.php');
 
     Stripe::setApiKey($plugin->get_config('secretkey'));
+    $charge1 = Stripe_Customer::create(array(
+        "email" => $_POST['stripeEmail'],
+        "description" => "create customer for email receipt"
+    ));
     $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
       "currency" => $plugininstance->currency,
