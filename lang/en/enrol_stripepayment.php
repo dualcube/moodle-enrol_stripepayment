@@ -66,3 +66,8 @@ $string['maxenrolled_help'] = 'Specifies the maximum number of users that can st
 $string['maxenrolledreached'] = 'Maximum number of users allowed to stripepayment-enrol was already reached.';
 
 $string['canntenrol'] = 'Enrolment is disabled or inactive';
+
+$string['stripepayment:config'] = 'Configure stripepayment'; 
+$string['stripepayment:manage'] = 'Manage stripepayment'; 
+$string['stripepayment:unenrol'] = 'Unenrol stripepayment';
+$string['stripepayment:unenrolself'] = 'Unenrolself stripepayment'; 
