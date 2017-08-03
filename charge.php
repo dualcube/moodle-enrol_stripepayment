@@ -43,15 +43,37 @@ require_login();
 set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
 // Keep out casual intruders.
-if (empty($_POST) or !empty($_GET)) {
-    print_error("Sorry, you can not use the script that way.");
+if (empty(required_param('stripeToken', PARAM_RAW))) {
+    print_error(get_string('stripe_sorry', 'enrol_stripepayment'));
 }
 
 $data = new stdClass();
 
-foreach ($_POST as $key => $value) {
-    $data->$key = $value;
-}
+$data->cmd = required_param('cmd', PARAM_RAW);
+$data->charset = required_param('charset', PARAM_RAW);
+$data->item_name = required_param('item_name', PARAM_TEXT);
+$data->item_name = required_param('item_number', PARAM_TEXT);
+$data->item_name = required_param('quantity', PARAM_INT);
+$data->on0 = optional_param('on0', array(), PARAM_TEXT);
+$data->os0 = optional_param('os0', array(), PARAM_TEXT);
+$data->custom = optional_param('custom', array(), PARAM_RAW);
+$data->currency_code = required_param('currency_code', PARAM_RAW);
+$data->amount = required_param('amount', PARAM_RAW);
+$data->for_auction = required_param('for_auction', PARAM_BOOL);
+$data->no_note = required_param('no_note', PARAM_INT);
+$data->no_shipping = required_param('no_shipping', PARAM_INT);
+$data->rm = required_param('rm', PARAM_RAW);
+$data->cbt = optional_param('cbt', array(), PARAM_TEXT);
+$data->first_name = required_param('first_name', PARAM_TEXT);
+$data->last_name = required_param('last_name', PARAM_TEXT);
+$data->address = optional_param('address', array(), PARAM_TEXT);
+$data->city = optional_param('city', array(), PARAM_TEXT);
+$data->email = required_param('email', PARAM_EMAIL);
+$data->country = optional_param('country', array(), PARAM_TEXT);
+$data->stripeToken = required_param('stripeToken', PARAM_RAW);
+$data->stripeTokenType = required_param('stripeTokenType', PARAM_RAW);
+$data->stripeEmail = required_param('stripeEmail', PARAM_EMAIL);
+
 $custom = explode('-', $data->custom);
 $data->userid           = (int)$custom[0];
 $data->courseid         = (int)$custom[1];
@@ -110,15 +132,15 @@ try {
 
     Stripe::setApiKey($plugin->get_config('secretkey'));
     $charge1 = Stripe_Customer::create(array(
-        "email" => $_POST['stripeEmail'],
-        "description" => "create customer for email receipt"
+        "email" => required_param('stripeEmail', PARAM_EMAIL),
+        "description" => get_string('charge_description1', 'enrol_stripepayment')
     ));
     $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
       "currency" => $plugininstance->currency,
-      "card" => $_POST['stripeToken'],
-      "description" => "Charge for Course Enrolment Cost.",
-      "receipt_email" => $_POST['stripeEmail']
+      "card" => required_param('stripeToken', PARAM_RAW),
+      "description" => get_string('charge_description2', 'enrol_stripepayment'),
+      "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
     ));
     // Send the file, this line will be reached if no error was thrown above.
     $data->txn_id = $charge->balance_transaction;
