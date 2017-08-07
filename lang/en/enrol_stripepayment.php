@@ -22,7 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['addtogroup'] = 'Add to group';
+$string['addtogroup_help'] = 'If you select a group here, then when a user completes the payment process and is enrolled in this course, they will be added to this group.';
 $string['assignrole'] = 'Assign role';
+$string['assignrole_help'] = 'If you select a role here, then when a user completes the payment process and is enrolled in this course, they will be assigned this role.';
 $string['secretkey'] = 'Stripe Secret Key';
 $string['publishablekey'] = 'Stripe Publishable Key';
 $string['secretkey_desc'] = 'The API Secret Key of Stripe account';
@@ -31,6 +34,8 @@ $string['cost'] = 'Enrol cost';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
 $string['currency'] = 'Currency';
+$string['customwelcomemessage'] = 'Custom welcome message';
+$string['customwelcomemessage_help'] = 'If you enter some text here, it will be shown instead of the standard text "This course requires a payment for entry." on the Enrolment options page that students see when they attempt to access a course they are not enrolled in. If you leave this blank, the standard text will be used.';
 $string['defaultrole'] = 'Default role assignment';
 $string['defaultrole_desc'] = 'Select role which should be assigned to users during Stripe enrolments';
 $string['enrolenddate'] = 'End date';

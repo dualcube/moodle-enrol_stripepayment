@@ -1,6 +1,6 @@
-<div align="center">
-<p><?php print_string("paymentrequired") ?></p>
-<p><b><?php echo $instancename; ?></b></p>
+<div class="mdl-align">
+<h3><?php echo $instancename; ?></h3>
+<p><?php echo $message; ?></p>
 <p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
 
 <form action="<?php echo "$CFG->wwwroot/enrol/stripepayment/charge.php"?>" method="post">

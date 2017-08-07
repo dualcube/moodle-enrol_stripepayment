@@ -71,10 +71,12 @@ if ($mform->is_cancelled()) {
 
         $instance->status         = $data->status;
         $instance->name           = $data->name;
+        $instance->customtext1    = $data->customtext1;
         $instance->cost           = unformat_float($data->cost);
         $instance->currency       = $data->currency;
         $instance->roleid         = $data->roleid;
         $instance->customint3     = $data->customint3;
+        $instance->customint4     = $data->customint4;
         $instance->enrolperiod    = $data->enrolperiod;
         $instance->enrolstartdate = $data->enrolstartdate;
         $instance->enrolenddate   = $data->enrolenddate;

@@ -257,6 +257,11 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $useraddress     = $USER->address;
                 $usercity        = $USER->city;
                 $instancename    = $this->get_instance_name($instance);
+                if (!empty($instance->customtext1)) {
+                    $message = format_string($instance->customtext1);
+                } else {
+                    $message = get_string("paymentrequired");
+                }
 
                 include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
             }

@@ -36,6 +36,7 @@ require_once("lib.php");
 require_once($CFG->libdir.'/eventslib.php');
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/group/lib.php');
 
 require_login();
 // Stripe does not like when we return error messages here,
@@ -164,6 +165,17 @@ try {
 
     // Enrol user.
     $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, $timestart, $timeend);
+    if ($plugininstance->customint4) {
+        // User should automatically be put in this group - check the group exists.
+        $groupdata = groups_get_course_data($plugininstance->courseid);
+        if (isset($groupdata->groups[$plugininstance->customint4])) {
+            groups_add_member($groupdata->groups[$plugininstance->customint4], $user,
+                    'enrol_stripepayment', $plugininstance->id);
+        } else {
+            debugging('The enrol_stripepayment instance with id ' . $plugininstance->id .
+                    ' is set to use a non-existant group with id ' . $plugininstance->customint4);
+        }
+    }
 
     // Pass $view=true to filter hidden caps if the user cannot see them.
     if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',

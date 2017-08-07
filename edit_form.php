@@ -46,8 +46,13 @@ class enrol_stripepayment_edit_form extends moodleform {
 
         $mform->addElement('header', 'header', get_string('pluginname', 'enrol_stripepayment'));
 
-        $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
+        $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'), array('size' => 60));
         $mform->setType('name', PARAM_TEXT);
+
+        $mform->addElement('textarea', 'customtext1', get_string('customwelcomemessage', 'enrol_stripepayment'),
+                array('rows' => 3, 'cols' => 80));
+        $mform->setType('customtext1', PARAM_TEXT);
+        $mform->addHelpButton('customtext1', 'customwelcomemessage', 'enrol_stripepayment');
 
         $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
                          ENROL_INSTANCE_DISABLED => get_string('no'));
@@ -70,7 +75,20 @@ class enrol_stripepayment_edit_form extends moodleform {
         $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_stripepayment'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('roleid'));
 
-        $mform->addElement('text', 'customint3', get_string('maxenrolled', 'enrol_stripepayment'));
+        // Group selector - only if there are groups in this course.
+        $groupdata = groups_get_course_data($instance->courseid);
+        if ($groupdata->groups) {
+            $options = array();
+            foreach ($groupdata->groups as $group) {
+                $options[$group->id] = format_string($group->name);
+            }
+        }
+        core_collator::asort($options);
+        $options = array(0 => get_string('none')) + $options;
+        $mform->addElement('select', 'customint4', get_string('addtogroup', 'enrol_stripepayment'), $options);
+        $mform->addHelpButton('customint4', 'addtogroup', 'enrol_stripepayment');
+
+        $mform->addElement('text', 'customint3', get_string('maxenrolled', 'enrol_stripepayment'), array('size' => 3));
         $mform->setDefault('maxenrolled', 'customint3');
         $mform->addHelpButton('customint3', 'maxenrolled', 'enrol_stripepayment');
         $mform->setType('customint3', PARAM_INT);
