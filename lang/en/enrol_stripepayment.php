@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Strings for component 'enrol_stripepayment', language 'en'.
  *
@@ -21,8 +20,12 @@
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+$string['addtogroup'] = 'Add to group';
+$string['addtogroup_help'] = 'If you select a group here, then when a user completes the payment process and is enrolled in this course, they will be added to this group.';
 $string['assignrole'] = 'Assign role';
+$string['assignrole_help'] = 'If you select a role here, then when a user completes the payment process and is enrolled in this course, they will be assigned this role.';
+$string['billingaddress'] = 'Require users to enter their billing address';
+$string['billingaddress_desc'] = 'This sets the Stripe payment option for whether the user should be asked to input their billing address. It is off by default, but it is a good idea to turn it on.';
 $string['secretkey'] = 'Stripe Secret Key';
 $string['publishablekey'] = 'Stripe Publishable Key';
 $string['secretkey_desc'] = 'The API Secret Key of Stripe account';
@@ -31,6 +34,8 @@ $string['cost'] = 'Enrol cost';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
 $string['currency'] = 'Currency';
+$string['customwelcomemessage'] = 'Custom welcome message';
+$string['customwelcomemessage_help'] = 'If you enter some text here, it will be shown instead of the standard text "This course requires a payment for entry." on the Enrolment options page that students see when they attempt to access a course they are not enrolled in. If you leave this blank, the standard text will be used.';
 $string['defaultrole'] = 'Default role assignment';
 $string['defaultrole_desc'] = 'Select role which should be assigned to users during Stripe enrolments';
 $string['enrolenddate'] = 'End date';
@@ -60,18 +65,16 @@ $string['status'] = 'Allow Stripe enrolments';
 $string['status_desc'] = 'Allow users to use Stripe to enrol into a course by default.';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['messageprovider:stripepayment_enrolment'] = 'Message Provider';
-
+$string['validatezipcode'] = 'Validate the billing postal code';
+$string['validatezipcode_desc'] = 'This sets the Stripe payment option for whether the billing address should be verified as part of processing the payment. They strongly recommend that this option should be on, to reduce fraud.';
 $string['maxenrolled'] = 'Max enrolled users';
 $string['maxenrolled_help'] = 'Specifies the maximum number of users that can stripepayment enrol. 0 means no limit.';
 $string['maxenrolledreached'] = 'Maximum number of users allowed to stripepayment-enrol was already reached.';
-
 $string['canntenrol'] = 'Enrolment is disabled or inactive';
 $string['stripepayment:config'] = 'Configure stripepayment'; 
 $string['stripepayment:manage'] = 'Manage stripepayment'; 
 $string['stripepayment:unenrol'] = 'Unenrol stripepayment';
 $string['stripepayment:unenrolself'] = 'Unenrolself stripepayment'; 
-
 $string['charge_description1'] = "create customer for email receipt";
 $string['charge_description2'] = 'Charge for Course Enrolment Cost.';
-
 $string['stripe_sorry'] = "Sorry, you can not use the script that way.";
