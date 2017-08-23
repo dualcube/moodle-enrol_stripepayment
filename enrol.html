@@ -1,6 +1,6 @@
-<div align="center">
-<p><?php print_string("paymentrequired") ?></p>
-<p><b><?php echo $instancename; ?></b></p>
+<div class="mdl-align">
+<h3><?php echo $instancename; ?></h3>
+<p><?php echo $message; ?></p>
 <p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
 
 <form action="<?php echo "$CFG->wwwroot/enrol/stripepayment/charge.php"?>" method="post">
@@ -30,11 +30,14 @@
     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
     data-key="<?php echo $publishablekey; ?>"
     data-image=""
-    data-name="Moodle Course Enrolment"
+    data-name="<?php p($coursefullname) ?>"
     data-description="Enrolment Cost (<?php p($instance->currency) ?><?php p($cost) ?>)"
     data-metadata="6"
     data-currency="<?php p($instance->currency) ?>"
-    data-amount="<?php p($cost * 100) ?>">
+    data-amount="<?php p($cost * 100) ?>"
+    data-data-zip-code="<?php p($validatezipcode) ?>"
+    data-billing-address="<?php p($billingaddress) ?>"
+>
 </script>
 </form>
 
