@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Stripe enrolment plugin.
  *
@@ -23,9 +22,7 @@
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
-
 /**
  * Stripe enrolment plugin implementation.
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
@@ -47,10 +44,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         foreach ($codes as $c) {
             $currencies[$c] = new lang_string($c, 'core_currencies');
         }
-
         return $currencies;
     }
-
     /**
      * Returns optional enrolment information icons.
      *
@@ -114,7 +109,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     public function show_enrolme_link(stdClass $instance) {
         return ($instance->status == ENROL_INSTANCE_ENABLED);
     }
-
     /**
      * Sets up navigation entries.
      *
@@ -126,14 +120,12 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         if ($instance->enrol !== 'stripepayment') {
              throw new coding_exception('Invalid enrol instance type!');
         }
-
         $context = context_course::instance($instance->courseid);
         if (has_capability('enrol/stripepayment:config', $context)) {
             $managelink = new moodle_url('/enrol/stripepayment/edit.php', array('courseid' => $instance->courseid, 'id' => $instance->id));
             $instancesnode->add($this->get_instance_name($instance), $managelink, navigation_node::TYPE_SETTING);
         }
     }
-
     /**
      * Returns edit icons for the page with list of instances
      * @param stdClass $instance
@@ -141,23 +133,18 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      */
     public function get_action_icons(stdClass $instance) {
         global $OUTPUT;
-
         if ($instance->enrol !== 'stripepayment') {
             throw new coding_exception('invalid enrol instance!');
         }
         $context = context_course::instance($instance->courseid);
-
         $icons = array();
-
         if (has_capability('enrol/stripepayment:config', $context)) {
             $editlink = new moodle_url("/enrol/stripepayment/edit.php", array('courseid' => $instance->courseid, 'id' => $instance->id));
             $icons[] = $OUTPUT->action_icon($editlink, new pix_icon('t/edit', get_string('edit'), 'core',
                     array('class' => 'iconsmall')));
         }
-
         return $icons;
     }
-
     /**
      * Returns link to page which may be used to add new instance of enrolment plugin in course.
      * @param int $courseid
@@ -165,15 +152,12 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      */
     public function get_newinstance_link($courseid) {
         $context = context_course::instance($courseid, MUST_EXIST);
-
         if (!has_capability('moodle/course:enrolconfig', $context) or !has_capability('enrol/stripepayment:config', $context)) {
             return null;
         }
-
         // Multiple instances supported - different cost for different roles.
         return new moodle_url('/enrol/stripepayment/edit.php', array('courseid' => $courseid));
     }
-
     /**
      * Creates course enrol form, checks if form submitted
      * and enrols user if necessary. It can also redirect.
@@ -183,34 +167,25 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      */
     public function enrol_page_hook(stdClass $instance) {
         global $CFG, $USER, $OUTPUT, $PAGE, $DB;
-
         $enrolstatus = $this->can_stripepayment_enrol($instance);
-
         if (!$enrolstatus) {
             return get_string('maxenrolledreached', 'enrol_stripepayment');
         }
-
         ob_start();
-
         if ($DB->record_exists('user_enrolments', array('userid' => $USER->id, 'enrolid' => $instance->id))) {
             return ob_get_clean();
         }
-
         if ($instance->enrolstartdate != 0 && $instance->enrolstartdate > time()) {
             return ob_get_clean();
         }
-
         if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
             return ob_get_clean();
         }
-
         $course = $DB->get_record('course', array('id' => $instance->courseid));
         $context = context_course::instance($course->id);
-
         $shortname = format_string($course->shortname, true, array('context' => $context));
         $strloginto = get_string("loginto", "", $shortname);
         $strcourses = get_string("courses");
-
         // Pass $view=true to filter hidden caps if the user cannot see them.
         if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
                                              '', '', '', '', false, true)) {
@@ -225,16 +200,13 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         } else {
             $cost = (float) $instance->cost;
         }
-
         if (abs($cost) < 0.01) { // No cost, other enrolment methods (instances) should be used.
             echo '<p>'.get_string('nocost', 'enrol_stripepayment').'</p>';
         } else {
-
             // Calculate localised and "." cost, make sure we send Stripe the same value,
             // please note Stripe expects amount with 2 decimal places and "." separator.
             $localisedcost = format_float($cost, 2, true);
             $cost = format_float($cost, 2, false);
-
             if (isguestuser()) { // Force login only for guest user, not real users with guest role.
                 if (empty($CFG->loginhttps)) {
                     $wwwroot = $CFG->wwwroot;
@@ -256,23 +228,25 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $userlastname    = $USER->lastname;
                 $useraddress     = $USER->address;
                 $usercity        = $USER->city;
+                $useremail       = $USER->email;
                 $instancename    = $this->get_instance_name($instance);
-
+                if (!empty($instance->customtext1)) {
+                    $message = format_string($instance->customtext1);
+                } else {
+                    $message = get_string("paymentrequired");
+                }
+                $validatezipcode = $this->get_config('validatezipcode');
+                $billingaddress = $this->get_config('billingaddress');
                 include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
             }
-
         }
-
         return $OUTPUT->box(ob_get_clean());
     }
-
     public function can_stripepayment_enrol(stdClass $instance) {
         global $CFG, $DB, $OUTPUT, $USER;
-
         if ($instance->customint3 > 0) {
             // Max enrol limit specified.
             $count = $DB->count_records('user_enrolments', array('enrolid' => $instance->id));
-
             if ($count >= $instance->customint3) {
                 // Bad luck, no more stripepayment enrolments here.
                 return false;
@@ -280,9 +254,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         }
         return true;
     }
-
-
-
     /**
      * Returns localised name of enrol instance
      *
@@ -291,7 +262,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      */
     public function get_instance_name($instance) {
         global $DB;
-
         if (empty($instance->name)) {
             if (!empty($instance->roleid) and $role = $DB->get_record('role', array('id'=>$instance->roleid))) {
                 $role = ' (' . role_get_name($role, context_course::instance($instance->courseid, IGNORE_MISSING)) . ')';
@@ -304,8 +274,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             return format_string($instance->name);
         }
     }
-
-
     /**
      * Restore instance and map settings.
      *
@@ -325,7 +293,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 'roleid'     => $data->roleid,
                 'cost'       => $data->cost,
                 'currency'   => $data->currency,
-
             );
         }
         if ($merge and $instances = $DB->get_records('enrol', $merge, 'id')) {
@@ -336,7 +303,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         }
         $step->set_mapping('enrol', $oldid, $instanceid);
     }
-
     /**
      * Restore user enrolment.
      *
@@ -349,7 +315,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
         $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);
     }
-
     /**
      * Gets an array of the user enrolment actions
      *
@@ -383,7 +348,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $trace = new text_progress_trace();
         $this->process_expirations($trace);
     }
-
     /**
      * Execute synchronisation.
      * @param progress_trace $trace
@@ -393,7 +357,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $this->process_expirations($trace);
         return 0;
     }
-
     /**
      * Is it possible to delete enrol instance via standard UI?
      *
@@ -404,7 +367,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $context = context_course::instance($instance->courseid);
         return has_capability('enrol/stripepayment:config', $context);
     }
-
     /**
      * Is it possible to hide/show enrol instance via standard UI?
      *
