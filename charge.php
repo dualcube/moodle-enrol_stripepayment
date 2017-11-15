@@ -48,7 +48,6 @@ if (empty(required_param('stripeToken', PARAM_RAW))) {
 }
 
 $data = new stdClass();
-
 $data->cmd = required_param('cmd', PARAM_RAW);
 $data->charset = required_param('charset', PARAM_RAW);
 $data->item_name = required_param('item_name', PARAM_TEXT);
@@ -100,6 +99,7 @@ if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
 
 $PAGE->set_context($context);
 
+
 if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
     message_stripepayment_error_to_admin("Not a valid instance id", $data);
     redirect($CFG->wwwroot);
@@ -128,14 +128,17 @@ $cost = format_float($cost, 2, false);
 
 try {
 
-    require_once('Stripe/lib/Stripe.php');
+    //require_once('Stripe/lib/Stripe.php');
+    require_once('Stripe/init.php');
 
-    Stripe::setApiKey($plugin->get_config('secretkey'));
-    $charge1 = Stripe_Customer::create(array(
+    \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
+    
+    $charge1 = \Stripe\Customer::create(array(
         "email" => required_param('stripeEmail', PARAM_EMAIL),
         "description" => get_string('charge_description1', 'enrol_stripepayment')
     ));
-    $charge = Stripe_Charge::create(array(
+    
+    $charge = \Stripe\Charge::create(array(
       "amount" => $cost * 100,
       "currency" => $plugininstance->currency,
       "card" => required_param('stripeToken', PARAM_RAW),
