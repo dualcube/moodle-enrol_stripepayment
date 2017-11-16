@@ -132,7 +132,19 @@ try {
     require_once('Stripe/init.php');
 
     \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
-    
+
+    // Set the proxy if required.
+
+    if (!empty($CFG->proxyhost)) {
+        $proxy = $CFG->proxyhost;
+        if (!empty($CFG->proxyport)) {
+            $proxy .= ':' . $CFG->proxyport;
+        }
+        $curl = new \Stripe\HttpClient\CurlClient(array(CURLOPT_PROXY => $proxy));
+        // tell Stripe to use the tweaked client
+        \Stripe\ApiRequestor::setHttpClient($curl);
+    }
+
     $charge1 = \Stripe\Customer::create(array(
         "email" => required_param('stripeEmail', PARAM_EMAIL),
         "description" => get_string('charge_description1', 'enrol_stripepayment')
