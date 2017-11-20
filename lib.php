@@ -235,6 +235,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 } else {
                     $message = get_string("paymentrequired");
                 }
+
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
                 include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
