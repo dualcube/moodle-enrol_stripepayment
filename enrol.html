@@ -35,8 +35,8 @@
     data-metadata="6"
     data-currency="<?php p($instance->currency) ?>"
     data-amount="<?php p($cost * 100) ?>"
-    data-data-zip-code="<?php p($validatezipcode) ?>"
-    data-billing-address="<?php p($billingaddress) ?>"
+    data-data-zip-code="<?php if ($validatezipcode == 0) { echo 'false'; } else { echo 'true'; } ?>"
+    data-billing-address="<?php if ($billingaddress == 0) { echo 'false'; } else { echo 'true'; } ?>"
 >
 </script>
 </form>
