@@ -1,16 +1,13 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
-//
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-//
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -31,11 +28,15 @@
 // comment out when debugging or better look into error log!
 define('NO_DEBUG_DISPLAY', true);
 
-require("../../config.php");
-require_once("lib.php");
-require_once($CFG->libdir.'/eventslib.php');
+require('../../config.php');
+require_once('lib.php');
+if($CFG->version < 2018101900)
+{
+    require_once($CFG->libdir.'/eventslib.php');
+}
 require_once($CFG->libdir.'/enrollib.php');
-require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->libdir.'/filelib.php');
+
 
 require_login();
 // Stripe does not like when we return error messages here,
@@ -48,6 +49,7 @@ if (empty(required_param('stripeToken', PARAM_RAW))) {
 }
 
 $data = new stdClass();
+
 $data->cmd = required_param('cmd', PARAM_RAW);
 $data->charset = required_param('charset', PARAM_RAW);
 $data->item_name = required_param('item_name', PARAM_TEXT);
@@ -99,7 +101,6 @@ if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
 
 $PAGE->set_context($context);
 
-
 if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
     message_stripepayment_error_to_admin("Not a valid instance id", $data);
     redirect($CFG->wwwroot);
@@ -128,29 +129,14 @@ $cost = format_float($cost, 2, false);
 
 try {
 
-    //require_once('Stripe/lib/Stripe.php');
-    require_once('Stripe/init.php');
+    require_once('Stripe/lib/Stripe.php');
 
-    \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
-
-    // Set the proxy if required.
-
-    if (!empty($CFG->proxyhost)) {
-        $proxy = $CFG->proxyhost;
-        if (!empty($CFG->proxyport)) {
-            $proxy .= ':' . $CFG->proxyport;
-        }
-        $curl = new \Stripe\HttpClient\CurlClient(array(CURLOPT_PROXY => $proxy));
-        // tell Stripe to use the tweaked client
-        \Stripe\ApiRequestor::setHttpClient($curl);
-    }
-
-    $charge1 = \Stripe\Customer::create(array(
+    Stripe::setApiKey($plugin->get_config('secretkey'));
+    $charge1 = Stripe_Customer::create(array(
         "email" => required_param('stripeEmail', PARAM_EMAIL),
         "description" => get_string('charge_description1', 'enrol_stripepayment')
     ));
-    
-    $charge = \Stripe\Charge::create(array(
+    $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
       "currency" => $plugininstance->currency,
       "card" => required_param('stripeToken', PARAM_RAW),
@@ -200,7 +186,7 @@ try {
             $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_stripepayment';
             $eventdata->name              = 'stripepayment_enrolment';
@@ -218,7 +204,7 @@ try {
             $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->user = fullname($user);
 
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_stripepayment';
             $eventdata->name              = 'stripepayment_enrolment';
@@ -237,7 +223,7 @@ try {
         $a->user = fullname($user);
         $admins = get_admins();
         foreach ($admins as $admin) {
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_stripepayment';
             $eventdata->name              = 'stripepayment_enrolment';

@@ -2,6 +2,7 @@
 <h3><?php echo $instancename; ?></h3>
 <p><?php echo $message; ?></p>
 <p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
+<div>
 
 <form action="<?php echo "$CFG->wwwroot/enrol/stripepayment/charge.php"?>" method="post">
 
@@ -28,6 +29,7 @@
 <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
 <script
     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+    data-label="<?php echo get_string('btntext','enrol_stripepayment') ?>"
     data-key="<?php echo $publishablekey; ?>"
     data-image=""
     data-name="<?php p($coursefullname) ?>"
@@ -37,6 +39,7 @@
     data-amount="<?php p($cost * 100) ?>"
     data-data-zip-code="<?php if ($validatezipcode == 0) { echo 'false'; } else { echo 'true'; } ?>"
     data-billing-address="<?php if ($billingaddress == 0) { echo 'false'; } else { echo 'true'; } ?>"
+    data-locale="<?php echo current_language(); ?>"
 >
 </script>
 </form>

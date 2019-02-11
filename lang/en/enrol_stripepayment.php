@@ -20,11 +20,11 @@
  * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 $string['addtogroup'] = 'Add to group';
 $string['addtogroup_help'] = 'If you select a group here, then when a user completes the payment process and is enrolled in this course, they will be added to this group.';
 $string['assignrole'] = 'Assign role';
 $string['assignrole_help'] = 'If you select a role here, then when a user completes the payment process and is enrolled in this course, they will be assigned this role.';
+$string['btntext']= 'Pay Now';
 $string['billingaddress'] = 'Require users to enter their billing address';
 $string['billingaddress_desc'] = 'This sets the Stripe payment option for whether the user should be asked to input their billing address. It is off by default, but it is a good idea to turn it on.';
 $string['secretkey'] = 'Stripe Secret Key';
@@ -42,6 +42,8 @@ $string['defaultrole_desc'] = 'Select role which should be assigned to users dur
 $string['enrolenddate'] = 'End date';
 $string['enrolenddate_help'] = 'If enabled, users can be enrolled until this date only.';
 $string['enrolenddaterror'] = 'Enrolment end date cannot be earlier than start date';
+$string['enrolmentnew']='New Enrolment';
+$string['enrolmentnewuser']='New User Enrolment';
 $string['enrolperiod'] = 'Enrolment duration';
 $string['enrolperiod_desc'] = 'Default length of time that the enrolment is valid. If set to zero, the enrolment duration will be unlimited by default.';
 $string['enrolperiod_help'] = 'Length of time that the enrolment is valid, starting with the moment the user is enrolled. If disabled, the enrolment duration will be unlimited.';
@@ -54,6 +56,7 @@ $string['mailstudents'] = 'Notify students';
 $string['mailteachers'] = 'Notify teachers';
 $string['messageprovider:stripe_enrolment'] = 'Stripe enrolment messages';
 $string['nocost'] = 'There is no cost associated with enrolling in this course!';
+$string['paymentthanks']='Thanks for your payment';
 $string['stripe:config'] = 'Configure Stripe enrol instances';
 $string['stripe:manage'] = 'Manage enrolled users';
 $string['stripe:unenrol'] = 'Unenrol users from course';
