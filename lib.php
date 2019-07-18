@@ -238,7 +238,30 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 }
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
-                include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
+				
+			    $session = \Stripe\Checkout\Session::create([
+				  'payment_method_types' => ['card'],
+				  'customer_email' => required_param('stripeEmail', PARAM_EMAIL),
+				  'submit_type' => 'pay',
+				  'locale' => current_language(),
+				  'line_items' => [[
+					'name' => 'T-shirt',
+					'description' => get_string('charge_description2', 'enrol_stripepayment'),
+					// 'images' => ['https://example.com/t-shirt.png'],
+					'amount' => $cost * 100,
+					'currency' => $plugininstance->currency,
+					'quantity' => 1,
+				  ]],
+				  'success_url' => '$CFG->wwwroot/enrol/stripepayment/session.php',   // to be created
+				  'cancel_url' => '$CFG->wwwroot/enrol/stripepayment/session.php',   // to be created
+				  ]);
+				if (isset($session->id))  {
+					$session_id = $session->id;
+	                include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
+				} else {
+					echo "Payment is not possible now (error with Stripe)".; // TODO: translate!
+				}
+				
             }
         }
         return $OUTPUT->box(ob_get_clean());
