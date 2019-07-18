@@ -4,6 +4,7 @@
 <p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
 <div>
 
+<!---
 <form action="<?php echo "$CFG->wwwroot/enrol/stripepayment/charge.php"?>" method="post">
 
 <input type="hidden" name="cmd" value="_xclick" />
@@ -27,21 +28,20 @@
 <input type="hidden" name="city" value="<?php p($usercity) ?>" />
 <input type="hidden" name="email" value="<?php p($USER->email) ?>" />
 <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
-<script
-    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-    data-label="<?php echo get_string('btntext','enrol_stripepayment') ?>"
-    data-key="<?php echo $publishablekey; ?>"
-    data-image=""
-    data-name="<?php p($coursefullname) ?>"
-    data-description="Enrolment Cost (<?php p($instance->currency) ?><?php p($cost) ?>)"
-    data-metadata="6"
-    data-currency="<?php p($instance->currency) ?>"
-    data-amount="<?php p($cost * 100) ?>"
-    data-data-zip-code="<?php if ($validatezipcode == 0) { echo 'false'; } else { echo 'true'; } ?>"
-    data-billing-address="<?php if ($billingaddress == 0) { echo 'false'; } else { echo 'true'; } ?>"
-    data-locale="<?php echo current_language(); ?>"
->
+--->
+
+<script src="https://js.stripe.com/v3"></script>
+<script>
+var stripe = Stripe('<?php p($publishablekey) ?>');
+stripe.redirectToCheckout({
+  sessionId: '<?php p($stripe_session_id) ?>'
+}).then(function (result) {
+ window.alert(result.error.message);
+});
 </script>
+
+<button id="checkout-button"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
+
 </form>
 
 </div>
