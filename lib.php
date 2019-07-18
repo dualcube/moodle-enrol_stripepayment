@@ -239,7 +239,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
 				
-				require_once('Stripe/lib/Checkout/Session.php');
+				require_once('Stripe/vendor/autoload.php');
 				
 			    $session = \Stripe\Checkout\Session::create([
 				  'payment_method_types' => ['card'],
