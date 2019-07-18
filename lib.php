@@ -239,9 +239,11 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
 				
+				require_once('Stripe/lib/Checkout/Session.php');
+				
 			    $session = \Stripe\Checkout\Session::create([
 				  'payment_method_types' => ['card'],
-				  'customer_email' => required_param('stripeEmail', PARAM_EMAIL),
+				  'customer_email' => $useremail,
 				  'submit_type' => 'pay',
 				  'locale' => current_language(),
 				  'line_items' => [[
@@ -259,7 +261,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 					$session_id = $session->id;
 	                include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
 				} else {
-					echo "Payment is not possible now (error with Stripe)".; // TODO: translate!
+					echo "Payment is not possible now (error with Stripe)"; // TODO: translate (get_string)
 				}
 				
             }
