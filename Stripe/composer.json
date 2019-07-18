@@ -15,15 +15,23 @@
     }
   ],
   "require": {
-    "php": ">=5.2",
+    "php": ">=5.4.0",
     "ext-curl": "*",
     "ext-json": "*",
     "ext-mbstring": "*"
   },
   "require-dev": {
-    "simpletest/simpletest": "*"
+    "phpunit/phpunit": "~4.0",
+    "php-coveralls/php-coveralls": "1.*",
+    "squizlabs/php_codesniffer": "~2.0",
+    "symfony/process": "~2.8"
   },
   "autoload": {
-    "classmap": ["lib/Stripe/"]
+    "psr-4": { "Stripe\\" : "lib/" }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.0-dev"
+    }
   }
 }
