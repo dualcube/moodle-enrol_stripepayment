@@ -241,6 +241,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 				
 				require_once('Stripe/vendor/autoload.php');
 				
+				\Stripe::setApiKey($plugin->get_config('secretkey'));
+				
 			    $session = \Stripe\Checkout\Session::create([
 				  'payment_method_types' => ['card'],
 				  'customer_email' => $useremail,
