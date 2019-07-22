@@ -239,7 +239,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
 
-				$button_name = generate_random_string($length = 6);
+				$button_name = $this->generate_random_string($length = 6);
 				
                 require_once('Stripe/vendor/autoload.php');
 				
@@ -413,7 +413,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param int $length
      * @return string
      */	
-	private function generat_random_string($length = 10) {
+	private function generate_random_string($length = 10) {
 		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$characters_length = strlen($characters);
 		$random_string = '';
