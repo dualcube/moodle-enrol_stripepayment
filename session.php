@@ -49,7 +49,7 @@ require_login();
 set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
 
-echo PARAM_RAW;
+print_r($_REQUEST);
 
 // Keep out casual intruders.
 if (empty(required_param('stripeToken', PARAM_RAW))) {

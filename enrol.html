@@ -34,7 +34,7 @@
 <script>
 var stripe = Stripe('<?php p($publishablekey) ?>');
 
-var checkoutButton = document.querySelector('#checkout-button');
+var checkoutButton = document.querySelector('#checkout-button-<?php p($button_name)?>');
 checkoutButton.addEventListener('click', function () {
 stripe.redirectToCheckout({
   sessionId: '<?php p($session_id) ?>'
@@ -44,7 +44,5 @@ stripe.redirectToCheckout({
 });
 
 </script>
-
-<button id="checkout-button"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
-
+<button id="checkout-button-<?php p($button_name) ?>"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
 </div>
