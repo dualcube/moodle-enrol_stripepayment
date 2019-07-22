@@ -239,7 +239,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
 
-				$button_name = $this->generate_random_string($length = 6);
+				$button_name = $this->generate_random_string(6);
 				
                 require_once('Stripe/vendor/autoload.php');
 				
