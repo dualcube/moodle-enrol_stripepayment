@@ -413,7 +413,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param int $length
      * @return string
      */	
-	private function generate_random_string($length = 10) {
+	public function generate_random_string($length = 10) {
 		$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$characters_length = strlen($characters);
 		$random_string = '';
