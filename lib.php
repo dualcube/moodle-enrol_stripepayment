@@ -239,34 +239,34 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
 
-				$button_name = $this->generate_random_string(6);
-				
+                $button_name = $this->generate_random_string(6);
+                
                 require_once('Stripe/vendor/autoload.php');
-				
+                
                 $plugin = enrol_get_plugin('stripepayment');
                 \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
-				
+                
                 $session = \Stripe\Checkout\Session::create([
                   'payment_method_types' => ['card'],
                   'customer_email' => $useremail,
                   'submit_type' => 'pay',
                   'locale' => current_language(),
                   'line_items' => [[
-                	'name' => $courseshortname,
-                	'description' => $coursefullname, //get_string('charge_description2', 'enrol_stripepayment'),
-                	// 'images' => ['https://example.com/t-shirt.png'],
-                	'amount' => $cost * 100,
-                	'currency' => $instance->currency,
-                	'quantity' => 1,
+                    'name' => $courseshortname,
+                    'description' => $coursefullname, //get_string('charge_description2', 'enrol_stripepayment'),
+                    // 'images' => ['https://example.com/t-shirt.png'],
+                    'amount' => $cost * 100,
+                    'currency' => $instance->currency,
+                    'quantity' => 1,
                   ]],
-                  'success_url' => "$CFG->wwwroot/enrol/stripepayment/session.php",
-                  'cancel_url' => "$CFG->wwwroot/enrol/stripepayment/session.php",
+                  'success_url' => "$CFG->wwwroot/enrol/stripepayment/youvepaid.php",
+                  'cancel_url' => "$CFG->wwwroot/enrol/stripepayment/youvenotpaid.php",
                   ]);
                 if (isset($session->id))  {
-                	$session_id = $session->id;
-	                include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
+                    $session_id = $session->id;
+                    include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
                 } else {
-                	echo "Payment is not possible now (error with Stripe)"; // TODO: translate (get_string)
+                    echo "Payment is not possible now (error with Stripe)"; // TODO: translate (get_string)
                 }
             }
         }
@@ -412,7 +412,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      *
      * @param int $length
      * @return string
-     */	
+     */ 
     private function generate_random_string($length = 10) {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $characters_length = strlen($characters);

@@ -25,83 +25,10 @@
  */
 
 
-require_once('Stripe/lib/Stripe.php');
-
 
 // Disable moodle specific debug messages and any errors in output,
 // comment out when debugging or better look into error log!
-// define('NO_DEBUG_DISPLAY', true);
-
-// Set your secret key: remember to change this to your live secret key in production
-// See your keys here: https://dashboard.stripe.com/account/apikeys
-
-// $apikey=$plugin->get_config('secretkey') // TODO: à remettre !
-$apikey='sk_test_7w0CtR5L8Z2RLLGnM8UsW1pQ';
-
-\Stripe\Stripe::setApiKey($apikey);
-
-// You can find your endpoint's secret in your webhook settings
-//$webhooksecretkey=$plugin->get_config('webhooksecretkey'); // TODO: ajouter aux paramètres du module !
-$webhooksecretkey='whsec_z92DNXcTjDBpyTPXniNYTCRlqeeDdSFI';
-
-$payload = @file_get_contents('php://input');
-$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-$event = null;
-
-try {
-    $event = \Stripe\Webhook::constructEvent(
-        $payload, $sig_header, $webhooksecretkey
-    );
-} catch(\UnexpectedValueException $e) {
-    // Invalid payload
-    http_response_code(400);
-    exit();
-} catch(\Stripe\Error\SignatureVerification $e) {
-    // Invalid signature
-    http_response_code(400);
-    exit();
-}
-
-// Handle the event
-switch ($event->type) {
-    case 'checkout.session.completed':
-        $paymentIntent = $event->data->object; // contains a StripePaymentIntent
-        handle_checkout_session_completed($paymentIntent);
-        break;
-    case 'charge.succeeded':
-        $paymentMethod = $event->data->object; // contains a StripePaymentMethod
-        handle_charge_succeeded($paymentMethod);
-        break;
-    case 'charge.failed':
-        $paymentMethod = $event->data->object; // contains a StripePaymentMethod
-        handle_charge_failed($paymentMethod);
-        break;
-
-    // ... handle other event types
-    default:
-        // Unexpected event type
-        http_response_code(400);
-        exit();
-}
-
-// redirect($CFG->wwwroot);
-
-http_response_code(200);
-
-exit;
-
-function handle_charge_failed($data) {
-	
-}
-
-
-function handle_charge_succeeded($data) {
-	
-}
-
-function handle_checkout_session_completed($data) {
-	
-}
+define('NO_DEBUG_DISPLAY', true);
 
 
 require('/home/ubuntu/moodle/config.php');
@@ -205,6 +132,9 @@ $cost = format_float($cost, 2, false);
 
 // Let's say each article costs 15.00 bucks.
 
+print_r("coucou");
+exit();
+
 try {
 
     require_once('Stripe/lib/Stripe.php');
@@ -214,6 +144,8 @@ try {
         "email" => required_param('stripeEmail', PARAM_EMAIL),
         "description" => get_string('charge_description1', 'enrol_stripepayment')
     ));
+
+/*
     $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
       "currency" => $plugininstance->currency,
@@ -221,7 +153,11 @@ try {
       "description" => get_string('charge_description2', 'enrol_stripepayment'),
       "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
     ));
+	
+	*/
     // Send the file, this line will be reached if no error was thrown above.
+	// TODO: Louis
+	
     $data->txn_id = $charge->balance_transaction;
     $data->tax = $charge->amount / 100;
     $data->memo = $charge->id;
