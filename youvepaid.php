@@ -30,6 +30,8 @@
 // comment out when debugging or better look into error log!
 define('NO_DEBUG_DISPLAY', true);
 
+print_r($_POST);
+print_r($_REQUEST);
 
 require('/home/ubuntu/moodle/config.php');
 // require('../../config.php'); //:TODO: remettre ceci avant de passer en production!!!
