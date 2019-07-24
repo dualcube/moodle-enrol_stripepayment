@@ -24,13 +24,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-
 // Disable moodle specific debug messages and any errors in output,
 // comment out when debugging or better look into error log!
 define('NO_DEBUG_DISPLAY', true);
 
-print_r($_POST);
 print_r($_REQUEST);
 
 require('/home/ubuntu/moodle/config.php');
@@ -50,68 +47,81 @@ require_login();
 set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
 
-// Keep out casual intruders.
-if (empty(required_param('stripeToken', PARAM_RAW))) {
-    print_error(get_string('stripe_sorry', 'enrol_stripepayment'));
-}
-
 $data = new stdClass();
 
-$data->cmd = required_param('cmd', PARAM_RAW);
-$data->charset = required_param('charset', PARAM_RAW);
-$data->item_name = required_param('item_name', PARAM_TEXT);
-$data->item_name = required_param('item_number', PARAM_TEXT);
-$data->item_name = required_param('quantity', PARAM_INT);
-$data->on0 = optional_param('on0', array(), PARAM_TEXT);
-$data->os0 = optional_param('os0', array(), PARAM_TEXT);
-$data->custom = optional_param('custom', array(), PARAM_RAW);
-$data->currency_code = required_param('currency_code', PARAM_RAW);
-$data->amount = required_param('amount', PARAM_RAW);
-$data->for_auction = required_param('for_auction', PARAM_BOOL);
-$data->no_note = required_param('no_note', PARAM_INT);
-$data->no_shipping = required_param('no_shipping', PARAM_INT);
-$data->rm = required_param('rm', PARAM_RAW);
-$data->cbt = optional_param('cbt', array(), PARAM_TEXT);
-$data->first_name = required_param('first_name', PARAM_TEXT);
-$data->last_name = required_param('last_name', PARAM_TEXT);
-$data->address = optional_param('address', array(), PARAM_TEXT);
-$data->city = optional_param('city', array(), PARAM_TEXT);
-$data->email = required_param('email', PARAM_EMAIL);
-$data->country = optional_param('country', array(), PARAM_TEXT);
-$data->stripeToken = required_param('stripeToken', PARAM_RAW);
-$data->stripeTokenType = required_param('stripeTokenType', PARAM_RAW);
-$data->stripeEmail = required_param('stripeEmail', PARAM_EMAIL);
+$param_course_id = required_param('c',PARAM_INT);
+$param_instance_id = required_param('i',PARAM_INT);
+$param_user_id = required_param('u',PARAM_INT);
+$param_user_id = required_param('u',PARAM_INT);
 
-$custom = explode('-', $data->custom);
-$data->userid           = (int)$custom[0];
-$data->courseid         = (int)$custom[1];
-$data->instanceid       = (int)$custom[2];
-$data->payment_gross    = $data->amount;
-$data->payment_currency = $data->currency_code;
-$data->timeupdated      = time();
-// Get the user and course records.
-
-if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
+if (! $user = $DB->get_record("user", array("id" => $param_user_id))) {
     message_stripepayment_error_to_admin("Not a valid user id", $data);
     redirect($CFG->wwwroot);
 }
 
-if (! $course = $DB->get_record("course", array("id" => $data->courseid))) {
+if (! $course = $DB->get_record("course", array("id" => $param_course_id))) {
     message_stripepayment_error_to_admin("Not a valid course id", $data);
     redirect($CFG->wwwroot);
 }
+
+if (! $plugininstance = $DB->get_record("enrol", array("id" => $param_instance_id, "status" => 0))) {
+    message_stripepayment_error_to_admin("Not a valid instance id", $data);
+    redirect($CFG->wwwroot);
+}
+
 
 if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
     message_stripepayment_error_to_admin("Not a valid context id", $data);
     redirect($CFG->wwwroot);
 }
 
-$PAGE->set_context($context);
+$shortname = format_string($course->shortname, true, array('context' => $context));
+$coursefullname  = format_string($course->fullname, true, array('context' => $context));
+$courseshortname = $shortname;
+$userfullname    = fullname($user);
+$userfirstname   = $user->firstname;
+$userlastname    = $user->lastname;
+$useraddress     = $user->address;
+$usercity        = $user->city;
+$useremail       = $user->email;
 
-if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
-    message_stripepayment_error_to_admin("Not a valid instance id", $data);
-    redirect($CFG->wwwroot);
-}
+// preparing data values (same template as in earlier versions of enrol_stripepayment)
+
+$data->cmd = "_xclick";
+$data->charset = "utf-8";
+$data->item_name = $coursefullname;
+$data->item_name = $courseshortname; // should be item_number (original error left)
+$data->item_name = 1;
+$data->on0 = get_string("user");
+$data->os0 = $userfullname;
+$data->custom = "{$param_user_id}-{$param_course_id}-{$param_instance_id}";
+$data->currency_code = $plugininstance->currency;
+$data->amount = (float) $plugininstance->cost;
+$data->for_auction = False;
+$data->no_note = 1;
+$data->no_shipping = 1;
+$data->rm = 2;
+$data->cbt = get_string("continuetocourse");
+$data->first_name = $userfirstname;
+$data->last_name = $userlastname;
+$data->address = $useraddress;
+$data->city = $usercity;
+$data->email = $user->email;
+$data->country = $user->country;
+$data->stripeToken = "";
+$data->stripeTokenType = "";
+$data->stripeEmail = "";
+
+$custom = explode('-', $data->custom);
+$data->userid           = (int)$param_user_id;
+$data->courseid         = (int)$param_course_id;
+$data->instanceid       = (int)$param_instance_id;
+$data->payment_gross    = $data->amount;
+$data->payment_currency = $data->currency_code;
+$data->timeupdated      = time();
+// Get the user and course records.
+
+$PAGE->set_context($context);
 
  // If currency is incorrectly set then someone maybe trying to cheat the system.
 
@@ -134,8 +144,6 @@ $cost = format_float($cost, 2, false);
 
 // Let's say each article costs 15.00 bucks.
 
-print_r("coucou");
-exit();
 
 try {
 
@@ -146,6 +154,12 @@ try {
         "email" => required_param('stripeEmail', PARAM_EMAIL),
         "description" => get_string('charge_description1', 'enrol_stripepayment')
     ));
+
+
+	echo "TODO";
+	echo "Check on Stripe if data is correct and payment is effectively done!";
+	echo "That is: retrieve session from session_id, and then charge from session_id";
+	exit;
 
 /*
     $charge = Stripe_Charge::create(array(
