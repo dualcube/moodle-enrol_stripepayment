@@ -246,9 +246,16 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $plugin = enrol_get_plugin('stripepayment');
                 \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
                 
+				$customer = \Stripe\Customer::create([
+					"name" => $userfullname,
+					"email" => $useremail,
+					"description" => get_string('charge_description1', 'enrol_stripepayment')
+				]);
+				
                 $session = \Stripe\Checkout\Session::create([
                   'payment_method_types' => ['card'],
-                  'customer_email' => $useremail,
+//                  'customer_email' => $useremail,  // is it useful?
+				  'customer' => $customer_id,
                   'submit_type' => 'pay',
                   'locale' => current_language(),
                   'line_items' => [[
