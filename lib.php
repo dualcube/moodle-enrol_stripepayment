@@ -254,7 +254,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 				
                 $session = \Stripe\Checkout\Session::create([
                   'payment_method_types' => ['card'],
-//                  'customer_email' => $useremail,  // is it useful?
 				  'customer' => $customer_id,
                   'submit_type' => 'pay',
                   'locale' => current_language(),
@@ -266,7 +265,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                     'currency' => $instance->currency,
                     'quantity' => 1,
                   ]],
-                  'success_url' => "$CFG->wwwroot/enrol/stripepayment/youvepaid.php",
+                  'success_url' => "$CFG->wwwroot/enrol/stripepayment/youvepaid.php?session={CHECKOUT_SESSION_ID}&u={$USER->id}&c={$course->id}&i={$instance->id}",
                   'cancel_url' => "$CFG->wwwroot/enrol/stripepayment/youvenotpaid.php",
                   ]);
                 if (isset($session->id))  {
