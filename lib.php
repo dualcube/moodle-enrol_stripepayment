@@ -238,8 +238,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 }
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
-
-                $button_name = $this->generate_random_string(6);
                 
                 require_once('Stripe/vendor/autoload.php');
                 
@@ -274,6 +272,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                   ]);
                 if (isset($session->id))  {
                     $session_id = $session->id;
+					$button_name = $this->generate_random_string(6);
                     include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
                 } else {
                     echo "Payment is not possible now (error with Stripe)"; // TODO: translate (get_string)
