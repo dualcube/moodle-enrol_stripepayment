@@ -141,7 +141,7 @@ if ( (float) $plugininstance->cost <= 0 ) {
 // Use the same rounding of floats as on the enrol form.
 $cost = format_float($cost, 2, false);
 
-//try {
+try {
 
     require_once('Stripe/vendor/autoload.php');
 
@@ -159,18 +159,18 @@ $cost = format_float($cost, 2, false);
 		
 	$charge = $charge_json->data[0];
 
-	echo "charge = $charge";
+//	echo "charge = $charge";
 
-	echo "We chould check now if the amount is correct.";
+//	echo "We chould check now if the amount is correct.";
 		
 	$payment_expected = (float)$plugininstance->cost;
 	$payment_received = (float)$charge->amount / 100.0;
 	
-	echo "charge amount=".$charge->amount."\n";
-    echo "charge amount=".(float)$charge->amount."\n";
-    echo  "payment expected=$payment_expected and payment received=$payment_received\n";
+//	echo "charge amount=".$charge->amount."\n";
+ //   echo "charge amount=".(float)$charge->amount."\n";
+  //  echo  "payment expected=$payment_expected and payment received=$payment_received\n";
 	
-	echo  "\npayment expected=$payment_expected and payment received=$payment_received\n";
+//	echo  "\npayment expected=$payment_expected and payment received=$payment_received\n";
 	
 	if ((float)$payment_expected  < (float)$payment_received - 0.01) {
 		throw new Exception('Amount paid on Stripe is lower than payment due');
@@ -297,7 +297,6 @@ $cost = format_float($cost, 2, false);
         $a->fullname = $fullname;
         notice(get_string('paymentsorry', '', $a), $destination);
     }
-/* TODO: remettre LOUIS
 } catch (Stripe_CardError $e) {
     // Catch the errors in any way you like.
     echo 'Error';
@@ -327,7 +326,7 @@ catch (Stripe_InvalidRequestError $e) {
     // Something else happened, completely unrelated to Stripe.
     echo 'Something else happened, completely unrelated to Stripe ('.$e->getMessage().')';
 }
- TODO: remettre LOUIS */
+
 
     // --- HELPER FUNCTIONS --------------------------------------------------------------------------------------!
 
