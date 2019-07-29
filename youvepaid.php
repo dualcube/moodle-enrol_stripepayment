@@ -143,7 +143,7 @@ $cost = format_float($cost, 2, false);
 
 //try {
 
-    require_once('Stripe/lib/Stripe.php');
+    require_once('Stripe/vendor/autoload.php');
 
     \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
 	
