@@ -145,7 +145,7 @@ try {
 
     require_once('Stripe/lib/Stripe.php');
 
-    Stripe::setApiKey($plugin->get_config('secretkey'));
+    \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
 	
 	$session = \Stripe\Checkout\Session::retrieve($param_session_id);
 	
