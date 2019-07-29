@@ -160,7 +160,13 @@ $cost = format_float($cost, 2, false);
 	print_r($charge);
 
 	echo "We chould check now if the amount is correct.";
-	if ($charge->amount / 100 - (float)$plugininstance->cost < -0.01) {
+	$payment_expected = (float)$plugininstance->cost;
+	$payment_received = (float)$charge->amount / 100.0;
+	
+	echo  "payment expected=$payment_expected and payment received=$payment_received\n";
+	
+	if ($payment_expected  > - $payment_received - 0.01) {
+		
 		throw new Exception('Amount paid on Stripe is lower than payment due');
 	}
 /*
