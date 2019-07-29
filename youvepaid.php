@@ -162,13 +162,12 @@ $cost = format_float($cost, 2, false);
 	echo "We chould check now if the amount is correct.";
 	
 	
-	
 	$payment_expected = (float)$plugininstance->cost;
 	$payment_received = (float)$charge->amount / 100.0;
 	
 	echo "charge amount=".$charge->amount."\n";
     echo "charge amount=".(float)$charge->amount."\n";
-    echo  "payment expected=$payment_expected and payment received=$payment$
+    echo  "payment expected=$payment_expected and payment received=$payment$\n";
 
 
 	
