@@ -151,19 +151,28 @@ $cost = format_float($cost, 2, false);
 	
 	$payment_intent_id = $session["payment_intent"];
 	
-	echo "payment_intent = $payment_intent_id";
+//	echo "payment_intent = $payment_intent_id";
 
     $charge = \Stripe\Charge::all([
 		'payment_intent' => $payment_intent_id
 		]);
 		
-	print_r($charge);
+	echo "charge = $charge";
 
 	echo "We chould check now if the amount is correct.";
+	
+	
+	
 	$payment_expected = (float)$plugininstance->cost;
 	$payment_received = (float)$charge->amount / 100.0;
 	
-	echo  "payment expected=$payment_expected and payment received=$payment_received\n";
+	echo "charge amount=".$charge->amount."\n";
+    echo "charge amount=".(float)$charge->amount."\n";
+    echo  "payment expected=$payment_expected and payment received=$payment$
+
+
+	
+	echo  "\npayment expected=$payment_expected and payment received=$payment_received\n";
 	
 	if ($payment_expected  > - $payment_received - 0.01) {
 		
