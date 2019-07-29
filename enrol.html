@@ -3,6 +3,8 @@
 <p><?php echo $message; ?></p>
 <p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
 <div>
+
+<button id="checkout-button-<?php p($button_name) ?>"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
 <script src="https://js.stripe.com/v3"></script>
 <script>
 var stripe = Stripe('<?php p($publishablekey) ?>');
@@ -17,5 +19,4 @@ stripe.redirectToCheckout({
 });
 
 </script>
-<button id="checkout-button-<?php p($button_name) ?>"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
 </div>
