@@ -271,8 +271,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                   'cancel_url' => $cancel_url,
                   ]);
                 if (isset($session->id))  {
-                    global $session_id = $session->id;
-					global $button_name = $this->generate_random_string(6);
+                    $session_id = $session->id;
+					$button_name = $this->generate_random_string(6);
                     include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
                 } else {
                     echo "Payment is not possible now (error with Stripe)"; // TODO: translate (get_string)
