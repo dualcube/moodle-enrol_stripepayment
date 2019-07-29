@@ -141,7 +141,7 @@ if ( (float) $plugininstance->cost <= 0 ) {
 // Use the same rounding of floats as on the enrol form.
 $cost = format_float($cost, 2, false);
 
-try {
+//try {
 
     require_once('Stripe/lib/Stripe.php');
 
@@ -285,6 +285,7 @@ try {
         $a->fullname = $fullname;
         notice(get_string('paymentsorry', '', $a), $destination);
     }
+/* TODO: remettre LOUIS
 } catch (Stripe_CardError $e) {
     // Catch the errors in any way you like.
     echo 'Error';
@@ -314,7 +315,7 @@ catch (Stripe_InvalidRequestError $e) {
     // Something else happened, completely unrelated to Stripe.
     echo 'Something else happened, completely unrelated to Stripe ('.$e->getMessage().')';
 }
-
+ TODO: remettre LOUIS */
 
     // --- HELPER FUNCTIONS --------------------------------------------------------------------------------------!
 
