@@ -153,28 +153,26 @@ $cost = format_float($cost, 2, false);
 	
 //	echo "payment_intent = $payment_intent_id";
 
-    $charge = \Stripe\Charge::all([
+    $charge_json = \Stripe\Charge::all([
 		'payment_intent' => $payment_intent_id
 		]);
 		
+	$charge = $charge_json->data[0];
+
 	echo "charge = $charge";
 
 	echo "We chould check now if the amount is correct.";
-	
-	
+		
 	$payment_expected = (float)$plugininstance->cost;
 	$payment_received = (float)$charge->amount / 100.0;
 	
 	echo "charge amount=".$charge->amount."\n";
     echo "charge amount=".(float)$charge->amount."\n";
-    echo  "payment expected=$payment_expected and payment received=$payment$\n";
-
-
+    echo  "payment expected=$payment_expected and payment received=$payment_received\n";
 	
 	echo  "\npayment expected=$payment_expected and payment received=$payment_received\n";
 	
-	if ($payment_expected  > - $payment_received - 0.01) {
-		
+	if ((float)$payment_expected  < (float)$payment_received - 0.01) {
 		throw new Exception('Amount paid on Stripe is lower than payment due');
 	}
 /*
