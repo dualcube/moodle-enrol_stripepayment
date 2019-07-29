@@ -251,6 +251,10 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 					"email" => $useremail,
 					"description" => get_string('charge_description1', 'enrol_stripepayment')
 				]);
+				$success_url = "$CFG->wwwroot/enrol/stripepayment/youvepaid.php?session={CHECKOUT_SESSION_ID}&u={$USER->id}&c={$course->id}&i={$instance->id}";
+				$cancel_url = "$CFG->wwwroot/enrol/stripepayment/youvenotpaid.php";
+				
+				trigger_error($success_url, E_USER_WARNING); // TEMPO LOUIS
 				
                 $session = \Stripe\Checkout\Session::create([
                   'payment_method_types' => ['card'],
@@ -265,8 +269,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                     'currency' => $instance->currency,
                     'quantity' => 1,
                   ]],
-                  'success_url' => "$CFG->wwwroot/enrol/stripepayment/youvepaid.php?session={CHECKOUT_SESSION_ID}&u={$USER->id}&c={$course->id}&i={$instance->id}",
-                  'cancel_url' => "$CFG->wwwroot/enrol/stripepayment/youvenotpaid.php",
+                  'success_url' => $success_url,
+                  'cancel_url' => $cancel_url,
                   ]);
                 if (isset($session->id))  {
                     $session_id = $session->id;

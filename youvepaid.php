@@ -49,9 +49,9 @@ set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
 $data = new stdClass();
 
+$param_session_id = required_param('session',PARAM_RAW);
 $param_course_id = required_param('c',PARAM_INT);
 $param_instance_id = required_param('i',PARAM_INT);
-$param_user_id = required_param('u',PARAM_INT);
 $param_user_id = required_param('u',PARAM_INT);
 
 if (! $user = $DB->get_record("user", array("id" => $param_user_id))) {
@@ -68,7 +68,6 @@ if (! $plugininstance = $DB->get_record("enrol", array("id" => $param_instance_i
     message_stripepayment_error_to_admin("Not a valid instance id", $data);
     redirect($CFG->wwwroot);
 }
-
 
 if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
     message_stripepayment_error_to_admin("Not a valid context id", $data);
@@ -142,25 +141,28 @@ if ( (float) $plugininstance->cost <= 0 ) {
 // Use the same rounding of floats as on the enrol form.
 $cost = format_float($cost, 2, false);
 
-// Let's say each article costs 15.00 bucks.
-
-
 try {
 
     require_once('Stripe/lib/Stripe.php');
 
     Stripe::setApiKey($plugin->get_config('secretkey'));
-    $charge1 = Stripe_Customer::create(array(
-        "email" => required_param('stripeEmail', PARAM_EMAIL),
-        "description" => get_string('charge_description1', 'enrol_stripepayment')
-    ));
+	
+	$session = \Stripe\Checkout\Session::retrieve($param_session_id);
+	
+	$payment_intent_id = $session["payment_intent"];
+	
+	echo "payment_intent = $payment_intent_id";
 
+    $charge = \Stripe\Charge::all([
+		'payment_intent' => $payment_intent_id
+		]);
+		
+	print_r($charge);
 
-	echo "TODO";
-	echo "Check on Stripe if data is correct and payment is effectively done!";
-	echo "That is: retrieve session from session_id, and then charge from session_id";
-	exit;
-
+	echo "We chould check now if the amount is correct.";
+	if ($charge->amount / 100 - (float)$plugininstance->cost < -0.01) {
+		throw new Exception('Amount paid on Stripe is lower than payment due');
+	}
 /*
     $charge = Stripe_Charge::create(array(
       "amount" => $cost * 100,
@@ -272,7 +274,7 @@ try {
 
     $fullname = format_string($course->fullname, true, array('context' => $context));
 
-    if (is_enrolled($context, null, '', true)) { // TODO: use real stripe check.
+    if (is_enrolled($context, null, '', true)) {
         redirect($destination, get_string('paymentthanks', '', $fullname));
 
     } else {   // Somehow they aren't enrolled yet!
@@ -310,7 +312,7 @@ catch (Stripe_InvalidRequestError $e) {
 } catch (Exception $e) {
 
     // Something else happened, completely unrelated to Stripe.
-    echo 'Something else happened, completely unrelated to Stripe';
+    echo 'Something else happened, completely unrelated to Stripe ('.$e->getMessage().')';
 }
 
 
