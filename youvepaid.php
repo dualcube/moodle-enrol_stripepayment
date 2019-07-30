@@ -28,7 +28,7 @@
 // comment out when debugging or better look into error log!
 define('NO_DEBUG_DISPLAY', true);
 
-print_r($_REQUEST);
+//print_r($_REQUEST);
 
 require('/home/ubuntu/moodle/config.php');
 // require('../../config.php'); //:TODO: remettre ceci avant de passer en production!!!
@@ -175,18 +175,9 @@ try {
 	if ((float)$payment_expected  < (float)$payment_received - 0.01) {
 		throw new Exception('Amount paid on Stripe is lower than payment due');
 	}
-/*
-    $charge = Stripe_Charge::create(array(
-      "amount" => $cost * 100,
-      "currency" => $plugininstance->currency,
-      "card" => required_param('stripeToken', PARAM_RAW),
-      "description" => get_string('charge_description2', 'enrol_stripepayment'),
-      "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
-    ));
-	
-	*/
-    // Send the file, this line will be reached if no error was thrown above.
-	// TODO: Louis
+	if (! $charge->paid) {
+		throw new Exception('No payment has been made');
+	}
 	
     $data->txn_id = $charge->balance_transaction;
     $data->tax = $charge->amount / 100;
