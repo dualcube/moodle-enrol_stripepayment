@@ -28,8 +28,7 @@
 // comment out when debugging or better look into error log!
 define('NO_DEBUG_DISPLAY', true);
 
-require('/home/ubuntu/moodle/config.php');
-// require('../../config.php'); //:TODO: remettre ceci avant de passer en production!!!
+require('../../config.php');
 require_once('lib.php');
 if($CFG->version < 2018101900)
 {
