@@ -15,9 +15,9 @@
  * Listens for Instant Payment Notification from Stripe
  *
  * This script waits for Payment notification from Stripe,
- * then double checks that data by sending it back to Stripe.
- * If Stripe verifies this then it sets up the enrolment for that
- * user.
+ * then requires the data from Stripe.
+ * If Stripe matches what if expected for enrolment, it sets it up
+ * for that user.
  *
  * @package    enrol_stripepayment
  * @copyright  2019 Dualcube, Arkaprava Midya, Parthajeet Chakraborty, Louis Bronne (Natagora)
@@ -27,8 +27,6 @@
 // Disable moodle specific debug messages and any errors in output,
 // comment out when debugging or better look into error log!
 define('NO_DEBUG_DISPLAY', true);
-
-//print_r($_REQUEST);
 
 require('/home/ubuntu/moodle/config.php');
 // require('../../config.php'); //:TODO: remettre ceci avant de passer en production!!!
@@ -90,7 +88,7 @@ $data->cmd = "_xclick";
 $data->charset = "utf-8";
 $data->item_name = $coursefullname;
 $data->item_name = $courseshortname; // should be item_number (original error left)
-$data->item_name = 1;
+$data->item_name = 1;				 // should be item_count (original error left)
 $data->on0 = get_string("user");
 $data->os0 = $userfullname;
 $data->custom = "{$param_user_id}-{$param_course_id}-{$param_instance_id}";
@@ -142,7 +140,6 @@ if ( (float) $plugininstance->cost <= 0 ) {
 $cost = format_float($cost, 2, false);
 
 try {
-
     require_once('Stripe/vendor/autoload.php');
 
     \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
@@ -151,27 +148,15 @@ try {
 	
 	$payment_intent_id = $session["payment_intent"];
 	
-//	echo "payment_intent = $payment_intent_id";
-
     $charge_json = \Stripe\Charge::all([
 		'payment_intent' => $payment_intent_id
 		]);
 		
 	$charge = $charge_json->data[0];
-
-//	echo "charge = $charge";
-
-//	echo "We chould check now if the amount is correct.";
 		
 	$payment_expected = (float)$plugininstance->cost;
 	$payment_received = (float)$charge->amount / 100.0;
-	
-//	echo "charge amount=".$charge->amount."\n";
- //   echo "charge amount=".(float)$charge->amount."\n";
-  //  echo  "payment expected=$payment_expected and payment received=$payment_received\n";
-	
-//	echo  "\npayment expected=$payment_expected and payment received=$payment_received\n";
-	
+
 	if ((float)$payment_expected  < (float)$payment_received - 0.01) {
 		throw new Exception('Amount paid on Stripe is lower than payment due');
 	}

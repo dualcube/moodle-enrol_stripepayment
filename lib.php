@@ -244,23 +244,22 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $plugin = enrol_get_plugin('stripepayment');
                 \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
                 
-				$customer_id = \Stripe\Customer::create([
-					"name" => $userfullname,
-					"email" => $useremail,
-					"description" => get_string('charge_description1', 'enrol_stripepayment')
-				]);
-				$success_url = "$CFG->wwwroot/enrol/stripepayment/youvepaid.php?session={CHECKOUT_SESSION_ID}&u={$USER->id}&c={$course->id}&i={$instance->id}";
-				$cancel_url = $success_url; // "$CFG->wwwroot/enrol/stripepayment/youvenotpaid.php";
-								
+                $customer_id = \Stripe\Customer::create([
+                    "name" => $userfullname,
+                    "email" => $useremail,
+                    "description" => get_string('charge_description1', 'enrol_stripepayment')
+                ]);
+                $success_url = "$CFG->wwwroot/enrol/stripepayment/youvepaid.php?session={CHECKOUT_SESSION_ID}&u={$USER->id}&c={$course->id}&i={$instance->id}";
+                $cancel_url = $success_url;
+
                 $session = \Stripe\Checkout\Session::create([
                   'payment_method_types' => ['card'],
-				  'customer' => $customer_id,
+                  'customer' => $customer_id,
                   'submit_type' => 'pay',
                   'locale' => current_language(),
                   'line_items' => [[
                     'name' => $courseshortname,
-                    'description' => $coursefullname, //get_string('charge_description2', 'enrol_stripepayment'),
-                    // 'images' => ['https://example.com/t-shirt.png'],
+                    'description' => $coursefullname,
                     'amount' => $cost * 100,
                     'currency' => $instance->currency,
                     'quantity' => 1,
@@ -270,10 +269,10 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                   ]);
                 if (isset($session->id))  {
                     $session_id = $session->id;
-					$button_name = $this->generate_random_string(6);
+                    $button_name = $this->generate_random_string(6);
                     include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
                 } else {
-                    echo "Payment is not possible now (error with Stripe)"; // TODO: translate (get_string)
+                    echo get_string('error_with_stripe', 'enrol_stripepayment');
                 }
             }
         }
