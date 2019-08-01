@@ -28,7 +28,7 @@
 // comment out when debugging or better look into error log!
 define('NO_DEBUG_DISPLAY', true);
 
-require('../../config.php');
+require('/home/ubuntu/moodle/config.php');
 require_once('lib.php');
 if($CFG->version < 2018101900)
 {
@@ -46,8 +46,8 @@ set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
 $data = new stdClass();
 
-$param_source_id = optional_param('source', PARAM_RAW);
-$param_session_id = optional_param('session',PARAM_RAW);
+$param_source_id = optional_param('source', false, PARAM_RAW);
+$param_session_id = optional_param('session', false, PARAM_RAW);
 $param_course_id = required_param('c',PARAM_INT);
 $param_instance_id = required_param('i',PARAM_INT);
 $param_user_id = required_param('u',PARAM_INT);
