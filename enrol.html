@@ -5,6 +5,9 @@
 <div>
 
 <button id="checkout-button-<?php p($button_name) ?>"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
+<button id="bancontact-button-<?php p($button_name) ?>"><?php Bancontact ?></button>
+
+
 <script src="https://js.stripe.com/v3"></script>
 <script>
 var stripe = Stripe('<?php p($publishablekey) ?>');
@@ -15,6 +18,27 @@ stripe.redirectToCheckout({
   sessionId: '<?php p($session_id) ?>'
 }).then(function (result) {
  window.alert(result.error.message);
+});
+});
+
+var sourceButton  = document.querySelector('#bancontact-button-<?php p($button_name)?>');
+sourceButton.addEventListener('click', function () {
+stripe.createSource({
+  type: 'bancontact',
+  amount: <?php p($cost * 100) ?>,
+  bancontact: {
+     preferred_language: 'fr',
+  },
+  currency: 'eur',
+  owner: {
+    name: '<?php p($userfullname) ?>',
+  },
+  redirect: {
+    return_url: '<?php p($source_success_url) ?>',
+  },
+  statement_descriptor: '<?php p($coursefullname) ?>',
+}).then(function(result) {
+  window.alert(result.error.message);
 });
 });
 

@@ -46,10 +46,14 @@ set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
 $data = new stdClass();
 
-$param_session_id = required_param('session',PARAM_RAW);
+$param_source_id = optional_param('source', PARAM_RAW);
+$param_session_id = optional_param('session',PARAM_RAW);
 $param_course_id = required_param('c',PARAM_INT);
 $param_instance_id = required_param('i',PARAM_INT);
 $param_user_id = required_param('u',PARAM_INT);
+
+:TODO: vérifier s'il y a param_source_id ou param_session_id  --> boum si aucun des deux
+
 
 if (! $user = $DB->get_record("user", array("id" => $param_user_id))) {
     message_stripepayment_error_to_admin("Not a valid user id", $data);
