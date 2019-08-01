@@ -52,8 +52,10 @@ $param_course_id = required_param('c',PARAM_INT);
 $param_instance_id = required_param('i',PARAM_INT);
 $param_user_id = required_param('u',PARAM_INT);
 
-:TODO: vérifier s'il y a param_source_id ou param_session_id  --> boum si aucun des deux
-
+if (! $param_source_id && ! $param_session_id) {
+   message_stripepayment_error_to_admin("Charge.php called without source or session id.", $data);
+   redirect($CFG->wwwroot);	
+}
 
 if (! $user = $DB->get_record("user", array("id" => $param_user_id))) {
     message_stripepayment_error_to_admin("Not a valid user id", $data);
@@ -147,6 +149,8 @@ try {
 
     \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
 	
+	if ($param_session_id) {
+	
 	$session = \Stripe\Checkout\Session::retrieve($param_session_id);
 	
 	$payment_intent_id = $session["payment_intent"];
@@ -156,6 +160,25 @@ try {
 		]);
 		
 	$charge = $charge_json->data[0];
+	
+	} else {
+	
+	$source = \Stripe\Source::retrieve($param_source_id);
+	
+	$amount = $source->amount;
+	$status = $source->status;
+	$source_id = $source->id;
+	if ($status != 'chargeable') {
+		throw new Exception('Payment is not authorized');
+	}
+	
+	$charge = \Stripe\Charge::create([
+		'amount' => $amount,
+		'currency' => 'eur',
+		'source' => $source_id
+		]);
+	
+	}
 		
 	$payment_expected = (float)$plugininstance->cost;
 	$payment_received = (float)$charge->amount / 100.0;
@@ -301,7 +324,6 @@ catch (Stripe_InvalidRequestError $e) {
     // yourself an email.
     echo 'Stripe Error';
 } catch (Exception $e) {
-
     // Something else happened, completely unrelated to Stripe.
     echo 'Something else happened, completely unrelated to Stripe ('.$e->getMessage().')';
 }

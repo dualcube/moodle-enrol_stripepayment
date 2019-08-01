@@ -268,6 +268,22 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                   'success_url' => $session_success_url,
                   'cancel_url' => $session_cancel_url,
                   ]);
+				
+				$source = \Stripe\Source::create([
+					'type' => 'bancontact',
+					'amount' => $cost * 100,
+					'currency' => $instance->currency,
+					'owner' => [
+						'name' => $userfullname,
+						],
+					'redirect' => [
+					    'return_url' => $source_success_url,
+						],
+					'statement_descriptor' => $coursefullname,
+				    ]);
+				
+			    $source_url = $source->redirect->url;
+				
                 if (isset($session->id))  {
                     $session_id = $session->id;
                     $button_name = $this->generate_random_string(6);

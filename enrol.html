@@ -23,23 +23,7 @@ stripe.redirectToCheckout({
 
 var sourceButton  = document.querySelector('#bancontact-button-<?php p($button_name)?>');
 sourceButton.addEventListener('click', function () {
-stripe.createSource({
-  type: 'bancontact',
-  amount: <?php p($cost * 100) ?>,
-  bancontact: {
-     preferred_language: 'fr',
-  },
-  currency: 'eur',
-  owner: {
-    name: '<?php p($userfullname) ?>',
-  },
-  redirect: {
-    return_url: '<?php p($source_success_url) ?>',
-  },
-  statement_descriptor: '<?php p($coursefullname) ?>',
-}).then(function(result) {
-  window.alert(result.error.message);
-});
+window.location.href='<?php p($source_url) ?>';
 });
 
 </script>
