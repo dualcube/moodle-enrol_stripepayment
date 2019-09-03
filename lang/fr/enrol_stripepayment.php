@@ -27,6 +27,7 @@ $string['assignrole_help'] = "Si vous sélectionnez un rôle ici, alors il sera 
 $string['billingaddress'] = "Une adresse de facturation doit être communiquée.";
 $string['billingaddress_desc'] = 'This sets the Stripe payment option for whether the user should be asked to input their billing address. It is off by default, but it is a good idea to turn it on.';
 $string['btntext']= 'Payer par carte de crédit';
+$string['btntext_bancontact']= 'Payer par Bancontact';
 $string['secretkey'] = "Clé privée Stripe";
 $string['publishablekey'] = "Clé publique Stripe";
 $string['secretkey_desc'] = "Clé API privée du compte Stripe";

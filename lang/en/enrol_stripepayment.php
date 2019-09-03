@@ -25,6 +25,7 @@ $string['addtogroup_help'] = 'If you select a group here, then when a user compl
 $string['assignrole'] = 'Assign role';
 $string['assignrole_help'] = 'If you select a role here, then when a user completes the payment process and is enrolled in this course, they will be assigned this role.';
 $string['btntext']= 'Pay Now';
+$string['btntext_bancontact']= 'Pay with Bancontact';
 $string['billingaddress'] = 'Require users to enter their billing address';
 $string['billingaddress_desc'] = 'This sets the Stripe payment option for whether the user should be asked to input their billing address. It is off by default, but it is a good idea to turn it on.';
 $string['secretkey'] = 'Stripe Secret Key';
