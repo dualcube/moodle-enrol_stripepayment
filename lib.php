@@ -250,7 +250,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                     "description" => get_string('charge_description1', 'enrol_stripepayment')
                 ]);
                 $session_success_url = "$CFG->wwwroot/enrol/stripepayment/charge.php?session={CHECKOUT_SESSION_ID}&u={$USER->id}&c={$course->id}&i={$instance->id}";
-				$source_success_url = "$CFG->wwwroot/enrol/stripepayment/charge.php?u={$USER->id}&c={$course->id}&i={$instance->id}";
+                $source_success_url = "$CFG->wwwroot/enrol/stripepayment/charge.php?u={$USER->id}&c={$course->id}&i={$instance->id}";
                 $session_cancel_url = $session_success_url;
 
                 $session = \Stripe\Checkout\Session::create([
@@ -268,25 +268,38 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                   'success_url' => $session_success_url,
                   'cancel_url' => $session_cancel_url,
                   ]);
-				
-				$source = \Stripe\Source::create([
-					'type' => 'bancontact',
-					'amount' => $cost * 100,
-					'currency' => $instance->currency,
-					'owner' => [
-						'name' => $userfullname,
-						],
-					'redirect' => [
-					    'return_url' => $source_success_url,
-						],
-					'statement_descriptor' => $coursefullname,
-				    ]);
-				
-			    $source_url = $source->redirect->url;
-				
+
+                $source = \Stripe\Source::create([
+                    'type' => 'bancontact',
+                    'amount' => $cost * 100,
+                    'currency' => $instance->currency,
+                    'owner' => [
+                        'name' => $userfullname,
+                        ],
+                    'redirect' => [
+                        'return_url' => $source_success_url,
+                        ],
+                    'statement_descriptor' => $coursefullname,
+                    ]);
+
+
+                $button_name = $this->generate_random_string(6);
+
+                $accepted_debit_card = [];
+                // add the accepted debit card methods 
+                // see https://stripe.com/docs/payments/local-payment-methods
+                if ($USER->country == 'BE') {
+                    $accepted_debit_card[] = 'bancontact';
+                }
+
+                if (isset($source->redirect)) {
+                    $source_url = $source->redirect->url;
+                } else {
+                    $accepted_debit_card = [];
+                }
+
                 if (isset($session->id))  {
-                    $session_id = $session->id;
-                    $button_name = $this->generate_random_string(6);
+                    $session_id = $session->id;    
                     include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
                 } else {
                     echo get_string('error_with_stripe', 'enrol_stripepayment');

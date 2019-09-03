@@ -4,9 +4,12 @@
 <p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
 <div>
 
-<button id="checkout-button-<?php p($button_name) ?>"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
-<button id="bancontact-button-<?php p($button_name) ?>">Payer via Bancontact</button>
+Votre pays est <?php p($USER->country) ?>
 
+<button id="checkout-button-<?php p($button_name) ?>"><?php echo get_string('btntext','enrol_stripepayment') ?></button>
+<?php if (in_array('bancontact', $accepted_debit_card)) { ?>
+<button id="bancontact-button-<?php p($button_name) ?>">Payer via Bancontact</button>
+<?php } ?>
 
 <script src="https://js.stripe.com/v3"></script>
 <script>
@@ -21,10 +24,12 @@ stripe.redirectToCheckout({
 });
 });
 
+<?php if (in_array('bancontact', $accepted_debit_card)) { ?>
 var sourceButton  = document.querySelector('#bancontact-button-<?php p($button_name)?>');
 sourceButton.addEventListener('click', function () {
 window.location.href='<?php p($source_url) ?>';
 });
+<?php } ?>
 
 </script>
 </div>
