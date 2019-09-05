@@ -31,3 +31,5 @@ Login to your moodle site as an “admin user” and follow the steps.
 6) Go to Course administration > Users > Enrolment methods > Add method 'Stripe' from the dropdown. Set 'Custom instance name', 'Enrol cost' etc and add the method.
 
 This completes all the steps from the administrator end. Now registered users can login to the Moodle site and view the course after a successful payment.
+
+Note about this release: ready for Strong Customer Authentification (credit cards) and ready for debit card (at present time only Bancontact, used in Belgium; but other cards known by Stripe can be added easily).
