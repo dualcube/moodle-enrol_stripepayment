@@ -289,7 +289,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 // add the accepted debit card methods 
                 // see https://stripe.com/docs/payments/local-payment-methods
                 if ($USER->country == 'BE') {
-                    $accepted_debit_card[] = 'bancontact';
+//                    $accepted_debit_card[] = 'bancontact';
                 }
 
                 if (isset($source->redirect)) {
