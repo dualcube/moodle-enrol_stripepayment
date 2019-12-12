@@ -1,0 +1,323 @@
+[05-Dec-2019 16:49:06 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 16:49:06 Asia/Kolkata] Default exception handler: A required parameter (stripeToken) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[05-Dec-2019 16:53:17 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 16:53:17 Asia/Kolkata] Default exception handler: A required parameter (stripeToken) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[05-Dec-2019 17:09:44 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 17:09:44 Asia/Kolkata] Default exception handler: A required parameter (stripeToken) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[05-Dec-2019 17:21:50 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 17:21:50 Asia/Kolkata] Default exception handler: A required parameter (stripeToken) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[05-Dec-2019 18:19:00 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 45
+[05-Dec-2019 18:24:14 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 45
+[05-Dec-2019 18:45:00 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 18:45:00 Asia/Kolkata] Default exception handler: A required parameter (cmd) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 62 of /enrol/stripepayment/charge.php: call to required_param()
+
+[05-Dec-2019 18:49:42 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 18:49:42 Asia/Kolkata] Default exception handler: A required parameter (publishablekey) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 84 of /enrol/stripepayment/charge.php: call to required_param()
+
+[05-Dec-2019 18:51:48 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 18:51:48 Asia/Kolkata] Default exception handler: A required parameter (publishablekey) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 84 of /enrol/stripepayment/charge.php: call to required_param()
+
+[05-Dec-2019 18:52:38 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 18:52:38 Asia/Kolkata] PHP Notice:  Undefined variable: tid in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 143
+[05-Dec-2019 18:52:38 Asia/Kolkata] PHP Notice:  Undefined variable: auth in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 144
+[05-Dec-2019 18:54:03 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 19:02:00 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 19:04:54 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[05-Dec-2019 19:04:54 Asia/Kolkata] PHP Notice:  Undefined variable: autha in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 144
+[06-Dec-2019 10:18:53 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[06-Dec-2019 10:18:53 Asia/Kolkata] PHP Notice:  Undefined variable: autha in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 144
+[06-Dec-2019 10:20:30 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[06-Dec-2019 10:20:30 Asia/Kolkata] Default exception handler: A required parameter (stripeTokenType) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 79 of /enrol/stripepayment/charge.php: call to required_param()
+
+[06-Dec-2019 10:21:04 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[06-Dec-2019 10:21:04 Asia/Kolkata] Default exception handler: A required parameter (stripeEmail) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 80 of /enrol/stripepayment/charge.php: call to required_param()
+
+[06-Dec-2019 10:42:51 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[06-Dec-2019 10:47:22 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[09-Dec-2019 13:18:01 Asia/Kolkata] PHP Warning:  unserialize() expects parameter 1 to be string, array given in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[09-Dec-2019 13:18:29 Asia/Kolkata] PHP Warning:  unserialize() expects parameter 1 to be string, array given in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[09-Dec-2019 13:20:00 Asia/Kolkata] PHP Notice:  Undefined index: id in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[09-Dec-2019 13:20:59 Asia/Kolkata] PHP Notice:  Undefined index: id in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[09-Dec-2019 13:22:02 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[09-Dec-2019 13:22:39 Asia/Kolkata] PHP Notice:  Undefined index: id in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[09-Dec-2019 13:25:44 Asia/Kolkata] PHP Warning:  json_decode() expects parameter 1 to be string, array given in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 43
+[09-Dec-2019 16:02:24 Asia/Kolkata] Default exception handler: Exception - Cannot use object of type stdClass as array Debug: 
+Error code: generalexceptionmessage
+* line 46 of /enrol/stripepayment/charge.php: Error thrown
+
+[09-Dec-2019 16:03:08 Asia/Kolkata] Default exception handler: Exception - Cannot use object of type stdClass as array Debug: 
+Error code: generalexceptionmessage
+* line 46 of /enrol/stripepayment/charge.php: Error thrown
+
+[09-Dec-2019 16:05:10 Asia/Kolkata] Default exception handler: Exception - Cannot use object of type stdClass as array Debug: 
+Error code: generalexceptionmessage
+* line 49 of /enrol/stripepayment/charge.php: Error thrown
+
+[09-Dec-2019 16:07:49 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 54
+[09-Dec-2019 16:07:49 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 62 of /enrol/stripepayment/charge.php: call to required_param()
+
+[09-Dec-2019 16:07:49 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 145
+[09-Dec-2019 16:07:49 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 145
+[09-Dec-2019 16:07:49 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 146
+[09-Dec-2019 16:08:13 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 54
+[09-Dec-2019 16:08:13 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 62 of /enrol/stripepayment/charge.php: call to required_param()
+
+[09-Dec-2019 16:08:13 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 145
+[09-Dec-2019 16:08:13 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 145
+[09-Dec-2019 16:08:13 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 146
+[09-Dec-2019 16:13:12 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 46
+[09-Dec-2019 16:13:12 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 54 of /enrol/stripepayment/charge.php: call to required_param()
+
+[09-Dec-2019 16:13:12 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 137
+[09-Dec-2019 16:13:12 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 137
+[09-Dec-2019 16:13:12 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 138
+[09-Dec-2019 16:30:09 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 51
+[09-Dec-2019 16:30:09 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 59 of /enrol/stripepayment/charge.php: call to required_param()
+
+[09-Dec-2019 16:30:09 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 142
+[09-Dec-2019 16:30:09 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 142
+[09-Dec-2019 16:30:09 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 143
+[09-Dec-2019 16:33:14 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 51
+[09-Dec-2019 16:33:14 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 59 of /enrol/stripepayment/charge.php: call to required_param()
+
+[09-Dec-2019 16:33:14 Asia/Kolkata] PHP Notice:  Trying to get property of non-object in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 142
+[09-Dec-2019 16:36:11 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[09-Dec-2019 16:39:38 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[09-Dec-2019 16:41:47 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[09-Dec-2019 16:42:56 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[09-Dec-2019 16:44:39 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[09-Dec-2019 16:45:36 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:19:24 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:19:24 Asia/Kolkata] Default exception handler: Exception - Using $this when not in object context Debug: 
+Error code: generalexceptionmessage
+* line 139 of /enrol/stripepayment/charge.php: Error thrown
+
+[12-Dec-2019 13:20:20 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:21:20 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:39:33 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:41:04 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:47:26 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:48:20 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:50:17 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:52:07 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:52:27 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:53:16 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:54:32 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:54:59 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:55:32 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 13:58:37 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 14:01:38 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 14:01:55 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 14:02:56 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 14:03:28 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 14:52:46 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 14:54:07 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 49
+[12-Dec-2019 15:00:29 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:00:29 Asia/Kolkata] Default exception handler: A required parameter (tid) was missing Debug: 
+Error code: missingparam
+* line 482 of /lib/setuplib.php: moodle_exception thrown
+* line 566 of /lib/moodlelib.php: call to print_error()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:10:12 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:10:12 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:14:38 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:14:38 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:28:34 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:28:34 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:29:01 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:29:01 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:32:48 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:32:48 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:35:14 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:35:14 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:35:47 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:35:47 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:36:28 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:36:28 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:36:43 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:36:43 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:37:14 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:37:14 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:38:01 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:38:01 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:48:06 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:48:06 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:51:11 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:51:11 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:54:58 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:54:58 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:58:12 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:58:12 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 15:59:27 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 15:59:27 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 16:01:28 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 16:01:28 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 16:11:55 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 16:11:55 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 16:13:23 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 16:13:23 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 16:14:44 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 16:14:44 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 16:15:51 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 16:15:51 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 16:29:51 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 16:29:51 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 16:32:10 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 16:32:10 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 17:38:33 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 17:38:33 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 17:38:34 Asia/Kolkata] Debugging: This page did not call $PAGE->set_url(...). Using https://gladguys.com/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php in 
+* line 600 of /lib/pagelib.php: call to debugging()
+* line 820 of /lib/pagelib.php: call to moodle_page->magic_get_url()
+* line 565 of /admin/tool/usertours/classes/manager.php: call to moodle_page->__get()
+* line 505 of /admin/tool/usertours/classes/helper.php: call to tool_usertours\manager::get_current_tour()
+* line 75 of /admin/tool/usertours/lib.php: call to tool_usertours\helper::bootstrap()
+* line 1305 of /lib/outputrenderers.php: call to tool_usertours_before_footer()
+* line 1160 of /lib/outputrenderers.php: call to core_renderer->footer()
+* line 1881 of /lib/setuplib.php: call to core_renderer->redirect_message()
+* line 2957 of /lib/weblib.php: call to bootstrap_renderer->__call()
+* line 256 of /enrol/stripepayment/charge.php: call to redirect()
+
+[12-Dec-2019 17:39:42 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 17:39:42 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 17:41:41 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 17:41:41 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 17:48:38 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 17:48:38 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+
+[12-Dec-2019 17:51:37 Asia/Kolkata] PHP Warning:  set_exception_handler() expects the argument (enrol_stripepayment_charge_exception_handler) to be a valid callback in /home/gladguys/public_html/demo/moodle/moumita/moodle36/enrol/stripepayment/charge.php on line 44
+[12-Dec-2019 17:51:37 Asia/Kolkata] Debugging: Invalid array parameter detected in required_param(): auth in 
+* line 570 of /lib/moodlelib.php: call to debugging()
+* line 47 of /enrol/stripepayment/charge.php: call to required_param()
+

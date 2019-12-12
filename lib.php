@@ -238,7 +238,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 }
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
-                include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
+                include($CFG->dirroot.'/enrol/stripepayment/enrol.php');
             }
         }
         return $OUTPUT->box(ob_get_clean());
