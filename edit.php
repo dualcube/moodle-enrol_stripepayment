@@ -21,7 +21,7 @@
  * or edits current instance.
  *
  * @package    enrol_stripepayment
- * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
+ * @copyright  2019 DualCube
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

@@ -19,13 +19,13 @@
  * This plugin allows you to set up paid courses.
  *
  * @package    enrol_stripepayment
- * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
+ * @copyright  2019 DualCube
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 /**
  * Stripe enrolment plugin implementation.
- * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
+ * @copyright  2019 DualCube
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_stripepayment_plugin extends enrol_plugin {
@@ -238,7 +238,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 }
                 $validatezipcode = $this->get_config('validatezipcode');
                 $billingaddress = $this->get_config('billingaddress');
-                include($CFG->dirroot.'/enrol/stripepayment/enrol.html');
+                include($CFG->dirroot.'/enrol/stripepayment/enrol.php');
             }
         }
         return $OUTPUT->box(ob_get_clean());
