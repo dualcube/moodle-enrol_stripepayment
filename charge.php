@@ -20,7 +20,7 @@
  * user.
  *
  * @package    enrol_stripepayment
- * @copyright  2015 Dualcube, Arkaprava Midya, Parthajeet Chakraborty
+ * @copyright  2019 DualCube
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,24 +37,22 @@ if($CFG->version < 2018101900)
 require_once($CFG->libdir.'/enrollib.php');
 require_once($CFG->libdir.'/filelib.php');
 
-
 require_login();
+
 // Stripe does not like when we return error messages here,
 // the custom handler just logs exceptions and stops.
-set_exception_handler('enrol_stripepayment_charge_exception_handler');
 
-// Keep out casual intruders.
-if (empty(required_param('stripeToken', PARAM_RAW))) {
-    print_error(get_string('stripe_sorry', 'enrol_stripepayment'));
-}
+$auth[] = json_decode($_POST['auth'][0]);
+$tid = $auth[0]->id;
 
 $data = new stdClass();
 
 $data->cmd = required_param('cmd', PARAM_RAW);
 $data->charset = required_param('charset', PARAM_RAW);
 $data->item_name = required_param('item_name', PARAM_TEXT);
-$data->item_name = required_param('item_number', PARAM_TEXT);
-$data->item_name = required_param('quantity', PARAM_INT);
+$data->option_name1 = required_param('item_name', PARAM_TEXT);
+$data->option_name1 = required_param('item_number', PARAM_TEXT);
+$data->option_name1 = required_param('quantity', PARAM_INT);
 $data->on0 = optional_param('on0', array(), PARAM_TEXT);
 $data->os0 = optional_param('os0', array(), PARAM_TEXT);
 $data->custom = optional_param('custom', array(), PARAM_RAW);
@@ -71,9 +69,13 @@ $data->address = optional_param('address', array(), PARAM_TEXT);
 $data->city = optional_param('city', array(), PARAM_TEXT);
 $data->email = required_param('email', PARAM_EMAIL);
 $data->country = optional_param('country', array(), PARAM_TEXT);
-$data->stripeToken = required_param('stripeToken', PARAM_RAW);
-$data->stripeTokenType = required_param('stripeTokenType', PARAM_RAW);
-$data->stripeEmail = required_param('stripeEmail', PARAM_EMAIL);
+$data->txn_id = $tid;
+$data->publishablekey = required_param('publishablekey', PARAM_RAW);
+$data->payment_type = 'payment_intent';
+$data->stripeEmail = $USER->email;
+$data->receiver_id = $USER->id;
+$data->receiver_email = $USER->email;
+$data->payment_status = $auth[0]->status;
 
 $custom = explode('-', $data->custom);
 $data->userid           = (int)$custom[0];
@@ -128,29 +130,34 @@ $cost = format_float($cost, 2, false);
 // Let's say each article costs 15.00 bucks.
 
 try {
+    include('Stripe/init.php');
+    
+    \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
 
-    require_once('Stripe/lib/Stripe.php');
-
-    Stripe::setApiKey($plugin->get_config('secretkey'));
-    $charge1 = Stripe_Customer::create(array(
-        "email" => required_param('stripeEmail', PARAM_EMAIL),
-        "description" => get_string('charge_description1', 'enrol_stripepayment')
-    ));
-    $charge = Stripe_Charge::create(array(
-      "amount" => $cost * 100,
-      "currency" => $plugininstance->currency,
-      "card" => required_param('stripeToken', PARAM_RAW),
-      "description" => get_string('charge_description2', 'enrol_stripepayment'),
-      "receipt_email" => required_param('stripeEmail', PARAM_EMAIL)
-    ));
-    // Send the file, this line will be reached if no error was thrown above.
-    $data->txn_id = $charge->balance_transaction;
-    $data->tax = $charge->amount / 100;
-    $data->memo = $charge->id;
-    $data->payment_status = $charge->status;
-    $data->pending_reason = $charge->failure_message;
-    $data->reason_code = $charge->failure_code;
-
+    $retrive = \Stripe\PaymentIntent::retrieve(
+        $tid
+    );
+    
+    $check_email = $retrive->charges->data[0]->billing_details->email;
+    $check_description = $retrive->charges->data[0]->description;
+    $check_description_manual = 'Enrolment charge for '.required_param('item_name', PARAM_TEXT);
+    
+    //Stripe Authentication Checking
+    
+    $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
+    
+    if ($auth[0]->status != $retrive->status) {
+        redirect($destination, 'Stripe Authentication Error');
+    } else if ($auth[0]->amount != $retrive->amount) {
+        redirect($destination, 'Stripe Authentication Error');
+    } else if ($auth[0]->currency != $retrive->currency) {
+        redirect($destination, 'Stripe Authentication Error');
+    } else if ($check_email != $USER->email) {
+        redirect($destination, 'Stripe Authentication Error');
+    } else if ($check_description != $check_description_manual) {
+        redirect($destination, 'Stripe Authentication Error');
+    }
+  
     // ALL CLEAR !
 
     $DB->insert_record("enrol_stripepayment", $data);
