@@ -1,0 +1,69 @@
+Stripe_Coupon Object
+(
+    [_apiKey:protected] => sk_test_x5wk5XqkgaKemaOZfaom50vU
+    [_values:protected] => Array
+        (
+            [id] => JEET13
+            [object] => coupon
+            [amount_off] => 1000
+            [created] => 1502872577
+            [currency] => usd
+            [duration] => forever
+            [duration_in_months] => 
+            [livemode] => 
+            [max_redemptions] => 
+            
+            
+            
+            
+            
+            
+            
+Stripe_Coupon Object
+(
+    [_apiKey:protected] => sk_test_x5wk5XqkgaKemaOZfaom50vU
+    [_values:protected] => Array
+        (
+            [id] => once
+            [object] => coupon
+            [amount_off] => 
+            [created] => 1502888139
+            [currency] => 
+            [duration] => repeating
+            [duration_in_months] => 3
+            [livemode] => 
+            [max_redemptions] => 4
+            [metadata] => Stripe_AttachedObject Object
+                (
+                    [_apiKey:protected] => sk_test_x5wk5XqkgaKemaOZfaom50vU
+                    [_values:protected] => Array
+                        (
+                        )
+
+                    [_unsavedValues:protected] => Stripe_Util_Set Object
+                        (
+                            [_elts:Stripe_Util_Set:private] => Array
+                                (
+                                )
+
+                        )
+
+                    [_transientValues:protected] => Stripe_Util_Set Object
+                        (
+                            [_elts:Stripe_Util_Set:private] => Array
+                                (
+                                )
+
+                        )
+
+                    [_retrieveOptions:protected] => Array
+                        (
+                        )
+
+                )
+
+            [percent_off] => 10
+            [redeem_by] => 1502908199
+            [times_redeemed] => 0
+            [valid] => 1
+        )

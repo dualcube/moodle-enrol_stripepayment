@@ -16,12 +16,12 @@
 
 /**
  * Course wise edit form.
- * 
+ *
  * Adds new instance of enrol_stripepayment to specified course
  * or edits current instance.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 DualCube
+ * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -31,7 +31,7 @@ require_once($CFG->libdir.'/formslib.php');
 require_once('lib.php');
 /**
  * Sets up moodle edit form class methods.
- * @copyright  2019 DualCube
+ * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_stripepayment_edit_form extends moodleform {

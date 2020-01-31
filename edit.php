@@ -16,12 +16,12 @@
 
 /**
  * Course wise edit settings.
- * 
+ *
  * Adds new instance of enrol_stripepayment to specified course
  * or edits current instance.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 DualCube
+ * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,6 @@ require_once('edit_form.php');
 
 $courseid   = required_param('courseid', PARAM_INT);
 $instanceid = optional_param('id', 0, PARAM_INT); // Instanceid.
-
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $context = context_course::instance($course->id, MUST_EXIST);
 
@@ -87,7 +86,12 @@ if ($mform->is_cancelled()) {
 
     } else {
         $fields = array('status' => $data->status, 'name' => $data->name, 'cost' => unformat_float($data->cost),
-                        'currency' => $data->currency, 'roleid' => $data->roleid, 'enrolperiod' => $data->enrolperiod, 'customint3' => $data->customint3, 'enrolstartdate' => $data->enrolstartdate, 'enrolenddate' => $data->enrolenddate);
+                        'currency' => $data->currency,
+                        'roleid' => $data->roleid,
+                        'enrolperiod' => $data->enrolperiod,
+                        'customint3' => $data->customint3,
+                        'enrolstartdate' => $data->enrolstartdate,
+                        'enrolenddate' => $data->enrolenddate);
         $plugin->add_instance($course, $fields);
     }
 

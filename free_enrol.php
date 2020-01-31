@@ -38,10 +38,6 @@ require_once($CFG->libdir . '/filelib.php');
 
 require_login();
 
-// Keep out casual intruders.
-$auth[] = json_decode($_POST['auth'][0]);
-$tid = $auth[0]->id;
-
 $data = new stdClass();
 
 $data->coupon_id = required_param('coupon_id', PARAM_RAW);
@@ -64,11 +60,8 @@ $data->first_name = required_param('first_name', PARAM_TEXT);
 $data->last_name = required_param('last_name', PARAM_TEXT);
 $data->address = optional_param('address', array(), PARAM_TEXT);
 $data->city = optional_param('city', array(), PARAM_TEXT);
-$data->email = required_param('email', PARAM_EMAIL);
+$data->email = $_POST['email'];
 $data->country = optional_param('country', array(), PARAM_TEXT);
-$data->stripeToken = $auth[0]->payment_method;
-$data->stripeTokenType = $auth[0]->payment_method_types[0];
-$data->stripeEmail = $_POST['email'];
 
 $custom = explode('-', $data->custom);
 $data->userid           = (int)$custom[0];
@@ -77,7 +70,7 @@ $data->instanceid       = (int)$custom[2];
 $data->payment_gross    = $data->amount;
 $data->payment_currency = $data->currency_code;
 $data->timeupdated      = time();
-// Get the user and course records.
+
 
 if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
     message_stripepayment_error_to_admin("Not a valid user id", $data);
@@ -122,6 +115,9 @@ $cost = format_float($cost, 2, false);
 
 // Let's say each article costs 15.00 bucks.
 
+
+
+
 try {
 
     require_once('Stripe/init.php');
@@ -129,11 +125,11 @@ try {
     \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
 
     $iscoupon = false;
-    if ($data->coupon_id && $data->coupon_id != 0) {
+    if ($data->coupon_id) {
         $coupon = \Stripe\Coupon::retrieve($data->coupon_id);
         if (!$coupon->valid) {
-            redirect($CFG->wwwroot.'/enrol/index.php?id='.$data->courseid, get_string("invalidcouponcodevalue",
-                "enrol_stripepayment", $data->coupon_id));
+            redirect($CFG->wwwroot.'/enrol/index.php?id='.$data->courseid,
+            'Coupon Code '.$data->coupon_id.' is not valid!');
         } else {
             $iscoupon = true;
             if (isset($coupon->percent_off)) {
@@ -144,20 +140,16 @@ try {
         }
     }
 
-    $checkcustomer = $DB->get_records('enrol_stripepayment',
+    $checkcustomer = $DB->get_record('enrol_stripepayment',
     array('receiver_email' => $data->stripeEmail));
-    foreach ($checkcustomer as $keydata => $valuedata) {
-        $checkcustomer = $valuedata;
-    }
-
     if (!$checkcustomer) {
-        $customerarray = array("email" => $data->stripeEmail,
+        $customerarray = array("email" => $user->email,
         "description" => get_string('charge_description1', 'enrol_stripepayment'));
         if ($iscoupon) {
             $customerarray["coupon"] = $data->coupon_id;
         }
-            $charge1 = \Stripe\Customer::create($customerarray);
-            $data->receiver_id = $charge1->id;
+        $charge1 = \Stripe\Customer::create($customerarray);
+        $data->receiver_id = $charge1->id;
     } else {
         if ($iscoupon) {
             $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
@@ -171,40 +163,9 @@ try {
         $data->receiver_id = $checkcustomer->receiver_id;
     }
 
-    $charge = \Stripe\PaymentIntent::retrieve(
-        $tid
-    );
-
-    // Send the file, this line will be reached if no error was thrown above.
-
-    if (!isset($charge->failure_message) || is_null($charge->failure_message)) {
-        $charge->failure_message = 'NA';
-    }
-    if (!isset($charge->failure_code) || is_null($charge->failure_code)) {
-        $charge->failure_code = 'NA';
-    }
-
-    $data->receiver_email = $data->stripeEmail;
-    $data->txn_id = $charge->id;
-    $data->tax = $charge->amount / 100;
-    $data->memo = $charge->payment_method;
-    $data->payment_status = $charge->status;
-    $data->pending_reason = $charge->failure_message;
-    $data->reason_code = $charge->failure_code;
-
-    // Stripe Authentication Checking.
-
-    $checkemail = $charge->charges->data[0]->billing_details->email;
-
-    $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
-
-    if ($auth[0]->status != $charge->status) {
-        redirect($destination, 'Stripe Authentication Error');
-    } else if ($auth[0]->currency != $charge->currency) {
-        redirect($destination, 'Stripe Authentication Error');
-    } else if ($checkemail != $USER->email) {
-        redirect($destination, 'Stripe Authentication Error');
-    }
+    $data->receiver_email = $user->email;
+    $data->tax = $cost / 100;
+    $data->payment_status = 'succeeded';
 
     // ALL CLEAR !
 
@@ -337,7 +298,6 @@ catch (Stripe_InvalidRequestError $e) {
     // Something else happened, completely unrelated to Stripe.
     echo 'Something else happened, completely unrelated to Stripe';
 }
-
 
 /**
  * Send payment error message to the admin.
