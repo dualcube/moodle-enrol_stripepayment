@@ -73,6 +73,8 @@ $(document).ready(function() {
 </style>
 
 <div align="center">
+<div class="stripe-img">
+<img src="<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/stripe.png"></div>
 <p><?php print_string("paymentrequired") ?></p>
 <!-- <p><b><?php echo $instancename; ?></b></p> //-->
 <p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
@@ -212,3 +214,43 @@ echo "$CFG->wwwroot/enrol/stripepayment/free_enrol.php"?>" method="post">
 
 </div>
 </div>
+
+<style>
+   .generalbox {
+    width: 400px;
+    margin: 0 auto;
+        box-sizing: content-box;
+   }
+    .CardField-input-wrapper{ overflow: inherit;}
+    
+    .generalbox {
+    width: 400px;
+    margin: 0 auto 100px;
+    box-shadow: 0 0 10px #ccc;
+    padding: 30px 20px;
+}
+.box.py-3.generalbox.info {
+    box-shadow: none !important;
+    margin: 0;
+}
+button#apply, button#card-button{
+    color: #fff;
+    background-color: #1177d1;
+    border: 1px solid #1177d1;
+    padding: 5px 10px;
+    font-size: 13px;
+}
+input#coupon {
+    border: 1px dashed #a2a2a2;
+    padding: 3px 5px;
+}
+p{ text-align:left;}
+.stripe-img img{width:130px;}
+@media (min-width: 200px) and (max-width: 700px) { 
+ #region-main{
+     padding:0;
+ }   
+ .generalbox {
+    width: 300px;}   
+}
+</style>
