@@ -196,13 +196,14 @@ try {
         $mailadmins   = $plugin->get_config('mailadmins');
         $shortname = format_string($course->shortname, true, array('context' => $context));
 
+   $coursecontext = context_course::instance($course->id);
 
     if (!empty($mailstudents)) {
             $a = new stdClass();
             $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_stripepayment';
             $eventdata->name              = 'stripepayment_enrolment';
@@ -210,8 +211,8 @@ try {
             $eventdata->userto            = $user;
             $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
             $eventdata->fullmessage       = get_string('welcometocoursetext', '', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
+            $eventdata->fullmessageformat = FORMAT_MARKDOWN;
+            $eventdata->fullmessagehtml   = '<p>'.get_string('welcometocoursetext', '', $a).'</p>';
             $eventdata->smallmessage      = '';
             message_send($eventdata);
     }
@@ -220,7 +221,7 @@ try {
             $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->user = fullname($user);
 
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_stripepayment';
             $eventdata->name              = 'stripepayment_enrolment';
@@ -228,8 +229,8 @@ try {
             $eventdata->userto            = $teacher;
             $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
             $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
+            $eventdata->fullmessageformat = FORMAT_MARKDOWN;
+            $eventdata->fullmessagehtml   = '<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>';
             $eventdata->smallmessage      = '';
             message_send($eventdata);
     }
@@ -239,7 +240,7 @@ try {
         $a->user = fullname($user);
         $admins = get_admins();
         foreach ($admins as $admin) {
-            $eventdata = new stdClass();
+            $eventdata = new \core\message\message();
             $eventdata->modulename        = 'moodle';
             $eventdata->component         = 'enrol_stripepayment';
             $eventdata->name              = 'stripepayment_enrolment';
@@ -247,8 +248,8 @@ try {
             $eventdata->userto            = $admin;
             $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
             $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
-            $eventdata->fullmessageformat = FORMAT_PLAIN;
-            $eventdata->fullmessagehtml   = '';
+            $eventdata->fullmessageformat = FORMAT_MARKDOWN;
+            $eventdata->fullmessagehtml   = '<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>';
             $eventdata->smallmessage      = '';
             message_send($eventdata);
         }
@@ -315,7 +316,7 @@ function message_stripepayment_error_to_admin($subject, $data) {
         $message .= s($key) ." => ". s($value)."\n";
     }
 
-    $eventdata = new stdClass();
+    $eventdata = new \core\message\message();
     $eventdata->modulename        = 'moodle';
     $eventdata->component         = 'enrol_stripepayment';
     $eventdata->name              = 'stripepayment_enrolment';
@@ -323,8 +324,8 @@ function message_stripepayment_error_to_admin($subject, $data) {
     $eventdata->userto            = $admin;
     $eventdata->subject           = "STRIPE PAYMENT ERROR: ".$subject;
     $eventdata->fullmessage       = $message;
-    $eventdata->fullmessageformat = FORMAT_PLAIN;
-    $eventdata->fullmessagehtml   = '';
+    $eventdata->fullmessageformat = FORMAT_MARKDOWN;
+    $eventdata->fullmessagehtml   = '<p>'.$message.'</p>';
     $eventdata->smallmessage      = '';
     message_send($eventdata);
 }
