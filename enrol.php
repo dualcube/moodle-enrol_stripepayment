@@ -77,7 +77,7 @@ $(document).ready(function() {
 <img src="<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/stripe.png"></div>
 <p><?php print_string("paymentrequired") ?></p>
 <!-- <p><b><?php echo $instancename; ?></b></p> //-->
-<p><b><?php echo get_string("cost").": {$instance->currency} {$localisedcost}"; ?></b></p>
+<p><b><?php echo get_string("cost").": {$instance->currency} {$cost}"; ?></b></p>
 
 <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: <input type=text id="coupon"/>
 <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>

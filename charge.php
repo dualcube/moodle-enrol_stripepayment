@@ -242,36 +242,31 @@ try {
             $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
-            $eventdata = new \core\message\message();
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_stripepayment';
-            $eventdata->name              = 'stripepayment_enrolment';
-            $eventdata->userfrom          = empty($teacher) ? core_user::get_support_user() : $teacher;
-            $eventdata->userto            = $user;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('welcometocoursetext', '', $a);
-            $eventdata->fullmessageformat = FORMAT_MARKDOWN;
-            $eventdata->fullmessagehtml   = '<p>'.get_string('welcometocoursetext', '', $a).'</p>';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
+            $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;
+            $subject = get_string("enrolmentnew", 'enrol', $shortname);
+            $fullmessage = get_string('welcometocoursetext', '', $a);
+            $fullmessagehtml = html_to_text('<p>'.get_string('welcometocoursetext', '', $a).'</p>');
+        
+            // Send test email.
+            ob_start();
+            $success = email_to_user($user, $userfrom, $subject, $fullmessage, $fullmessagehtml);
+            $smtplog = ob_get_contents();
+            ob_end_clean();
     }
 
     if (!empty($mailteachers) && !empty($teacher)) {
             $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->user = fullname($user);
-
-            $eventdata = new \core\message\message();
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_stripepayment';
-            $eventdata->name              = 'stripepayment_enrolment';
-            $eventdata->userfrom          = $user;
-            $eventdata->userto            = $teacher;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
-            $eventdata->fullmessageformat = FORMAT_MARKDOWN;
-            $eventdata->fullmessagehtml   = '<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
+            
+            $subject = get_string("enrolmentnew", 'enrol', $shortname);
+            $fullmessage = get_string('enrolmentnewuser', 'enrol', $a);
+            $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>');
+        
+            // Send test email.
+            ob_start();
+            $success = email_to_user($teacher, $user, $subject, $fullmessage, $fullmessagehtml);
+            $smtplog = ob_get_contents();
+            ob_end_clean();
     }
 
     if (!empty($mailadmins)) {
@@ -279,18 +274,15 @@ try {
         $a->user = fullname($user);
         $admins = get_admins();
         foreach ($admins as $admin) {
-            $eventdata = new \core\message\message();
-            $eventdata->modulename        = 'moodle';
-            $eventdata->component         = 'enrol_stripepayment';
-            $eventdata->name              = 'stripepayment_enrolment';
-            $eventdata->userfrom          = $user;
-            $eventdata->userto            = $admin;
-            $eventdata->subject           = get_string("enrolmentnew", 'enrol', $shortname);
-            $eventdata->fullmessage       = get_string('enrolmentnewuser', 'enrol', $a);
-            $eventdata->fullmessageformat = FORMAT_MARKDOWN;
-            $eventdata->fullmessagehtml   = '<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>';
-            $eventdata->smallmessage      = '';
-            message_send($eventdata);
+            $subject = get_string("enrolmentnew", 'enrol', $shortname);
+            $fullmessage = get_string('enrolmentnewuser', 'enrol', $a);
+            $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>');
+        
+            // Send test email.
+            ob_start();
+            $success = email_to_user($admin, $user, $subject, $fullmessage, $fullmessagehtml);
+            $smtplog = ob_get_contents();
+            ob_end_clean();
         }
     }
 
@@ -356,16 +348,13 @@ function message_stripepayment_error_to_admin($subject, $data) {
         $message .= s($key) ." => ". s($value)."\n";
     }
 
-    $eventdata = new \core\message\message();
-    $eventdata->modulename        = 'moodle';
-    $eventdata->component         = 'enrol_stripepayment';
-    $eventdata->name              = 'stripepayment_enrolment';
-    $eventdata->userfrom          = $admin;
-    $eventdata->userto            = $admin;
-    $eventdata->subject           = "STRIPE PAYMENT ERROR: ".$subject;
-    $eventdata->fullmessage       = $message;
-    $eventdata->fullmessageformat = FORMAT_MARKDOWN;
-    $eventdata->fullmessagehtml   = '<p>'.$message.'</p>';
-    $eventdata->smallmessage      = '';
-    message_send($eventdata);
+    $subject = "STRIPE PAYMENT ERROR: ".$subject;
+    $fullmessage = $message;
+    $fullmessagehtml = html_to_text('<p>'.$message.'</p>');
+        
+    // Send test email.
+    ob_start();
+    $success = email_to_user($admin, $admin, $subject, $fullmessage, $fullmessagehtml);
+    $smtplog = ob_get_contents();
+    ob_end_clean();
 }

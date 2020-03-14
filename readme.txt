@@ -81,3 +81,10 @@ If a coupon has a max_redemptions value of 50, it can only be applied among all 
  
 
 This completes all the steps from the administrator end. Now registered users can login to the Moodle site and view the course after a successful payment of the discounted price. 
+
+
+
+
+Change log :
+* Something else happened, completely unrelated to Stripe - fixed
+* Mail not send - fixed
