@@ -92,9 +92,10 @@ $(document).ready(function() {
 <?php
 require('Stripe/init.php');
 $couponid = 0;
-if ( isset($_POST['data']) ) {
-    $cost = $_POST['data'];
-    $couponid = $_POST['coupon_id'];
+$dataa = optional_param('data', null, PARAM_RAW);
+if ( isset($dataa) ) {
+    $cost = $dataa;
+    $couponid = required_param('coupon_id', PARAM_RAW);
 }
 
 // Set your secret key: remember to change this to your live secret key in production.
@@ -216,41 +217,74 @@ echo "$CFG->wwwroot/enrol/stripepayment/free_enrol.php"?>" method="post">
 </div>
 
 <style>
-   .generalbox {
-    width: 400px;
-    margin: 0 auto;
-        box-sizing: content-box;
-   }
-    .CardField-input-wrapper{ overflow: inherit;}
-    
-    .generalbox {
-    width: 400px;
-    margin: 0 auto 100px;
-    box-shadow: 0 0 10px #ccc;
-    padding: 30px 20px;
-}
-.box.py-3.generalbox.info {
-    box-shadow: none !important;
-    margin: 0;
-}
+.CardField-input-wrapper{ overflow: inherit;} 
+.coursebox .content .summary{width:100%}
 button#apply, button#card-button{
-    color: #fff;
-    background-color: #1177d1;
-    border: 1px solid #1177d1;
-    padding: 5px 10px;
-    font-size: 13px;
+   color: #fff;
+   background-color: #1177d1;
+   border: 1px solid #1177d1;
+   padding: 5px 10px;
+   font-size: 13px;
 }
 input#coupon {
-    border: 1px dashed #a2a2a2;
-    padding: 3px 5px;
+   border: 1px dashed #a2a2a2;
+   padding: 3px 5px;
 }
 p{ text-align:left;}
 .stripe-img img{width:130px;}
+body#page-enrol-index #region-main .generalbox.info{
+ width: 100%;
+ box-shadow: none;
+}
+body#page-enrol-index #region-main .generalbox .card a img{
+   max-width: 458px;
+   height: 300px;
+   padding: 0;
+   box-shadow: 0 0 10px #b0afaf;
+}
+#page-enrol-index .access-btn{
+ display: none;
+}
+body#page-enrol-index #region-main .generalbox:last-of-type {
+   width: 468px;
+   padding-left: 2rem;
+   padding-right: 2rem;
+   margin: 0 auto;
+   float: left;
+   box-shadow: 0 0 10px #ccc;
+   clear: both;
+}
+#page-enrol-index #region-main-box .card-title {
+   position: relative;
+   line-height: 59px;
+   font-size: 2rem;
+   text-transform: capitalize;
+}
 @media (min-width: 200px) and (max-width: 700px) { 
- #region-main{
-     padding:0;
- }   
- .generalbox {
-    width: 300px;}   
+#region-main{
+    padding:0;
+}   
+.generalbox {
+   width: 300px;} 
+body#page-enrol-index #region-main .generalbox:last-of-type{
+ width: 320px;
+ margin: 0 auto;
+ float: none;
+} 
+#page-enrol-index p{
+ text-align: center;
+} 
+#apply{
+ margin-top: 10px;
+}
+#coupon{
+ margin-top:10px;
+}
+#page-enrol-index #region-main-box .card-title{
+ text-align: center;
+}
+#page-enrol-index #region-main-box .card-title:before, #page-enrol-index #region-main-box .card-title:after{
+ display: none;
+} 
 }
 </style>

@@ -60,7 +60,7 @@ $data->first_name = required_param('first_name', PARAM_TEXT);
 $data->last_name = required_param('last_name', PARAM_TEXT);
 $data->address = optional_param('address', array(), PARAM_TEXT);
 $data->city = optional_param('city', array(), PARAM_TEXT);
-$data->email = $_POST['email'];
+$data->email = required_param('email', PARAM_EMAIL);
 $data->country = optional_param('country', array(), PARAM_TEXT);
 
 $custom = explode('-', $data->custom);

@@ -39,7 +39,8 @@ require_once($CFG->libdir . '/filelib.php');
 require_login();
 
 // Keep out casual intruders.
-$auth[] = json_decode($_POST['auth'][0]);
+$auth_take = required_param_array('auth', PARAM_RAW);
+$auth[] = json_decode($auth_take[0]);
 $tid = $auth[0]->id;
 
 $data = new stdClass();
@@ -68,7 +69,7 @@ $data->email = required_param('email', PARAM_EMAIL);
 $data->country = optional_param('country', array(), PARAM_TEXT);
 $data->stripeToken = $auth[0]->payment_method;
 $data->stripeTokenType = $auth[0]->payment_method_types[0];
-$data->stripeEmail = $_POST['email'];
+$data->stripeEmail = required_param('email', PARAM_EMAIL);
 
 $custom = explode('-', $data->custom);
 $data->userid           = (int)$custom[0];
