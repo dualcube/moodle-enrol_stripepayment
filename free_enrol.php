@@ -60,7 +60,7 @@ $data->first_name = required_param('first_name', PARAM_TEXT);
 $data->last_name = required_param('last_name', PARAM_TEXT);
 $data->address = optional_param('address', array(), PARAM_TEXT);
 $data->city = optional_param('city', array(), PARAM_TEXT);
-$data->email = required_param('email', PARAM_EMAIL);
+$data->stripeEmail = required_param('email', PARAM_EMAIL);
 $data->country = optional_param('country', array(), PARAM_TEXT);
 
 $custom = explode('-', $data->custom);
@@ -140,8 +140,12 @@ try {
         }
     }
 
-    $checkcustomer = $DB->get_record('enrol_stripepayment',
+    $checkcustomer = $DB->get_records('enrol_stripepayment',
     array('receiver_email' => $data->stripeEmail));
+    foreach ($checkcustomer as $keydata => $valuedata) {
+        $checkcustomer = $valuedata;
+    }
+
     if (!$checkcustomer) {
         $customerarray = array("email" => $user->email,
         "description" => get_string('charge_description1', 'enrol_stripepayment'));
@@ -165,7 +169,7 @@ try {
 
     $data->receiver_email = $user->email;
     $data->tax = $cost / 100;
-    $data->payment_status = 'succeeded';
+    $data->payment_status = 'succeeded'; 
 
     // ALL CLEAR !
 
@@ -252,7 +256,7 @@ try {
     $fullname = format_string($course->fullname, true, array('context' => $context));
 
     if (is_enrolled($context, null, '', true)) { // TODO: use real stripe check.
-        redirect($destination, get_string('paymentthanks', '', $fullname));
+        redirect($destination, 'Thankyou! Now you are enrolled into the course "'.$fullname.'"');
 
     } else {   // Somehow they aren't enrolled yet!
         $PAGE->set_url($destination);

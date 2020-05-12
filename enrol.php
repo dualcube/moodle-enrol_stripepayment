@@ -30,6 +30,7 @@
 // Disable moodle specific debug messages and any errors in output,
 // comment out when debugging or better look into error log!
 defined('MOODLE_INTERNAL') || die();
+global $CFG;
 ?>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
 </script>
@@ -55,11 +56,11 @@ $(document).ready(function() {
          $("#coupon_id").attr("value", txt);
          $(".coupon_id").val(txt);
          if(data == 0.00) {
-             $('#stripeform').hide();
-             $('#stripeformfree').show();
+             $('#amountgreaterzero').css("display", "none");
+             $('#amountequalzero').css("display", "block");
          } else {
-             $('#stripeform').show();
-             $('#stripeformfree').hide();
+             $('#amountgreaterzero').css("display", "block");
+             $('#amountequalzero').css("display", "none");
          }
        }
     });
@@ -98,27 +99,129 @@ if ( isset($dataa) ) {
     $couponid = required_param('coupon_id', PARAM_RAW);
 }
 
-// Set your secret key: remember to change this to your live secret key in production.
-// See your keys here: https://dashboard.stripe.com/account/apikeys.
-\Stripe\Stripe::setApiKey($this->get_config('secretkey'));
-
-$intent = \Stripe\PaymentIntent::create([
-    'amount' => str_replace(".", "", $cost),
-    'currency' => strtolower($instance->currency),
-    'setup_future_usage' => 'off_session',
-    'description' => 'Enrolment charge for '.$coursefullname,
-]);
-
 echo "<p><b> Final Cost : $instance->currency $cost </b></p>";
 
 ?>
+<br>
+
+<?php $costvalue = str_replace(".", "", $cost);
+if ($costvalue == 000) {  ?>
+<div id="amountequalzero">
+  <button id="card-button-zero">
+    Enrol Now
+  </button>
+</div>
+<br>
+
+<script type="text/javascript">
+  $(document.body).on('click', '#card-button-zero' ,function(){
+    var cost = "<?php echo str_replace(".", "", $cost); ?>";
+    if (cost == 000) {
+      document.getElementById("stripeformfree").submit();
+    }
+  });
+</script>
+
+<?php } else { ?>
 <script src="https://js.stripe.com/v3/"></script>
 
 <!-- placeholder for Elements -->
-<br> <div id="card-element"></div> <br>
-<button id="card-button" data-secret="<?php echo $intent->client_secret ?>">
-  Submit Payment
-</button>
+
+<div id="amountgreaterzero">
+    <strong>
+  <div id="card-element"></div> <br>
+  <button id="card-button">
+    Submit Payment
+  </button>
+  <div id="transaction-status">
+    <center> Your transaction is processing. Please wait... </center>
+  </div>
+  </strong>
+</div>
+
+<script type="text/javascript">
+    var stripe = Stripe('<?php echo $publishablekey; ?>');
+    var elements = stripe.elements();
+    var style = {
+      base: {
+        fontSize:'15px',
+        color:'#000',
+        '::placeholder': {
+          color: '#000',
+        }
+      },
+    };
+
+    var cardElement = elements.create('card', {style: style});
+    cardElement.mount('#card-element');
+    var cardholderName = "<?php echo $userfullname; ?>";
+    var emailId = "<?php echo $USER->email; ?>";
+    var cardButton = document.getElementById('card-button');
+    var status = 0;
+    
+    cardElement.addEventListener('change', function(event) {
+      var displayError = document.getElementById('card-errors');
+      if (event.error) {
+        status = 0;
+      } else {
+        status = 1;
+      }
+    });
+
+    cardButton.addEventListener('click', function(ev) {
+      
+      if (status == 0) {
+         $("#transaction-status").css("display", "none");
+      } else {
+         $("#transaction-status").css("display", "block");
+      
+         $.ajax({
+        url: "<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/paymentintendsca.php",
+        method: 'POST',
+        data: {
+            'secretkey' : "<?php echo $this->get_config('secretkey'); ?>",
+            'amount' : "<?php echo str_replace(".", "", $cost); ?>",
+            'currency' : "<?php echo strtolower($instance->currency); ?>",
+            'description' : "<?php echo 'Enrolment charge for '.$coursefullname; ?>",
+            'courseid' : "<?php echo $course->id; ?>",
+            'receiptemail' : emailId,
+        },
+        success: function(data) {
+          var clientSecret = data;
+
+          stripe.handleCardPayment(
+            clientSecret, cardElement,
+            {
+              payment_method_data: {
+                billing_details: {name: cardholderName,email: emailId}
+              }
+            }
+          ).then(function(result) {
+            if (result.error) {
+              // Display error.message in your UI.
+            } else {
+              // The setup has succeeded. Display a success message.
+              var result = Object.keys(result).map(function(key) {
+                  return [Number(key), result[key]];
+                });
+              document.getElementById("auth").value = JSON.stringify(result[0][1]);
+              document.getElementById("stripeform").submit();
+            }
+          });
+        },
+        error: function() {
+
+          $("#transaction-status").html("<center> Sorry! Your transaction is failed. </center>");
+        },
+                          
+      });
+      
+      }
+    });
+
+</script>
+
+<?php } ?>
 
 <form id="stripeform" action="<?php echo "$CFG->wwwroot/enrol/stripepayment/charge.php"?>" method="post">
 <input id="coupon_id" type="hidden" name="coupon_id" value="<?php p($couponid) ?>" class="coupon_id" />
@@ -146,46 +249,9 @@ echo "<p><b> Final Cost : $instance->currency $cost </b></p>";
 <input id="cardholder-name" name="cname" type="hidden" value="<?php echo $userfullname; ?>">
 <input id="cardholder-email" type="hidden" name="email" value="<?php p($USER->email) ?>" />
 <input id="auth" name="auth[]" type="hidden" value="">
-
-<script>
-
-    var stripe = Stripe('<?php echo $publishablekey; ?>');
-    
-    var elements = stripe.elements();
-    var cardElement = elements.create('card');
-    cardElement.mount('#card-element');
-    var cardholderName = document.getElementById('cardholder-name');
-    var emailId = document.getElementById('cardholder-email');
-    var cardButton = document.getElementById('card-button');
-    var clientSecret = cardButton.dataset.secret;
-    
-    cardButton.addEventListener('click', function(ev) {
-    
-      stripe.handleCardPayment(
-        clientSecret, cardElement,
-        {
-          payment_method_data: {
-            billing_details: {name: cardholderName.value,email: emailId.value}
-          }
-        }
-      ).then(function(result) {
-        if (result.error) {
-          // Display error.message in your UI.
-        } else {
-          // The setup has succeeded. Display a success message.
-          var result = Object.keys(result).map(function(key) {
-              return [Number(key), result[key]];
-            });
-          document.getElementById("auth").value = JSON.stringify(result[0][1]);
-          document.getElementById("stripeform").submit();
-        }
-      });
-    });
-
-</script>
 </form>
 
-<form id="stripeformfree" style="display:none;" action="<?php
+<form id="stripeformfree" action="<?php
 echo "$CFG->wwwroot/enrol/stripepayment/free_enrol.php"?>" method="post">
 <input type="hidden" name="coupon_id" value="<?php p($couponid) ?>" class="coupon_id" />
 <input type="hidden" name="cmd" value="_xclick" />
@@ -209,7 +275,6 @@ echo "$CFG->wwwroot/enrol/stripepayment/free_enrol.php"?>" method="post">
 <input type="hidden" name="city" value="<?php p($usercity) ?>" />
 <input type="hidden" name="email" value="<?php p($USER->email) ?>" />
 <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
-<input type="submit" name="submit" value="<?php echo get_string('enrol', 'enrol_stripepayment'); ?>" />
 
 </form>
 
@@ -217,9 +282,15 @@ echo "$CFG->wwwroot/enrol/stripepayment/free_enrol.php"?>" method="post">
 </div>
 
 <style>
+div#transaction-status, div#transaction-status-zero {
+    margin: 15px;
+    background: antiquewhite;
+    color: chocolate;
+    display: none;
+}
 .CardField-input-wrapper{ overflow: inherit;} 
 .coursebox .content .summary{width:100%}
-button#apply, button#card-button{
+button#apply, button#card-button, button#card-button-zero{
    color: #fff;
    background-color: #1177d1;
    border: 1px solid #1177d1;
@@ -253,12 +324,22 @@ body#page-enrol-index #region-main .generalbox:last-of-type {
    float: left;
    box-shadow: 0 0 10px #ccc;
    clear: both;
+   padding-bottom:30px !Important;
 }
 #page-enrol-index #region-main-box .card-title {
    position: relative;
    line-height: 59px;
    font-size: 2rem;
    text-transform: capitalize;
+}
+.StripeElement {
+    padding: 15px;
+    border: 1px solid #e9ebec;
+    background: #f9f9f9;
+    box-shadow: 0 10px 6px -4px #d4d2d2;
+}
+.StripeElement input[placeholder], [placeholder], *[placeholder] {
+    color: red !important;
 }
 @media (min-width: 200px) and (max-width: 700px) { 
 #region-main{

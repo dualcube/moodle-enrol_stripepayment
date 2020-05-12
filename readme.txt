@@ -16,11 +16,13 @@ Stripe Payment:
 
 3. Strong customer authentication (SCA) implemented with 4 layers of complex security to comply with EU Revised Directive on Payment Services (PSD2) on payment service providers within the European Economic Area.
 
-4. The first among it's kind to use Payment intent method for Stripe-coupon. 
+4. The first among it's kind to use Payment intent method for Stripe-coupon.
 
-5. Works with all stable versions of Moodle till v 3.8.1
+5. Stripe Receipt sent to customers for any successful transaction.
 
-6. Dedicated support.
+6. Works with all stable versions of Moodle till v 3.8.3
+
+7. Dedicated support.
 
 
 
@@ -86,5 +88,22 @@ This completes all the steps from the administrator end. Now registered users ca
 
 
 Change log :
+
+* 100% discount coupon error fixed: If the discount coupon waves off the actual price, making it a free product, self enrolment method will be activated for the user to use and proceed.
+
+* Card Information input fields are hard to spot: Fixed
+
+* Stripe Receipt: Code added.
+You can also opt for automatic receipts to be sent upon any completed transaction.
+To do this;
+Log in to your Stripe dashboard
+Go to 'Business Settings' > 'Email Receipts'
+Tick the boxes for 'Successful Payments'
+Click 'Save'
+Note: Not applicable for sandbox accounts.
+
+* Automatic false transaction request generated each time the Stripe Payment page reloads : Fixed.
+
 * Something else happened, completely unrelated to Stripe - fixed
+
 * Mail not send - fixed
