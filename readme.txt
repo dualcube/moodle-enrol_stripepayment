@@ -89,6 +89,8 @@ This completes all the steps from the administrator end. Now registered users ca
 
 Change log :
 
+* 100+ currencies are added.
+
 * 100% discount coupon error fixed: If the discount coupon waves off the actual price, making it a free product, self enrolment method will be activated for the user to use and proceed.
 
 * Card Information input fields are hard to spot: Fixed

@@ -79,9 +79,10 @@ $(document).ready(function() {
 <p><?php print_string("paymentrequired") ?></p>
 <!-- <p><b><?php echo $instancename; ?></b></p> //-->
 <p><b><?php echo get_string("cost").": {$instance->currency} {$cost}"; ?></b></p>
-
-<?php echo get_string("couponcode", "enrol_stripepayment"); ?>: <input type=text id="coupon"/>
+<div class="couponcode-wrap">
+<span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span> <input type=text id="coupon"/>
 <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
+</div>
 
 <form id="form_data_new" action="" method="post">
   <input id="form_data_new_data" type="hidden" name="data" value="" />
@@ -102,7 +103,6 @@ if ( isset($dataa) ) {
 echo "<p><b> Final Cost : $instance->currency $cost </b></p>";
 
 ?>
-<br>
 
 <?php $costvalue = str_replace(".", "", $cost);
 if ($costvalue == 000) {  ?>
@@ -282,6 +282,17 @@ echo "$CFG->wwwroot/enrol/stripepayment/free_enrol.php"?>" method="post">
 </div>
 
 <style>
+.couponcode-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.couponcode-wrap .couponcode-text{
+    font-size:14px;
+}
+.couponcode-wrap input#coupon{
+    margin: 0 6px;
+}
 div#transaction-status, div#transaction-status-zero {
     margin: 15px;
     background: antiquewhite;
@@ -341,7 +352,7 @@ body#page-enrol-index #region-main .generalbox:last-of-type {
 .StripeElement input[placeholder], [placeholder], *[placeholder] {
     color: red !important;
 }
-@media (min-width: 200px) and (max-width: 700px) { 
+@media (min-width: 200px) and (max-width: 700px) {
 #region-main{
     padding:0;
 }   
@@ -366,6 +377,8 @@ body#page-enrol-index #region-main .generalbox:last-of-type{
 }
 #page-enrol-index #region-main-box .card-title:before, #page-enrol-index #region-main-box .card-title:after{
  display: none;
-} 
+}
+.couponcode-wrap { display: block;
+}
 }
 </style>
