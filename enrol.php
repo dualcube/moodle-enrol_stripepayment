@@ -199,6 +199,7 @@ if ($costvalue == 000) {  ?>
           ).then(function(result) {
             if (result.error) {
               // Display error.message in your UI.
+               $("#transaction-status").html("<center> Sorry! Your transaction is failed: " + result.error.code + "</center>");  
             } else {
               // The setup has succeeded. Display a success message.
               var result = Object.keys(result).map(function(key) {
