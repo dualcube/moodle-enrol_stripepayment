@@ -158,63 +158,71 @@ if ($costvalue == 000) {  ?>
     var emailId = "<?php echo $USER->email; ?>";
     var cardButton = document.getElementById('card-button');
     var status = 0;
+    var postal = null;
     
     cardElement.addEventListener('change', function(event) {
-      var displayError = document.getElementById('card-errors');
-      if (event.error) {
-        status = 0;
-      } else {
-        status = 1;
-      }
+
+      postal = event.value['postalCode'];
+
     });
 
-    cardButton.addEventListener('click', function(ev) {
-      
-      if (status == 0) {
+    cardButton.addEventListener('click', function(event) {
+
+      if ((typeof(postal) != "undefined" && postal !== null && postal.length == 5)) {
+        if (event.error) {
+          status = 0;
+        } else {
+          status = 1;
+        }
+      }
+
+      if (status == 0 || status == null) {
          $("#transaction-status").css("display", "none");
       } else {
          $("#transaction-status").css("display", "block");
       
          $.ajax({
-        url: "<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/paymentintendsca.php",
-        method: 'POST',
-        data: {
-            'secretkey' : "<?php echo $this->get_config('secretkey'); ?>",
-            'amount' : "<?php echo str_replace(".", "", $cost); ?>",
-            'currency' : "<?php echo strtolower($instance->currency); ?>",
-            'description' : "<?php echo 'Enrolment charge for '.$coursefullname; ?>",
-            'courseid' : "<?php echo $course->id; ?>",
-            'receiptemail' : emailId,
-        },
-        success: function(data) {
-          var clientSecret = data;
 
-          stripe.handleCardPayment(
-            clientSecret, cardElement,
-            {
-              payment_method_data: {
-                billing_details: {name: cardholderName,email: emailId}
+          url: "<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/paymentintendsca.php",
+          method: 'POST',
+          data: {
+              'secretkey' : "<?php echo $this->get_config('secretkey'); ?>",
+              'amount' : "<?php echo str_replace(".", "", $cost); ?>",
+              'currency' : "<?php echo strtolower($instance->currency); ?>",
+              'description' : "<?php echo 'Enrolment charge for '.$coursefullname; ?>",
+              'courseid' : "<?php echo $course->id; ?>",
+              'receiptemail' : emailId,
+          },
+
+          success: function(data) {
+            var clientSecret = data;
+
+            stripe.handleCardPayment(
+              clientSecret, cardElement,
+              {
+                payment_method_data: {
+                  billing_details: {name: cardholderName,email: emailId}
+                }
               }
-            }
-          ).then(function(result) {
-            if (result.error) {
-              // Display error.message in your UI.
-            } else {
-              // The setup has succeeded. Display a success message.
-              var result = Object.keys(result).map(function(key) {
-                  return [Number(key), result[key]];
-                });
-              document.getElementById("auth").value = JSON.stringify(result[0][1]);
-              document.getElementById("stripeform").submit();
-            }
-          });
-        },
-        error: function() {
+            ).then(function(result) {
+              if (result.error) {
+                // Display error.message in your UI.
+              } else {
+                // The setup has succeeded. Display a success message.
+                var result = Object.keys(result).map(function(key) {
+                    return [Number(key), result[key]];
+                  });
+                document.getElementById("auth").value = JSON.stringify(result[0][1]);
+                document.getElementById("stripeform").submit();
+              }
+            });
+          },
 
-          $("#transaction-status").html("<center> Sorry! Your transaction is failed. </center>");
-        },
-                          
-      });
+          error: function() {
+            $("#transaction-status").html("<center> Sorry! Your transaction is failed. </center>");
+          },
+                            
+        });
       
       }
     });
