@@ -168,7 +168,7 @@ if ($costvalue == 000) {  ?>
 
     cardButton.addEventListener('click', function(event) {
 
-      if ((typeof(postal) != "undefined" && postal !== null && postal.length == 5)) {
+      if ((typeof(postal) != "undefined" && postal !== null && postal.length > 0)) {
         if (event.error) {
           status = 0;
         } else {
