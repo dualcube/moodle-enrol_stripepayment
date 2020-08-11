@@ -162,18 +162,16 @@ if ($costvalue == 000) {  ?>
     
     cardElement.addEventListener('change', function(event) {
 
-      postal = event.value['postalCode'];
+      postalCode = event.value['postalCode'];
 
     });
 
     cardButton.addEventListener('click', function(event) {
 
-      if ((typeof(postal) != "undefined" && postal !== null && postal.length > 0)) {
-        if (event.error) {
+      if (event.error) {
           status = 0;
-        } else {
+      } else {
           status = 1;
-        }
       }
 
       if (status == 0 || status == null) {
