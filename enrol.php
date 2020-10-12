@@ -32,6 +32,14 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 ?>
+
+<?php
+              $_SESSION['amount']=$cost;
+              $_SESSION['description']=$coursefullname;
+              $_SESSION['courseid']=$course->id;
+              $_SESSION['currency']=$instance->currency;
+?>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
 </script>
 <script>
@@ -184,11 +192,6 @@ if ($costvalue == 000) {  ?>
           url: "<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/paymentintendsca.php",
           method: 'POST',
           data: {
-              'secretkey' : "<?php echo $this->get_config('secretkey'); ?>",
-              'amount' : "<?php echo str_replace(".", "", $cost); ?>",
-              'currency' : "<?php echo strtolower($instance->currency); ?>",
-              'description' : "<?php echo 'Enrolment charge for '.$coursefullname; ?>",
-              'courseid' : "<?php echo $course->id; ?>",
               'receiptemail' : emailId,
           },
 
