@@ -30,6 +30,7 @@
 // Disable moodle specific debug messages and any errors in output,
 // comment out when debugging or better look into error log!
 defined('MOODLE_INTERNAL') || die();
+echo "hi";
 global $CFG;
 ?>
 
