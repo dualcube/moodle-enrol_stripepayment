@@ -58,10 +58,10 @@ class enrol_stripepayment_edit_form extends moodleform {
         $mform->setType('cost', PARAM_RAW); // Use unformat_float to get real value.
         $mform->setDefault('cost', format_float($plugin->get_config('cost'), 2, true));
 
-        $stripecurrencies = $plugin->get_currencies();
-        $mform->addElement('select', 'currency', get_string('currency', 'enrol_stripepayment'), $stripecurrencies);
+        $mform->addElement('text', 'currency', get_string('currency', 'enrol_stripepayment'));
+        $mform->setType('currency', PARAM_RAW); // Use unformat_float to get real value.
         $mform->setDefault('currency', $plugin->get_config('currency'));
-
+        
         if ($instance->id) {
             $roles = get_default_enrol_roles($context, $instance->roleid);
         } else {
@@ -78,7 +78,7 @@ class enrol_stripepayment_edit_form extends moodleform {
         $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_stripepayment'),
         array('optional' => true, 'defaultunit' => 86400));
         $mform->setDefault('enrolperiod', $plugin->get_config('enrolperiod'));
-        $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_stripepayment');
+        // $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_stripepayment');
 
         $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_stripepayment'),
         array('optional' => true));
