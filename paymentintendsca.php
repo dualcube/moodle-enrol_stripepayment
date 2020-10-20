@@ -29,17 +29,17 @@
 
 require_once('../../config.php');
 require('Stripe/init.php');
-global $DB, $USER, $CFG;
+global $DB, $USER, $CFG, $_SESSION;
 
 $plugin = enrol_get_plugin('stripepayment');
 
 
 $secretkey = $plugin->get_config('secretkey');
-$courseid = $_SESSION('courseid');
-$amount = $_SESSION('amount');
-$currency = $_SESSION('currency');
-$description = $_SESSION('description');
-$receiptemail = $_SESSION('receiptemail');
+$courseid = $_SESSION['courseid'];
+$amount = $_SESSION['amount'];
+$currency = $_SESSION['currency'];
+$description = $_SESSION['description'];
+$receiptemail = required_param('receiptemail', PARAM_RAW);
 
 if(empty($secretkey) || empty($courseid) || empty($amount) || empty($currency) || empty($description) || empty($receiptemail)) {
 	redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
