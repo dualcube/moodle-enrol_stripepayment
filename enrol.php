@@ -223,7 +223,7 @@ if ($costvalue == 000) {  ?>
           } )
 
           .fail( function(jqXHR, textStatus, errorThrown) {
-            $("#transaction-status").html("<center> Sorry! Your transaction is failed. </center>");
+            $("#transaction-status").html("<center> Sorry! Your transaction is failed. Kindly contact your system administrator. </center>");
           
                             
         });
