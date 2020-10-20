@@ -7,7 +7,7 @@ Now avail the much-awaited coupon functionality while enrolling students in Mood
 This plugin will help the admins and webmasters to offer their students a percent-off or amount-off discount for the paid courses.
 
 
-Stripe Payment:  
+Stripe Payment:
 
 
 1. Registered users can login to the Moodle site and happily apply the promo codes for a discount before payment. On successful payment, they can access the course.

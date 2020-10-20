@@ -34,7 +34,7 @@ global $CFG;
 ?>
 
 <?php
-              $_SESSION['amount']=$cost;
+              $_SESSION['amount']=str_replace(".", "", $cost);
               $_SESSION['description']=$coursefullname;
               $_SESSION['courseid']=$course->id;
               $_SESSION['currency']=$instance->currency;
@@ -186,6 +186,7 @@ if ($costvalue == 000) {  ?>
          $("#transaction-status").css("display", "none");
       } else {
          $("#transaction-status").css("display", "block");
+         $("#card-button").attr("disabled", true);
       
          $.ajax({
 
@@ -193,9 +194,10 @@ if ($costvalue == 000) {  ?>
           method: 'POST',
           data: {
               'receiptemail' : emailId,
-          },
+          }
+        })
 
-          success: function(data) {
+          .done( function(data) {
             var clientSecret = data;
 
             stripe.handleCardPayment(
@@ -208,6 +210,7 @@ if ($costvalue == 000) {  ?>
             ).then(function(result) {
               if (result.error) {
                 // Display error.message in your UI.
+                $("#transaction-status").html("<center> Sorry! Your transaction is failed. Stripe Error Code : " + result.error.code + "</center>");
               } else {
                 // The setup has succeeded. Display a success message.
                 var result = Object.keys(result).map(function(key) {
@@ -217,10 +220,10 @@ if ($costvalue == 000) {  ?>
                 document.getElementById("stripeform").submit();
               }
             });
-          },
+          } )
 
-          error: function() {
-            $("#transaction-status").html("<center> Sorry! Your transaction is failed. </center>");
+          .fail( function(jqXHR, textStatus, errorThrown) {
+            $("#transaction-status").html("<center> Sorry! Your transaction is failed. Kindly contact your system administrator. </center>");
           },
                             
         });
