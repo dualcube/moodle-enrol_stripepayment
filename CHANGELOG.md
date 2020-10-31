@@ -1,5 +1,9 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.2 (202010270200)
+	* Fixing the issue of payments record not getting through stripe dashboard
+	* Changed the Course Stripe Enrolment Setting 
+
 3.1 (2020102001)
 	* Showing the Stripe error code on unsuccessful payment
 	* Fixing the issue that payment are done Twice

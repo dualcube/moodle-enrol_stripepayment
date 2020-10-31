@@ -39,8 +39,8 @@ require_once($CFG->libdir . '/filelib.php');
 require_login();
 
 // Keep out casual intruders.
-$auth_take = required_param_array('auth', PARAM_RAW);
-$auth[] = json_decode($auth_take[0]);
+$authtake = required_param_array('auth', PARAM_RAW);
+$auth[] = json_decode($authtake[0]);
 $tid = $auth[0]->id;
 
 $data = new stdClass();
@@ -247,7 +247,7 @@ try {
             $subject = get_string("enrolmentnew", 'enrol', $shortname);
             $fullmessage = get_string('welcometocoursetext', '', $a);
             $fullmessagehtml = html_to_text('<p>'.get_string('welcometocoursetext', '', $a).'</p>');
-        
+
             // Send test email.
             ob_start();
             $success = email_to_user($user, $userfrom, $subject, $fullmessage, $fullmessagehtml);
@@ -258,11 +258,11 @@ try {
     if (!empty($mailteachers) && !empty($teacher)) {
             $a->course = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->user = fullname($user);
-            
+
             $subject = get_string("enrolmentnew", 'enrol', $shortname);
             $fullmessage = get_string('enrolmentnewuser', 'enrol', $a);
             $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>');
-        
+
             // Send test email.
             ob_start();
             $success = email_to_user($teacher, $user, $subject, $fullmessage, $fullmessagehtml);
@@ -278,7 +278,7 @@ try {
             $subject = get_string("enrolmentnew", 'enrol', $shortname);
             $fullmessage = get_string('enrolmentnewuser', 'enrol', $a);
             $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $a).'</p>');
-        
+
             // Send test email.
             ob_start();
             $success = email_to_user($admin, $user, $subject, $fullmessage, $fullmessagehtml);
@@ -352,7 +352,7 @@ function message_stripepayment_error_to_admin($subject, $data) {
     $subject = "STRIPE PAYMENT ERROR: ".$subject;
     $fullmessage = $message;
     $fullmessagehtml = html_to_text('<p>'.$message.'</p>');
-        
+
     // Send test email.
     ob_start();
     $success = email_to_user($admin, $admin, $subject, $fullmessage, $fullmessagehtml);

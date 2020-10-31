@@ -88,7 +88,8 @@ $(document).ready(function() {
 <!-- <p><b><?php echo $instancename; ?></b></p> //-->
 <p><b><?php echo get_string("cost").": {$instance->currency} {$cost}"; ?></b></p>
 <div class="couponcode-wrap">
-<span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span> <input type=text id="coupon"/>
+<span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span>
+<input type=text id="coupon"/>
 <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
 </div>
 
@@ -210,7 +211,8 @@ if ($costvalue == 000) {  ?>
             ).then(function(result) {
               if (result.error) {
                 // Display error.message in your UI.
-                $("#transaction-status").html("<center> Sorry! Your transaction is failed. Stripe Error Code : " + result.error.code + "</center>");
+                $("#transaction-status")
+                .html("<center> Sorry! Your transaction is failed. Stripe Error Code : " + result.error.code + "</center>");
 
                 $("#card-button").attr("disabled", false);
 
@@ -226,7 +228,8 @@ if ($costvalue == 000) {  ?>
           })
 
           .fail( function(jqXHR, textStatus, errorThrown) {
-            $("#transaction-status").html("<center> Sorry! Your transaction is failed. Kindly contact your system administrator. </center>");
+            $("#transaction-status")
+            .html("<center> Sorry! Your transaction is failed. Kindly contact your system administrator. </center>");
             $("#card-button").attr("disabled", false);
           
                             

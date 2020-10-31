@@ -25,9 +25,10 @@
  * @package    enrol_stripepayment
  * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */ 
+ */
 
 require_once('../../config.php');
+require_login();
 require('Stripe/init.php');
 global $DB, $USER, $CFG, $_SESSION;
 
@@ -39,25 +40,25 @@ $courseid = $_SESSION['courseid'];
 $amount = $_SESSION['amount'];
 $currency = $_SESSION['currency'];
 $description = $_SESSION['description'];
-$receiptemail = $_SESSION['receiptemail'];
+$receiptemail = required_param('receiptemail', PARAM_RAW);
 
-if(empty($secretkey) || empty($courseid) || empty($amount) || empty($currency) || empty($description) || empty($receiptemail)) {
-	redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
-}else{
-	\Stripe\Stripe::setApiKey($secretkey);
+if (empty($secretkey) || empty($courseid) || empty($amount) || empty($currency) || empty($description) || empty($receiptemail)) {
+    redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
+} else {
+    \Stripe\Stripe::setApiKey($secretkey);
 
-	$intent = \Stripe\PaymentIntent::create([
-	    'amount' => $amount,
-	    'payment_method_types' => ['card'],
-	    'currency' => $currency,
-	    'description' => $description,
-	    'receipt_email' => $receiptemail,
-	    'setup_future_usage' => 'off_session',
-	]);
+    $intent = \Stripe\PaymentIntent::create([
+        'amount' => $amount,
+        'payment_method_types' => ['card'],
+        'currency' => $currency,
+        'description' => $description,
+        'receipt_email' => $receiptemail,
+        'setup_future_usage' => 'off_session',
+    ]);
 }
 
 if (isset($intent->client_secret)) {
-	echo $intent->client_secret;
+    echo $intent->client_secret;
 }
 
 die;

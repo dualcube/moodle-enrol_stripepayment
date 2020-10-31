@@ -71,7 +71,9 @@ if ($mform->is_cancelled()) {
         $instance->status         = $data->status;
         $instance->name           = $data->name;
         $instance->cost           = unformat_float($data->cost);
-        $instance->currency       = $data->currency;
+        $instance->currency       = $DB->get_field('config_plugins', 'value',
+                                         array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+                                    );
         $instance->roleid         = $data->roleid;
         $instance->customint3     = $data->customint3;
         $instance->enrolperiod    = $data->enrolperiod;
@@ -86,7 +88,9 @@ if ($mform->is_cancelled()) {
 
     } else {
         $fields = array('status' => $data->status, 'name' => $data->name, 'cost' => unformat_float($data->cost),
-                        'currency' => $data->currency,
+                        'currency' => $DB->get_field('config_plugins', 'value',
+                                           array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+                                      ),
                         'roleid' => $data->roleid,
                         'enrolperiod' => $data->enrolperiod,
                         'customint3' => $data->customint3,
