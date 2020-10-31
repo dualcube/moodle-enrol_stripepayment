@@ -34,10 +34,28 @@ global $CFG;
 ?>
 
 <?php
-              $_SESSION['amount'] = str_replace(".", "", $cost);
               $_SESSION['description'] = $coursefullname;
               $_SESSION['courseid'] = $course->id;
               $_SESSION['currency'] = $instance->currency;
+              $_SESSION['amount'] = get_stripe_amount($cost, $_SESSION['currency'], false);
+
+function get_stripe_amount($cost, $currency, $reverse) {
+    $nodecimalcurrencies = array("bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg",
+                                 "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf");
+
+    if (!$currency) {
+        $currency = 'USD';
+    }
+    if (in_array(strtolower($currency), $nodecimalscurrencies)) {
+        return abs($cost);
+    } else {
+        if ($reverse) {
+            return abs( (float) $cost / 100);
+        } else {
+            return abs( (float) $cost * 100);
+        }
+    }
+}
 ?>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
