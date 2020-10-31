@@ -34,10 +34,28 @@ global $CFG;
 ?>
 
 <?php
-              $_SESSION['amount'] = str_replace(".", "", $cost);
               $_SESSION['description'] = $coursefullname;
               $_SESSION['courseid'] = $course->id;
               $_SESSION['currency'] = $instance->currency;
+              $_SESSION['amount'] = get_stripe_amount($cost, $_SESSION['currency'], false);
+
+function get_stripe_amount($cost, $currency, $reverse) {
+    $nodecimalcurrencies = array("bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg",
+                                 "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf");
+
+    if (!$currency) {
+        $currency = 'USD';
+    }
+    if (in_array(strtolower($currency), $nodecimalscurrencies)) {
+        return abs($cost);
+    } else {
+        if ($reverse) {
+            return abs( (float) $cost / 100);
+        } else {
+            return abs( (float) $cost * 100);
+        }
+    }
+}
 ?>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
@@ -88,7 +106,8 @@ $(document).ready(function() {
 <!-- <p><b><?php echo $instancename; ?></b></p> //-->
 <p><b><?php echo get_string("cost").": {$instance->currency} {$cost}"; ?></b></p>
 <div class="couponcode-wrap">
-<span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span> <input type=text id="coupon"/>
+<span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span>
+<input type=text id="coupon"/>
 <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
 </div>
 
@@ -210,7 +229,8 @@ if ($costvalue == 000) {  ?>
             ).then(function(result) {
               if (result.error) {
                 // Display error.message in your UI.
-                $("#transaction-status").html("<center> Sorry! Your transaction is failed. Stripe Error Code : " + result.error.code + "</center>");
+                $("#transaction-status")
+                .html("<center> Sorry! Your transaction is failed. Stripe Error Code : " + result.error.code + "</center>");
 
                 $("#card-button").attr("disabled", false);
 
@@ -226,7 +246,8 @@ if ($costvalue == 000) {  ?>
           })
 
           .fail( function(jqXHR, textStatus, errorThrown) {
-            $("#transaction-status").html("<center> Sorry! Your transaction is failed. Kindly contact your system administrator. </center>");
+            $("#transaction-status")
+            .html("<center> Sorry! Your transaction is failed. Kindly contact your system administrator. </center>");
             $("#card-button").attr("disabled", false);
           
                             
