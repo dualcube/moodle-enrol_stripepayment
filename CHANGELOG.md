@@ -1,5 +1,8 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.3 (2020111901)
+ * Fixed the issue of wrong variable causing critical bug
+
 3.2 (202010270200)
  * Fixing the issue of payments record not getting through stripe dashboard
  * Changed the Course Stripe Enrolment Setting 

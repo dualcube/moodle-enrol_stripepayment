@@ -46,7 +46,7 @@ function get_stripe_amount($cost, $currency, $reverse) {
     if (!$currency) {
         $currency = 'USD';
     }
-    if (in_array(strtolower($currency), $nodecimalscurrencies)) {
+    if (in_array(strtolower($currency), $nodecimalcurrencies)) {
         return abs($cost);
     } else {
         if ($reverse) {
