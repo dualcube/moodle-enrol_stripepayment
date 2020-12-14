@@ -36,8 +36,7 @@ global $CFG;
 <?php
               $_SESSION['description'] = $coursefullname;
               $_SESSION['courseid'] = $course->id;
-              $_SESSION['currency'] = $instance->currency;
-              $_SESSION['amount'] = get_stripe_amount($cost, $_SESSION['currency'], false);
+              $_SESSION['currency'] = $instance->currency;              
 
 function get_stripe_amount($cost, $currency, $reverse) {
     $nodecimalcurrencies = array("bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg",
@@ -46,7 +45,7 @@ function get_stripe_amount($cost, $currency, $reverse) {
     if (!$currency) {
         $currency = 'USD';
     }
-    if (in_array(strtolower($currency), $nodecimalscurrencies)) {
+    if (in_array(strtolower($currency), $nodecimalcurrencies)) {
         return abs($cost);
     } else {
         if ($reverse) {
@@ -126,6 +125,7 @@ if ( isset($dataa) ) {
     $cost = $dataa;
     $couponid = required_param('coupon_id', PARAM_RAW);
 }
+$_SESSION['amount'] = get_stripe_amount($cost, $_SESSION['currency'], false);
 
 echo "<p><b> Final Cost : $instance->currency $cost </b></p>";
 
