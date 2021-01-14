@@ -1,5 +1,8 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.2.2 (2021011402)
+ * Added all the missing currencies supported by Stripe.
+
 3.2.1 (2020121401)
  * Fixed the issue of wrong variable causing critical bug
  * Fixed the issue of full price taken by stripe upon payment using a coupon.
