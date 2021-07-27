@@ -43,7 +43,6 @@ $courseid = required_param('courseid', PARAM_RAW);
 global $DB;
 $plugininstance = $DB->get_record("enrol", array("enrol" => 'stripepayment', "status" => 0, 'courseid' => $courseid));
 
-
 if ( (float) $plugininstance->cost <= 0 ) {
     $cost = ( float ) $plugin->get_config('cost');
 } else {
@@ -56,7 +55,7 @@ $cost = format_float($cost, 2, false);
 // Needs if coupon_id is not blank.
 try {
     $coupon = \Stripe\Coupon::retrieve( $couponid );
-} catch (Stripe_InvalidRequestError $e) {
+} catch (Exception $e) {
     // Variable $answer is already set to false.
     echo $answer;
 }

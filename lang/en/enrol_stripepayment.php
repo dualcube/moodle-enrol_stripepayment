@@ -81,6 +81,6 @@ $string['applycode'] = 'Apply Code';
 $string['invalidcouponcode'] = 'Invalid Coupon Code';
 $string['invalidcouponcodevalue'] = 'Coupon Code {$a} is not valid!';
 $string['enrol'] = 'Enrol';
-
-
-
+$string['enrol_now'] = 'Enrol Now';
+$string['buy_now'] = 'Buy Now';
+$string['final_cost'] = 'Final Cost';

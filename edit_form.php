@@ -58,15 +58,20 @@ class enrol_stripepayment_edit_form extends moodleform {
         $costarray[] =& $mform->createElement('text', 'cost', get_string('cost', 'enrol_stripepayment'), array('size' => 4));
         $mform->setDefault('cost', format_float($plugin->get_config('cost'), 2, true));
 
-        $costarray[] =& $mform->createElement('static', 'currency', get_string('currency', 'enrol_stripepayment'));
-        $mform->setDefault('currency', '&nbsp;&nbsp;' . $plugin->get_config('currency'));
         $mform->addGroup($costarray, 'costar', get_string('cost', 'enrol_stripepayment'), array(' '), false);
-
+        
         if ($instance->id) {
             $roles = get_default_enrol_roles($context, $instance->roleid);
+            $currency = enrol_get_plugin('stripepayment')->get_currencies();
         } else {
             $roles = get_default_enrol_roles($context, $plugin->get_config('roleid'));
+            $currency = enrol_get_plugin('stripepayment')->get_currencies();
         }
+        // Currency select
+        $mform->addElement('select', 'currency', get_string('currency', 'enrol_stripepayment'), $currency);
+        $mform->setDefault('currency', $plugin->get_config('currency'));
+
+        // Assign role
         $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_stripepayment'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('roleid'));
 

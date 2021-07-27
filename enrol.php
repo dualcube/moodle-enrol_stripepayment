@@ -31,17 +31,17 @@
 // comment out when debugging or better look into error log!
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-?>
 
-<?php
-              $_SESSION['description'] = $coursefullname;
-              $_SESSION['courseid'] = $course->id;
-              $_SESSION['currency'] = $instance->currency;              
+$_SESSION['description'] = $coursefullname;
+$_SESSION['courseid'] = $course->id;
+$_SESSION['instance_id'] = $instance->id;         
+$_SESSION['user_id'] = $USER->id;
+$_SESSION['currency'] = $instance->currency;
+$currency_symbol = show_currency_symbol( strtolower($instance->currency) );
 
 function get_stripe_amount($cost, $currency, $reverse) {
     $nodecimalcurrencies = array("bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg",
-                                 "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf");
-
+        "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf");
     if (!$currency) {
         $currency = 'USD';
     }
@@ -56,30 +56,26 @@ function get_stripe_amount($cost, $currency, $reverse) {
     }
 }
 ?>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
-</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
 $(document).ready(function() {
     $("#apply").click(function() {
-        var txt = $("#coupon").val();
+    var coupon_id_name = $("#coupon").val();
     $.post("<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/validate-coupon.php",
-    {coupon_id: txt, courseid: '<?php echo $course->id; ?>'}, function(data, status) {
-
+    {coupon_id: coupon_id_name, courseid: '<?php echo $course->id; ?>'}, function(data, status) {
        if(data == 'wrong') {
          $("#coupon").focus();
          $("#new_coupon").html('<p style="color:red;"><b><?php echo get_string("invalidcouponcode", "enrol_stripepayment"); ?>
          </b></p>');
        } else {
-         
          $("#form_data_new_data").attr("value", data);
-         $("#form_data_new_coupon_id").attr("value", txt);
+         $("#form_data_new_coupon_id").attr("value", coupon_id_name);
          $( "#form_data_new" ).submit();
         
          $("#reload").load(location.href + " #reload");
         
-         $("#coupon_id").attr("value", txt);
-         $(".coupon_id").val(txt);
+         $("#coupon_id").attr("value", coupon_id_name);
+         $(".coupon_id").val(coupon_id_name);
          if(data == 0.00) {
              $('#amountgreaterzero').css("display", "none");
              $('#amountequalzero').css("display", "block");
@@ -92,31 +88,23 @@ $(document).ready(function() {
   });
 });
 </script>
-
-<style>
-#region-main h2 { display:none; }
-.enrolmenticons { display: none;}
-</style>
-
 <div align="center">
-<div class="stripe-img">
-<img src="<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/stripe.png"></div>
-<p><?php print_string("paymentrequired") ?></p>
-<!-- <p><b><?php echo $instancename; ?></b></p> //-->
-<p><b><?php echo get_string("cost").": {$instance->currency} {$cost}"; ?></b></p>
-<div class="couponcode-wrap">
-<span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span>
-<input type=text id="coupon"/>
-<button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
-</div>
+    <div class="stripe-img">
+        <img src="<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/pix/stripe.png"></div>
+        <p><?php print_string("paymentrequired") ?></p>
+        <p><b><?php echo get_string("cost").": {$currency_symbol}{$cost}"; ?></b></p>
+        <div class="couponcode-wrap">
+            <span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span>
+            <input type=text id="coupon"/>
+            <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
+        </div>
 
-<form id="form_data_new" action="" method="post">
-  <input id="form_data_new_data" type="hidden" name="data" value="" />
-  <input id="form_data_new_coupon_id" type="hidden" name="coupon_id" value="" />
-</form>
-
-<div id="reload">
-    <div id="new_coupon" style="margin-bottom:10px;"></div>
+        <form id="form_data_new" action="" method="post">
+            <input id="form_data_new_data" type="hidden" name="data" value="" />
+            <input id="form_data_new_coupon_id" type="hidden" name="coupon_id" value="" />
+        </form>
+        <div id="reload">
+            <div id="new_coupon" style="margin-bottom:10px;"></div>
 <?php
 require('Stripe/init.php');
 $couponid = 0;
@@ -125,22 +113,21 @@ if ( isset($dataa) ) {
     $cost = $dataa;
     $couponid = required_param('coupon_id', PARAM_RAW);
 }
+$_SESSION['coupon_id'] = $couponid;
 $_SESSION['amount'] = get_stripe_amount($cost, $_SESSION['currency'], false);
+$final_cost_text = get_string("final_cost", "enrol_stripepayment");
+echo "<p><b> $final_cost_text : $currency_symbol$cost </b></p>";
 
-echo "<p><b> Final Cost : $instance->currency $cost </b></p>";
-
-?>
-
-<?php $costvalue = str_replace(".", "", $cost);
+$costvalue = str_replace(".", "", $cost);
 if ($costvalue == 000) {  ?>
 <div id="amountequalzero">
   <button id="card-button-zero">
-    Enrol Now
+    <?php echo get_string("enrol_now", "enrol_stripepayment"); ?>
   </button>
 </div>
 <br>
 
-<script type="text/javascript">
+<script>
   $(document.body).on('click', '#card-button-zero' ,function(){
     var cost = "<?php echo str_replace(".", "", $cost); ?>";
     if (cost == 000) {
@@ -151,111 +138,54 @@ if ($costvalue == 000) {  ?>
 
 <?php } else { ?>
 <script src="https://js.stripe.com/v3/"></script>
-
-<!-- placeholder for Elements -->
-
-<div id="amountgreaterzero">
-    <strong>
-  <div id="card-element"></div> <br>
-  <button id="card-button">
-    Submit Payment
-  </button>
-  <div id="transaction-status">
-    <center> Your transaction is processing. Please wait... </center>
-  </div>
-  </strong>
+<div id="paymentResponse"></div>
+<div id="buynow">
+    <button class="stripe-button" id="payButton"><?php echo get_string("buy_now", "enrol_stripepayment"); ?></button>
 </div>
-
-<script type="text/javascript">
-    var stripe = Stripe('<?php echo $publishablekey; ?>');
-    var elements = stripe.elements();
-    var style = {
-      base: {
-        fontSize:'15px',
-        color:'#000',
-        '::placeholder': {
-          color: '#000',
-        }
-      },
-    };
-
-    var cardElement = elements.create('card', {style: style});
-    cardElement.mount('#card-element');
-    var cardholderName = "<?php echo $userfullname; ?>";
-    var emailId = "<?php echo $USER->email; ?>";
-    var cardButton = document.getElementById('card-button');
-    var status = 0;
-    var postal = null;
+<script>
+var buyBtn = document.getElementById('payButton');
+var responseContainer = document.getElementById('paymentResponse');
     
-    cardElement.addEventListener('change', function(event) {
-
-      postalCode = event.value['postalCode'];
-
+// Create a Checkout Session with the selected product
+var createCheckoutSession = function (stripe) {
+    return fetch("<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/paymentintendsca.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            checkoutSession: 1,
+        }),
+    }).then(function (result) {
+        return result.json();
     });
+};
 
-    cardButton.addEventListener('click', function(event) {
+// Handle any errors returned from Checkout
+var handleResult = function (result) {
+    if (result.error) {
+        responseContainer.innerHTML = '<p>'+result.error.message+'</p>';
+    }
+    buyBtn.disabled = false;
+    buyBtn.textContent = 'Buy Now';
+};
 
-      if (event.error) {
-          status = 0;
-      } else {
-          status = 1;
-      }
+// Specify Stripe publishable key to initialize Stripe.js
+var stripe = Stripe('<?php echo $publishablekey; ?>');
 
-      if (status == 0 || status == null) {
-         $("#transaction-status").css("display", "none");
-      } else {
-         $("#transaction-status").css("display", "block");
-         $("#card-button").attr("disabled", true);
-      
-         $.ajax({
-
-          url: "<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/paymentintendsca.php",
-          method: 'POST',
-          data: {
-              'receiptemail' : emailId,
-          }
-        })
-
-          .done( function(data) {
-            var clientSecret = data;
-
-            stripe.handleCardPayment(
-              clientSecret, cardElement,
-              {
-                payment_method_data: {
-                  billing_details: {name: cardholderName,email: emailId}
-                }
-              }
-            ).then(function(result) {
-              if (result.error) {
-                // Display error.message in your UI.
-                $("#transaction-status")
-                .html("<center> Sorry! Your transaction is failed. Stripe Error Code : " + result.error.code + "</center>");
-
-                $("#card-button").attr("disabled", false);
-
-              } else {
-                // The setup has succeeded. Display a success message.
-                var result = Object.keys(result).map(function(key) {
-                    return [Number(key), result[key]];
-                  });
-                document.getElementById("auth").value = JSON.stringify(result[0][1]);
-                document.getElementById("stripeform").submit();
-              }
-            });
-          })
-
-          .fail( function(jqXHR, textStatus, errorThrown) {
-            $("#transaction-status")
-            .html("<center> Sorry! Your transaction is failed. Kindly contact your system administrator. </center>");
-            $("#card-button").attr("disabled", false);
-          
-                            
-        });
-      
-      }
+buyBtn.addEventListener("click", function (evt) {
+    buyBtn.disabled = true;
+    buyBtn.textContent = 'Please wait...';
+    createCheckoutSession().then(function (data) {
+        if(data.sessionId) {
+            stripe.redirectToCheckout({
+                sessionId: data.sessionId,
+            }).then(handleResult);
+        } else {
+            handleResult(data);
+        }
     });
-
+});
 </script>
 
 <?php } ?>
@@ -285,7 +215,7 @@ if ($costvalue == 000) {  ?>
 <input type="hidden" name="country" value="<?php p($USER->country) ?>" />
 <input id="cardholder-name" name="cname" type="hidden" value="<?php echo $userfullname; ?>">
 <input id="cardholder-email" type="hidden" name="email" value="<?php p($USER->email) ?>" />
-<input id="auth" name="auth[]" type="hidden" value="">
+<input id="sessionID" name="sessionID" type="hidden" value="">
 </form>
 
 <form id="stripeformfree" action="<?php
@@ -338,7 +268,7 @@ div#transaction-status, div#transaction-status-zero {
 }
 .CardField-input-wrapper{ overflow: inherit;} 
 .coursebox .content .summary{width:100%}
-button#apply, button#card-button, button#card-button-zero{
+button#apply, button#payButton, button#card-button-zero{
    color: #fff;
    background-color: #1177d1;
    border: 1px solid #1177d1;
@@ -418,4 +348,6 @@ body#page-enrol-index #region-main .generalbox:last-of-type{
 .couponcode-wrap { display: block;
 }
 }
+#region-main h2 { display:none; }
+.enrolmenticons { display: none;}
 </style>

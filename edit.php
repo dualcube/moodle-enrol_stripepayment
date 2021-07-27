@@ -72,14 +72,15 @@ if ($mform->is_cancelled()) {
         $instance->name           = $data->name;
         $instance->cost           = unformat_float($data->cost);
         $instance->currency       = $DB->get_field('config_plugins', 'value',
-                                         array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
-                                    );
+            array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+        );
         $instance->roleid         = $data->roleid;
         $instance->customint3     = $data->customint3;
         $instance->enrolperiod    = $data->enrolperiod;
         $instance->enrolstartdate = $data->enrolstartdate;
         $instance->enrolenddate   = $data->enrolenddate;
         $instance->timemodified   = time();
+        $instance->currency   = $data->currency;
         $DB->update_record('enrol', $instance);
 
         if ($reset) {
@@ -89,16 +90,16 @@ if ($mform->is_cancelled()) {
     } else {
         $fields = array('status' => $data->status, 'name' => $data->name, 'cost' => unformat_float($data->cost),
                         'currency' => $DB->get_field('config_plugins', 'value',
-                                           array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
-                                      ),
+                            array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+                        ),
                         'roleid' => $data->roleid,
                         'enrolperiod' => $data->enrolperiod,
                         'customint3' => $data->customint3,
                         'enrolstartdate' => $data->enrolstartdate,
-                        'enrolenddate' => $data->enrolenddate);
+                        'enrolenddate' => $data->enrolenddate,
+                        'currency'   => $data->currency);
         $plugin->add_instance($course, $fields);
     }
-
     redirect($return);
 }
 

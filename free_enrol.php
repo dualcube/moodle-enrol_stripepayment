@@ -115,15 +115,9 @@ $cost = format_float($cost, 2, false);
 
 // Let's say each article costs 15.00 bucks.
 
-
-
-
 try {
-
     require_once('Stripe/init.php');
-
     \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
-
     $iscoupon = false;
     if ($data->coupon_id) {
         $coupon = \Stripe\Coupon::retrieve($data->coupon_id);
@@ -176,11 +170,11 @@ try {
     $DB->insert_record("enrol_stripepayment", $data);
 
     if ($plugininstance->enrolperiod) {
-            $timestart = time();
-            $timeend   = $timestart + $plugininstance->enrolperiod;
+        $timestart = time();
+        $timeend   = $timestart + $plugininstance->enrolperiod;
     } else {
-            $timestart = 0;
-            $timeend   = 0;
+        $timestart = 0;
+        $timeend   = 0;
     }
 
     // Enrol user.
@@ -195,10 +189,10 @@ try {
         $teacher = false;
     }
 
-        $mailstudents = $plugin->get_config('mailstudents');
-        $mailteachers = $plugin->get_config('mailteachers');
-        $mailadmins   = $plugin->get_config('mailadmins');
-        $shortname = format_string($course->shortname, true, array('context' => $context));
+    $mailstudents = $plugin->get_config('mailstudents');
+    $mailteachers = $plugin->get_config('mailteachers');
+    $mailadmins   = $plugin->get_config('mailadmins');
+    $shortname = format_string($course->shortname, true, array('context' => $context));
 
     $coursecontext = context_course::instance($course->id);
 
