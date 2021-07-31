@@ -81,6 +81,12 @@ $string['applycode'] = 'Apply Code';
 $string['invalidcouponcode'] = 'Invalid Coupon Code';
 $string['invalidcouponcodevalue'] = 'Coupon Code {$a} is not valid!';
 $string['enrol'] = 'Enrol';
-
-
-
+$string['enrol_now'] = 'Enrol Now';
+$string['buy_now'] = 'Buy Now';
+$string['please_wait'] = 'Please wait...';
+$string['final_cost'] = 'Final Cost';
+$string['webservice_token_string'] = 'User Token';
+$string['create_user_token'] = 'To make Stripe callback works, kindly  enable Moodle REST protocol on your site';
+$string['enabled_rest_protocol'] = 'Also kindly create your token';
+$string['from_here'] = 'from here';
+$string['token_empty_error'] = 'Web service token could not be empty';

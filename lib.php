@@ -31,6 +31,9 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2019 Dualcube Team
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+global $CFG;
+require_once($CFG->dirroot.'/lib/adminlib.php');
+require_once($CFG->dirroot.'/enrol/stripepayment/enrolstripe-adminlib.php');
 class enrol_stripepayment_plugin extends enrol_plugin {
     /**
      * Lists all currencies available for plugin.
@@ -55,6 +58,26 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         }
 
         return $currencies;
+    }
+    /**
+     * Get stripe amount
+     * @return $Stripe ammount
+     */
+    public function get_stripe_amount($cost, $currency, $reverse) {
+        $nodecimalcurrencies = array("bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg",
+            "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf");
+        if (!$currency) {
+            $currency = 'USD';
+        }
+        if (in_array(strtolower($currency), $nodecimalcurrencies)) {
+            return abs($cost);
+        } else {
+            if ($reverse) {
+                return abs( (float) $cost / 100);
+            } else {
+                return abs( (float) $cost * 100);
+            }
+        }
     }
 
     /**
