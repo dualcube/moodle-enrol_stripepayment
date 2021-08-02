@@ -80,7 +80,6 @@ if ($mform->is_cancelled()) {
         $instance->enrolenddate   = $data->enrolenddate;
         $instance->timemodified   = time();
         $instance->currency   = $data->currency;
-        $instance->webservice_token   = $data->webservice_token;
         $DB->update_record('enrol', $instance);
 
         if ($reset) {
@@ -98,7 +97,6 @@ if ($mform->is_cancelled()) {
             'enrolstartdate' => $data->enrolstartdate,
             'enrolenddate' => $data->enrolenddate,
             'currency'   => $data->currency,
-            'webservice_token'   => $data->webservice_token,
     );
         $plugin->add_instance($course, $fields);
     }
