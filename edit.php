@@ -24,10 +24,8 @@
  * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 require('../../config.php');
 require_once('edit_form.php');
-
 $courseid   = required_param('courseid', PARAM_INT);
 $instanceid = optional_param('id', 0, PARAM_INT); // Instanceid.
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
@@ -66,20 +64,23 @@ if ($mform->is_cancelled()) {
 
 } else if ($data = $mform->get_data()) {
     if ($instance->id) {
+        
         $reset = ($instance->status != $data->status);
 
         $instance->status         = $data->status;
         $instance->name           = $data->name;
         $instance->cost           = unformat_float($data->cost);
         $instance->currency       = $DB->get_field('config_plugins', 'value',
-                                         array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
-                                    );
+            array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+        );
         $instance->roleid         = $data->roleid;
         $instance->customint3     = $data->customint3;
         $instance->enrolperiod    = $data->enrolperiod;
         $instance->enrolstartdate = $data->enrolstartdate;
         $instance->enrolenddate   = $data->enrolenddate;
         $instance->timemodified   = time();
+        $instance->currency   = $data->currency;
+        $instance->webservice_token   = $data->webservice_token;
         $DB->update_record('enrol', $instance);
 
         if ($reset) {
@@ -88,17 +89,19 @@ if ($mform->is_cancelled()) {
 
     } else {
         $fields = array('status' => $data->status, 'name' => $data->name, 'cost' => unformat_float($data->cost),
-                        'currency' => $DB->get_field('config_plugins', 'value',
-                                           array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
-                                      ),
-                        'roleid' => $data->roleid,
-                        'enrolperiod' => $data->enrolperiod,
-                        'customint3' => $data->customint3,
-                        'enrolstartdate' => $data->enrolstartdate,
-                        'enrolenddate' => $data->enrolenddate);
+            'currency' => $DB->get_field('config_plugins', 'value',
+                array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+            ),
+            'roleid' => $data->roleid,
+            'enrolperiod' => $data->enrolperiod,
+            'customint3' => $data->customint3,
+            'enrolstartdate' => $data->enrolstartdate,
+            'enrolenddate' => $data->enrolenddate,
+            'currency'   => $data->currency,
+            'webservice_token'   => $data->webservice_token,
+    );
         $plugin->add_instance($course, $fields);
     }
-
     redirect($return);
 }
 
