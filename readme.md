@@ -1,4 +1,4 @@
-Moodle Stripe Enrollment Plugin [enrol_stripepay]
+Moodle Stripe Enrollment Plugin [enrol_stripepayment]
 =======================
 * Developed by: Team DualCube
 * Copyright: (c) 2021 DualCube
