@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once('lib.php');
+require_once($CFG->dirroot.'/enrol/stripepayment/lib.php');
 if (is_siteadmin()) {
 
     $settings->add(new admin_setting_heading('enrol_stripepayment_settings',

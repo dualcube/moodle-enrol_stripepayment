@@ -57,7 +57,7 @@ class enrol_stripepayment_edit_form extends moodleform {
         $costarray = array();
         $costarray[] =& $mform->createElement('text', 'cost', get_string('cost', 'enrol_stripepayment'), array('size' => 4));
         $mform->setDefault('cost', format_float($plugin->get_config('cost'), 2, true));
-
+        $mform->setType('cost', PARAM_INT);
         $mform->addGroup($costarray, 'costar', get_string('cost', 'enrol_stripepayment'), array(' '), false);
         
         // Currency select

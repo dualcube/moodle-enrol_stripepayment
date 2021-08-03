@@ -35,7 +35,7 @@ require_once($CFG->libdir.'/enrollib.php');
 require_once('Stripe/init.php');
 require_once('Stripe/version3api.php');
 // get currency symbal
-$currency_symbol = show_currency_symbol( strtolower($instance->currency) );
+$currency_symbol = enrol_get_plugin('stripepayment')->show_currency_symbol( strtolower($instance->currency) );
 $plugin = enrol_get_plugin('stripepayment');
 ?>
 <div align="center">
