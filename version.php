@@ -28,5 +28,5 @@ $plugin->version   = 2021080601;        // The current plugin version (Date: YYY
 $plugin->requires  = 2015111600;        // Requires this Moodle version.
 $plugin->component = 'enrol_stripepayment';    // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.2.2 (Build: 2021080201)';
+$plugin->release   = '3.3.0 (Build: 2021080601)';
 $plugin->cron      = 60;
