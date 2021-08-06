@@ -45,7 +45,7 @@ if (is_siteadmin()) {
     $settings->add(new admin_setting_configcheckbox('enrol_stripepayment/mailadmins',
     get_string('mailadmins', 'enrol_stripepayment'), '', 0));
 
-    $settings->add(new admin_setting_configcheckbox('enrol_stripepayment/removed_coupon_section', get_string('removed_coupon_section', 'enrol_stripepayment'), '', 0));
+    $settings->add(new admin_setting_configcheckbox('enrol_stripepayment/enable_coupon_section', get_string('enable_coupon_section', 'enrol_stripepayment'), '', 0));
 
     // Note: let's reuse the ext sync constants and strings here, internally it is very similar,
     // it describes what should happen when users are not supposed to be enrolled any more.

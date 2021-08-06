@@ -90,4 +90,4 @@ $string['create_user_token'] = 'To make Stripe callback works, kindly  enable Mo
 $string['enabled_rest_protocol'] = 'Also kindly create your token';
 $string['from_here'] = 'from here';
 $string['token_empty_error'] = 'Web service token could not be empty';
-$string['removed_coupon_section'] = 'Remove coupon section';
+$string['enable_coupon_section'] = 'Enable coupon section';
