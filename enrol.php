@@ -37,7 +37,6 @@ require_once('Stripe/version3api.php');
 // get currency symbal
 $currency_symbol = enrol_get_plugin('stripepayment')->show_currency_symbol( strtolower($instance->currency) );
 $plugin = enrol_get_plugin('stripepayment');
-$final_cost = '';
 $removed_coupon_section_enabled = empty($plugin->get_config('removed_coupon_section')) ? true : false;
 ?>
 <div align="center">
@@ -51,7 +50,6 @@ $removed_coupon_section_enabled = empty($plugin->get_config('removed_coupon_sect
                 <input type=text id="coupon"/>
                 <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
             </div>
-            <?php $final_cost = "<p><b> ". get_string("final_cost", "enrol_stripepayment") ." : $currency_symbol$cost </b></p>"; ?>
         <?php } ?>
         <form id="form_data_new" action="" method="post">
             <input id="form_data_new_data" type="hidden" name="data" value="" />
@@ -68,7 +66,7 @@ if ( isset($dataa) ) {
     $couponid = required_param('coupon_id', PARAM_RAW);
 }
 $amount = enrol_get_plugin('stripepayment')->get_stripe_amount($cost, $instance->currency, false);
-echo $final_cost;
+echo $removed_coupon_section_enabled ? "<p><b> ". get_string("final_cost", "enrol_stripepayment") ." : $currency_symbol$cost </b></p>" : '';
 
 $costvalue = str_replace(".", "", $cost);
 if ($costvalue == 000) {  ?>
