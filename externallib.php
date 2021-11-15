@@ -460,7 +460,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         );
     }
 
-    public function success_stripe_url($session_id, $courseid, $couponid, $user_id, $instance_id) {
+    public static function success_stripe_url($session_id, $courseid, $couponid, $user_id, $instance_id) {
         require('Stripe/init.php');
         require("../../config.php");
         require('../../lib/setup.php');
