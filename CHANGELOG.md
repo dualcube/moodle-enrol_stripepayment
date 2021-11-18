@@ -1,5 +1,9 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.3.1 (2021111802)
+ * Added Some Country on the list
+ * Fixed minor issues.
+ 
 3.2.1 (2020121401)
  * Fixed the issue of wrong variable causing critical bug
  * Fixed the issue of full price taken by stripe upon payment using a coupon.
