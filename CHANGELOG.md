@@ -1,6 +1,11 @@
 ##Stripe Payment Moodle Plugin Change Log
 
 3.3.1 (2021111802)
+ * Fixed 100% discount issue #89.
+ * Fixed New error upon adding the plugin #86
+ * Fixed error on the plugin settings page.
+ 
+3.3.0 (2021111802)
  * Added Some Country on the list
  * Fixed minor issues.
  
