@@ -35,7 +35,7 @@ define(['jquery', 'core/ajax'
             $('#card-button-zero').click(function () {
                 var cost = cost;
                 var promises = ajax.call([{
-                    methodname: 'mod_testtest_updatesettings',
+                    methodname: 'stripepayment_free_enrolsettings',
                     args: { cost: cost, couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, email: email},
                 }]);
             });
