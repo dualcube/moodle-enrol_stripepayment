@@ -373,7 +373,7 @@ class moodle_enrol_stripepayment_external extends external_api {
     public static function stripe_js_method($secret_key, $courseid, $amount, $currency, $description, $couponid, $user_id, $instance_id) {
         require_once('../../config.php');
         require('Stripe/init.php');
-        require('../../lib/setup.php');
+        require_once('../../lib/setup.php');
         global $CFG;
         $secretkey = $secret_key;
         $plugin = enrol_get_plugin('stripepayment');
