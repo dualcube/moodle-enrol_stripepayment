@@ -556,9 +556,10 @@ class moodle_enrol_stripepayment_external extends external_api {
                     $cu->coupon = $data->coupon_id;
                     $cu->save();
                 } else {
-                    $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
-                    $cu->coupon = null;
-                    $cu->save();
+                    // You have bug here and can ignore whole process
+                    // $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
+                    // $cu->coupon = null;
+                    // $cu->save();
                 }
                 $data->receiver_id = $checkcustomer->receiver_id;
             }
