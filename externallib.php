@@ -221,8 +221,9 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         $coursecontext = context_course::instance($course->id);
 
+        $a = new stdClass();
+
         if (!empty($mailstudents)) {
-            $a = new stdClass();
             $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
