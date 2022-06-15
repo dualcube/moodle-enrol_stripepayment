@@ -623,8 +623,8 @@ class moodle_enrol_stripepayment_external extends external_api {
 
                 $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;
                 $subject = get_string("enrolmentnew", 'enrol', $shortname);
-                $fullmessage = get_string('enrolmentnewuser', '', $a);
-                $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', '', $a).'</p>');
+                $fullmessage = get_string('welcometocoursetext', '', $a);
+                $fullmessagehtml = html_to_text('<p>'.get_string('welcometocoursetext', '', $a).'</p>');
 
                 // Send test email.
                 ob_start();
