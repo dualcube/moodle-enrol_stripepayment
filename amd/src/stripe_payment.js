@@ -30,15 +30,22 @@ define(['jquery', 'core/ajax'
                     $("#new_coupon").html('<p style="color:red;"><b>'+ invalid_code_string +'</b></p>');
                 });
             });
-
+            
             // free enrol js
-            $('#card-button-zero').click(function () {
-                var cost = cost;
-                var promises = ajax.call([{
-                    methodname: 'stripepayment_free_enrolsettings',
-                    args: { cost: cost, couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, email: email},
-                }]);
-            });
+            var get_card_zero_cost = document.getElementById('card-button-zero');
+            if (get_card_zero_cost) {
+                get_card_zero_cost.addEventListener("click", function (evt) {
+                    var promises = ajax.call([{
+                        methodname: 'moodle_stripepayment_free_enrolsettings',
+                        args: { couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, email: email},
+                    }]);
+                    promises[0].then(function(data) {
+                        location.reload();
+                    }).fail(function(ex) {
+                        location.reload();
+                    });
+                });
+            }
 
             // stripe payment code
             var buyBtn = document.getElementById('payButton');
@@ -55,27 +62,28 @@ define(['jquery', 'core/ajax'
 
             // Specify Stripe publishable key to initialize Stripe.js
             var stripe = Stripe(publishablekey);
+            if (buyBtn) {
+                buyBtn.addEventListener("click", function (evt) {
+                    buyBtn.disabled = true;
+                    buyBtn.textContent = please_wait_string;
+                    var promises = ajax.call([{
+                        methodname: 'moodle_stripepayment_stripe_js_settings',
+                        args: { secret_key: secret_key, courseid: courseid, amount: amount, currency: currency, description: description, couponid: couponid, user_id: user_id, instance_id: instance_id},
+                    }]);
+                    promises[0].then(function(data) {
+                        if(data.status) {
+                            stripe.redirectToCheckout({
+                                sessionId: data.status,
+                            }).then(handleResult);
+                        } else {
+                            handleResult(data);
+                        }
 
-            buyBtn.addEventListener("click", function (evt) {
-                buyBtn.disabled = true;
-                buyBtn.textContent = please_wait_string;
-                var promises = ajax.call([{
-                    methodname: 'moodle_stripepayment_stripe_js_settings',
-                    args: { secret_key: secret_key, courseid: courseid, amount: amount, currency: currency, description: description, couponid: couponid, user_id: user_id, instance_id: instance_id},
-                }]);
-                promises[0].then(function(data) {
-                    if(data.status) {
-                        stripe.redirectToCheckout({
-                            sessionId: data.status,
-                        }).then(handleResult);
-                    } else {
-                        handleResult(data);
-                    }
-
-                }).fail(function(ex) { // do something with the exception 
-                   handleResult(ex);
+                    }).fail(function(ex) { // do something with the exception 
+                       handleResult(ex);
+                    });
                 });
-            });
+            }
         }
     };
 });

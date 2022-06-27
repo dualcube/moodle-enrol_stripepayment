@@ -81,9 +81,9 @@ if ($costvalue == 000) {  ?>
 <div id="buynow">
     <button class="stripe-button" id="payButton"><?php echo get_string("buy_now", "enrol_stripepayment"); ?></button>
 </div>
+<?php } ?>
 
-<?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array($publishablekey, $plugin->get_config('secretkey'), $course->id, $amount, $instance->currency, $coursefullname, $couponid, $USER->id, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), $plugin->get_config('cost'), $cost, $USER->email, get_string("invalidcouponcode", "enrol_stripepayment")));
- } ?>
+ <?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array($publishablekey, $plugin->get_config('secretkey'), $course->id, $amount, $instance->currency, $coursefullname, $couponid, $USER->id, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), $plugin->get_config('cost'), $cost, $USER->email, get_string("invalidcouponcode", "enrol_stripepayment"))); ?>
 
     </div>
 </div>
