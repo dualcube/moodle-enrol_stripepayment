@@ -32,9 +32,9 @@ define(['jquery', 'core/ajax'
             });
             
             // free enrol js
-            var get_card_zero_cost = document.getElementById('card-button-zero');
+            var get_card_zero_cost = $('#card-button-zero');
             if (get_card_zero_cost) {
-                get_card_zero_cost.addEventListener("click", function (evt) {
+                get_card_zero_cost.click(function () {
                     var promises = ajax.call([{
                         methodname: 'moodle_stripepayment_free_enrolsettings',
                         args: { couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, email: email},
@@ -48,24 +48,24 @@ define(['jquery', 'core/ajax'
             }
 
             // stripe payment code
-            var buyBtn = document.getElementById('payButton');
-            var responseContainer = document.getElementById('paymentResponse');
+            var buyBtn = $('#payButton');
+            var responseContainer = $('#paymentResponse');
 
             // Handle any errors returned from Checkout
             var handleResult = function (result) {
                 if (result.error) {
-                    responseContainer.innerHTML = '<p>'+result.error.message+'</p>';
+                    responseContainer.html('<p>'+result.error.message+'</p>');
                 }
-                buyBtn.disabled = false;
-                buyBtn.textContent = buy_now_string;
+                buyBtn.prop('disabled', false);
+                buyBtn.text(buy_now_string);
             };
 
             // Specify Stripe publishable key to initialize Stripe.js
             var stripe = Stripe(publishablekey);
             if (buyBtn) {
-                buyBtn.addEventListener("click", function (evt) {
-                    buyBtn.disabled = true;
-                    buyBtn.textContent = please_wait_string;
+                buyBtn.click(function () {
+                    buyBtn.prop('disabled', true);
+                    buyBtn.text(please_wait_string);
                     var promises = ajax.call([{
                         methodname: 'moodle_stripepayment_stripe_js_settings',
                         args: { secret_key: secret_key, courseid: courseid, amount: amount, currency: currency, description: description, couponid: couponid, user_id: user_id, instance_id: instance_id},
