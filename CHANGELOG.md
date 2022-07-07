@@ -1,5 +1,10 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.3.4 (2022070702)
+ * Added compatibility of Moodle 4.0.1+.
+ * Fixed error on 100% counpon discount.
+ * Fixed internal error.
+ 
 3.3.3 (2022050602)
  * Added compatibility of Moodle 4.0+.
 

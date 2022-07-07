@@ -68,7 +68,6 @@ class moodle_enrol_stripepayment_external extends external_api {
     public static function stripepayment_free_enrolsettings_parameters() {
         return new external_function_parameters(
             array(
-                'cost' => new external_value(PARAM_RAW, 'The cost to operate on'),
                 'couponid' => new external_value(PARAM_RAW, 'Update data coupon id'),
                 'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
                 'course_id' => new external_value(PARAM_RAW, 'Update data course id'),
@@ -86,15 +85,17 @@ class moodle_enrol_stripepayment_external extends external_api {
         );
     }
 
-    public static function stripepayment_free_enrolsettings($cost, $couponid, $user_id, $course_id, $instance_id, $email) {
+    public static function stripepayment_free_enrolsettings($couponid, $user_id, $course_id, $instance_id, $email) {
+        require('Stripe/init.php');
         require("../../config.php");
-        require_once("lib.php");
         require('../../lib/setup.php');
-        global $DB, $CFG;
+        require_once("lib.php");
+        global $DB, $USER, $CFG, $PAGE;
+        require_once($CFG->libdir.'/enrollib.php');
+        require_once($CFG->libdir . '/filelib.php');
         $data = new stdClass();
         $data->coupon_id = $couponid;
         $data->stripeEmail = $email;
-
         $data->userid           = (int)$user_id;
         $data->courseid         = (int)$course_id;
         $data->instanceid       = (int)$instance_id;
@@ -123,7 +124,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         }
 
         // If currency is incorrectly set then someone maybe trying to cheat the system.
-
+            
         if ($data->courseid != $plugininstance->courseid) {
             self::message_stripepayment_error_to_admin("Course Id does not match to the course settings, received: ".$data->courseid, $data);
             redirect($CFG->wwwroot);
@@ -131,85 +132,26 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         $plugin = enrol_get_plugin('stripepayment');
 
-        // Check that amount paid is the correct amount.
-        if ( (float) $plugininstance->cost <= 0 ) {
-            $cost = (float) $plugin->get_config('cost');
+        $data->receiver_email = $user->email;
+        $data->payment_status = 'succeeded';
+
+        $DB->insert_record("enrol_stripepayment", $data);
+
+        if ($plugininstance->enrolperiod) {
+            $timestart = time();
+            $timeend   = $timestart + $plugininstance->enrolperiod;
         } else {
-            $cost = (float) $plugininstance->cost;
+            $timestart = 0;
+            $timeend   = 0;
         }
+        // Enrol user.
+        $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, $timestart, $timeend);
 
-        // Use the same rounding of floats as on the enrol form.
-        $cost = format_float($cost, 2, false);
-
-        // Let's say each article costs 15.00 bucks.
-
-        try {
-            require_once('Stripe/init.php');
-            \Stripe\Stripe::setApiKey($plugin->get_config('secretkey'));
-            $iscoupon = false;
-            if ($data->coupon_id) {
-                $coupon = \Stripe\Coupon::retrieve($data->coupon_id);
-                if (!$coupon->valid) {
-                    redirect($CFG->wwwroot.'/enrol/index.php?id='.$data->courseid,
-                        'Coupon Code '.$data->coupon_id.' is not valid!');
-                } else {
-                    $iscoupon = true;
-                    if (isset($coupon->percent_off)) {
-                        $cost = $cost - ( $cost * ( $coupon->percent_off / 100 ) );
-                    } else if (isset($coupon->amount_off)) {
-                        $cost = (($cost * 100) - $coupon->amount_off) / 100;
-                    }
-                }
-            }
-
-            $checkcustomer = $DB->get_records('enrol_stripepayment',
-                array('receiver_email' => $data->stripeEmail));
-            foreach ($checkcustomer as $keydata => $valuedata) {
-                $checkcustomer = $valuedata;
-            }
-
-            if (!$checkcustomer) {
-                $customerarray = array("email" => $user->email,
-                    "description" => get_string('charge_description1', 'enrol_stripepayment'));
-                if ($iscoupon) {
-                    $customerarray["coupon"] = $data->coupon_id;
-                }
-                $charge1 = \Stripe\Customer::create($customerarray);
-                $data->receiver_id = $charge1->id;
-            } else {
-                if ($iscoupon) {
-                    $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
-                    $cu->coupon = $data->coupon_id;
-                    $cu->save();
-                } else {
-                    $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
-                    $cu->coupon = null;
-                    $cu->save();
-                }
-                $data->receiver_id = $checkcustomer->receiver_id;
-            }
-
-            $data->receiver_email = $user->email;
-            $data->tax = $cost / 100;
-            $data->payment_status = 'succeeded';
-
-            $DB->insert_record("enrol_stripepayment", $data);
-
-            if ($plugininstance->enrolperiod) {
-                $timestart = time();
-                $timeend   = $timestart + $plugininstance->enrolperiod;
-            } else {
-                $timestart = 0;
-                $timeend   = 0;
-            }
-            // Enrol user.
-            $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, $timestart, $timeend);
-
-                // Pass $view=true to filter hidden caps if the user cannot see them.
-            if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
-                '', '', '', '', false, true)) {
-                $users = sort_by_roleassignment_authority($users, $context);
-            $teacher = array_shift($users);
+            // Pass $view=true to filter hidden caps if the user cannot see them.
+        if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
+            '', '', '', '', false, true)) {
+            $users = sort_by_roleassignment_authority($users, $context);
+        $teacher = array_shift($users);
         } else {
             $teacher = false;
         }
@@ -220,9 +162,8 @@ class moodle_enrol_stripepayment_external extends external_api {
         $shortname = format_string($course->shortname, true, array('context' => $context));
 
         $coursecontext = context_course::instance($course->id);
-
+        $a = new stdClass();
         if (!empty($mailstudents)) {
-            $a = new stdClass();
             $a->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
             $a->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
 
@@ -277,43 +218,15 @@ class moodle_enrol_stripepayment_external extends external_api {
             redirect($destination, 'Thankyou! Now you are enrolled into the course "'.$fullname.'"');
 
         } else {   
-                // Somehow they aren't enrolled yet!
-                $PAGE->set_url($destination);
-                echo $OUTPUT->header();
-                $a = new stdClass();
-                $a->teacher = get_string('defaultcourseteacher');
-                $a->fullname = $fullname;
-                notice(get_string('paymentsorry', '', $a), $destination);
-            }
-        } catch (Stripe_CardError $e) {
-        // Catch the errors in any way you like.
-            echo 'Error';
+            // Somehow they aren't enrolled yet!
+            $PAGE->set_url($destination);
+            echo $OUTPUT->header();
+            $a = new stdClass();
+            $a->teacher = get_string('defaultcourseteacher');
+            $a->fullname = $fullname;
+            notice(get_string('paymentsorry', '', $a), $destination);
         }
-
-        // Catch the errors in any way you like.
-
-        catch (Stripe_InvalidRequestError $e) {
-        // Invalid parameters were supplied to Stripe's API.
-            echo 'Invalid parameters were supplied to Stripe\'s API';
-
-        } catch (Stripe_AuthenticationError $e) {
-        // Authentication with Stripe's API failed
-        // (maybe you changed API keys recently).
-            echo 'Authentication with Stripe\'s API failed';
-
-        } catch (Stripe_ApiConnectionError $e) {
-        // Network communication with Stripe failed.
-            echo 'Network communication with Stripe failed';
-        } catch (Stripe_Error $e) {
-
-        // Display a very generic error to the user, and maybe send
-        // yourself an email.
-            echo 'Stripe Error';
-        } catch (Exception $e) {
-
-        // Something else happened, completely unrelated to Stripe.
-            echo 'Something else happened, completely unrelated to Stripe';
-        }
+        
         $result = array();
         $result['status'] = 'working';
         return $result;
@@ -554,10 +467,6 @@ class moodle_enrol_stripepayment_external extends external_api {
                     $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
                     $cu->coupon = $data->coupon_id;
                     $cu->save();
-                } else {
-                    $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
-                    $cu->coupon = null;
-                    $cu->save();
                 }
                 $data->receiver_id = $checkcustomer->receiver_id;
             }
@@ -621,8 +530,8 @@ class moodle_enrol_stripepayment_external extends external_api {
 
                 $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;
                 $subject = get_string("enrolmentnew", 'enrol', $shortname);
-                $fullmessage = get_string('enrolmentnewuser', '', $a);
-                $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', '', $a).'</p>');
+                $fullmessage = get_string('welcometocoursetext', '', $a);
+                $fullmessagehtml = html_to_text('<p>'.get_string('welcometocoursetext', '', $a).'</p>');
 
                 // Send test email.
                 ob_start();

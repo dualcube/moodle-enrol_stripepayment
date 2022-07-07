@@ -30,52 +30,60 @@ define(['jquery', 'core/ajax'
                     $("#new_coupon").html('<p style="color:red;"><b>'+ invalid_code_string +'</b></p>');
                 });
             });
-
+            
             // free enrol js
-            $('#card-button-zero').click(function () {
-                var cost = cost;
-                var promises = ajax.call([{
-                    methodname: 'stripepayment_free_enrolsettings',
-                    args: { cost: cost, couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, email: email},
-                }]);
-            });
+            var get_card_zero_cost = $('#card-button-zero');
+            if (get_card_zero_cost) {
+                get_card_zero_cost.click(function () {
+                    var promises = ajax.call([{
+                        methodname: 'moodle_stripepayment_free_enrolsettings',
+                        args: { couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, email: email},
+                    }]);
+                    promises[0].then(function(data) {
+                        location.reload();
+                    }).fail(function(ex) {
+                        location.reload();
+                    });
+                });
+            }
 
             // stripe payment code
-            var buyBtn = document.getElementById('payButton');
-            var responseContainer = document.getElementById('paymentResponse');
+            var buyBtn = $('#payButton');
+            var responseContainer = $('#paymentResponse');
 
             // Handle any errors returned from Checkout
             var handleResult = function (result) {
                 if (result.error) {
-                    responseContainer.innerHTML = '<p>'+result.error.message+'</p>';
+                    responseContainer.html('<p>'+result.error.message+'</p>');
                 }
-                buyBtn.disabled = false;
-                buyBtn.textContent = buy_now_string;
+                buyBtn.prop('disabled', false);
+                buyBtn.text(buy_now_string);
             };
 
             // Specify Stripe publishable key to initialize Stripe.js
             var stripe = Stripe(publishablekey);
+            if (buyBtn) {
+                buyBtn.click(function () {
+                    buyBtn.prop('disabled', true);
+                    buyBtn.text(please_wait_string);
+                    var promises = ajax.call([{
+                        methodname: 'moodle_stripepayment_stripe_js_settings',
+                        args: { secret_key: secret_key, courseid: courseid, amount: amount, currency: currency, description: description, couponid: couponid, user_id: user_id, instance_id: instance_id},
+                    }]);
+                    promises[0].then(function(data) {
+                        if(data.status) {
+                            stripe.redirectToCheckout({
+                                sessionId: data.status,
+                            }).then(handleResult);
+                        } else {
+                            handleResult(data);
+                        }
 
-            buyBtn.addEventListener("click", function (evt) {
-                buyBtn.disabled = true;
-                buyBtn.textContent = please_wait_string;
-                var promises = ajax.call([{
-                    methodname: 'moodle_stripepayment_stripe_js_settings',
-                    args: { secret_key: secret_key, courseid: courseid, amount: amount, currency: currency, description: description, couponid: couponid, user_id: user_id, instance_id: instance_id},
-                }]);
-                promises[0].then(function(data) {
-                    if(data.status) {
-                        stripe.redirectToCheckout({
-                            sessionId: data.status,
-                        }).then(handleResult);
-                    } else {
-                        handleResult(data);
-                    }
-
-                }).fail(function(ex) { // do something with the exception 
-                   handleResult(ex);
+                    }).fail(function(ex) { // do something with the exception 
+                       handleResult(ex);
+                    });
                 });
-            });
+            }
         }
     };
 });

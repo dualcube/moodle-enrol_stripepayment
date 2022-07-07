@@ -18,15 +18,15 @@
  * Stripe enrolment plugin version specification.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 Dualcube Team
+ * @copyright  2022 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2022050602;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2022070702;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2015111600;        // Requires this Moodle version.
 $plugin->component = 'enrol_stripepayment';    // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.3.3 (Build: 2022050602)';
+$plugin->release   = '3.3.4 (Build: 2022070702)';
 $plugin->cron      = 60;
