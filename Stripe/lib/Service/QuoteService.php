@@ -30,7 +30,7 @@ class QuoteService extends \Stripe\Service\AbstractService
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
-     * @return \Stripe\Collection
+     * @return \Stripe\Collection<\Stripe\Quote>
      */
     public function all($params = null, $opts = null)
     {
@@ -38,10 +38,10 @@ class QuoteService extends \Stripe\Service\AbstractService
     }
 
     /**
-     * When retrieving a quote, there is an includable
-     * <strong>upfront.line_items</strong> property containing the first handful of
-     * those items. There is also a URL where you can retrieve the full (paginated)
-     * list of upfront line items.
+     * When retrieving a quote, there is an includable <a
+     * href="https://stripe.com/docs/api/quotes/object#quote_object-computed-upfront-line_items"><strong>computed.upfront.line_items</strong></a>
+     * property containing the first handful of those items. There is also a URL where
+     * you can retrieve the full (paginated) list of upfront line items.
      *
      * @param string $id
      * @param null|array $params
@@ -49,7 +49,7 @@ class QuoteService extends \Stripe\Service\AbstractService
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
-     * @return \Stripe\Collection
+     * @return \Stripe\Collection<\Stripe\LineItem>
      */
     public function allComputedUpfrontLineItems($id, $params = null, $opts = null)
     {
@@ -67,7 +67,7 @@ class QuoteService extends \Stripe\Service\AbstractService
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      *
-     * @return \Stripe\Collection
+     * @return \Stripe\Collection<\Stripe\LineItem>
      */
     public function allLineItems($id, $params = null, $opts = null)
     {
