@@ -135,8 +135,6 @@ class ApiRequestor
      * @param null|array $headers
      *
      * @throws Exception\ApiErrorException
-     *
-     * @return array tuple containing (ApiReponse, API key)
      */
     public function requestStream($method, $url, $readBodyChunkCallable, $params = null, $headers = null)
     {
@@ -297,9 +295,8 @@ class ApiRequestor
     /**
      * @static
      *
-     * @param string $disabledFunctionsOutput - String value of the 'disable_function' setting, as output by \ini_get('disable_functions')
+     * @param string $disableFunctionsOutput - String value of the 'disable_function' setting, as output by \ini_get('disable_functions')
      * @param string $functionName - Name of the function we are interesting in seeing whether or not it is disabled
-     * @param mixed $disableFunctionsOutput
      *
      * @return bool
      */
@@ -461,7 +458,7 @@ class ApiRequestor
 
         if (isset($rheaders['request-id'])
         && \is_string($rheaders['request-id'])
-        && \strlen($rheaders['request-id']) > 0) {
+        && '' !== $rheaders['request-id']) {
             self::$requestTelemetry = new RequestTelemetry(
                 $rheaders['request-id'],
                 Util\Util::currentTimeMillis() - $requestStartMs
@@ -476,8 +473,7 @@ class ApiRequestor
      * @param string $url
      * @param array $params
      * @param array $headers
-     * @param callable $readBodyChunk
-     * @param mixed $readBodyChunkCallable
+     * @param callable $readBodyChunkCallable
      *
      * @throws Exception\AuthenticationException
      * @throws Exception\ApiConnectionException
@@ -501,7 +497,7 @@ class ApiRequestor
 
         if (isset($rheaders['request-id'])
         && \is_string($rheaders['request-id'])
-        && \strlen($rheaders['request-id']) > 0) {
+        && '' !== $rheaders['request-id']) {
             self::$requestTelemetry = new RequestTelemetry(
                 $rheaders['request-id'],
                 Util\Util::currentTimeMillis() - $requestStartMs

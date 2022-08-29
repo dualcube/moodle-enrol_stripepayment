@@ -6,7 +6,7 @@ namespace Stripe\HttpClient;
  * @internal
  * @covers \Stripe\HttpClient\CurlClient
  */
-final class CurlClientTest extends \PHPUnit\Framework\TestCase
+final class CurlClientTest extends \Stripe\TestCase
 {
     use \Stripe\TestHelper;
     use \Stripe\TestServer;
@@ -161,6 +161,14 @@ final class CurlClientTest extends \PHPUnit\Framework\TestCase
     {
         // make sure options array loads/saves properly
         $optionsArray = [\CURLOPT_SSLVERSION => \CURL_SSLVERSION_TLSv1];
+        $withOptionsArray = new CurlClient($optionsArray);
+        static::assertSame($withOptionsArray->getDefaultOptions(), $optionsArray);
+    }
+
+    public function testIpResolveOption()
+    {
+        // make sure options array loads/saves properly
+        $optionsArray = [\CURLOPT_IPRESOLVE => \CURL_IPRESOLVE_WHATEVER];
         $withOptionsArray = new CurlClient($optionsArray);
         static::assertSame($withOptionsArray->getDefaultOptions(), $optionsArray);
     }
@@ -347,7 +355,7 @@ final class CurlClientTest extends \PHPUnit\Framework\TestCase
             $curl->setRequestStatusCallback(function ($rbody, $rcode, $rheaders, $errno, $message, $willBeRetried, $numRetries) use (&$called) {
                 $called = true;
 
-                $this->assertInternalType('string', $rbody);
+                $this->compatAssertIsString($rbody);
                 $this->assertSame(200, $rcode);
                 $this->assertSame('req_123', $rheaders['request-id']);
                 $this->assertSame(0, $errno);
