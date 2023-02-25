@@ -1,7 +1,7 @@
 Moodle Stripe Enrollment Plugin [enrol_stripepayment]
 =======================
 * Developed by: Team DualCube
-* Copyright: (c) 2022 DualCube
+* Copyright: (c) 2023 DualCube<admin@dulacube.com>
 * License: [GNU GENERAL PUBLIC LICENSE](LICENSE)
 * Contributors:  DualCube
 
@@ -22,10 +22,15 @@ Installation
 2. Upload the zip package from Site administration > Plugins > Install plugins. Choose Plugin type 'Enrolment method (enrol)'. Upload the ZIP package, check the acknowledgement and install.
 3. Go to Enrolments > Manage enrol plugins > Enable 'Stripe' from list
 4. Click 'Settings' which will lead to the settings page of the plugin
-5. Provide merchant credentials for Stripe. Note that, you will get all the details from your merchant account. Now select the checkbox as per requirement. Save the settings.
-6. Select any course from course listing page.
-7. Go to Course administration > Users > Enrolment methods > Add method 'Stripe' from the dropdown. Set 'Custom instance name', 'Enrol cost' etc and add the method.
-8. This completes all the steps from the administrator end. Now registered users can login to the Moodle site and view the course after a successful payment.
+5. Provide merchant credentials for Stripe. Note that, you will get all the details from your merchant account. For User Token follow next stap. Now select the checkbox as per requirement. Save the settings.
+6. Access Token: Site Administration > Server tab > Web Services > Manage Tokens. select Create Token. [User – Admin, Service – moodle_enrol_stripepayment]. Copy Token ID to Stripe Settings on above stap.
+7. Enable Web Service: Administration > Development Section > Advanced Features option. scroll down and tick the Web Service option, and save.
+8. Manage Protocol: Site Administration > Server tab > Web Services > Manage Protocols. Click on the eye icon on the REST protocol, and save.
+9. Select any course from course listing page.
+10. Go to Course administration > Participants > Enrolment methods > Add method 'Stripe' from the dropdown. Set 'Custom instance name', 'Enrol cost', 'Currency' etc and add the method.
+11. This completes all the steps from the administrator end. Now registered users can login to the Moodle site and view the course after a successful payment.
+
+[Note: If you missed step no. 7 & 8 - it will give error-403 on payment page ]
 
 Adding Coupons
 ==============
@@ -48,7 +53,7 @@ This completes all the steps from the administrator end. Now registered users ca
 
 Requirements
 ------------
-* Moodle 3.0 - 3.11
+* Moodle 3.0 - 4.2
 * Stripe account
 
 

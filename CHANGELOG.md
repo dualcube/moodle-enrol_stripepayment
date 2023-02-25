@@ -1,5 +1,13 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.3.5 (2023022500)
+ * Added compatibility of Moodle 4.1+.
+ * Added Script library 10.7.0.
+ * Fixed Chackout error.
+ * Fixed Expired Coupon Faild silently.
+ * FIxed Payment description no stripe dashboard not shows.
+ * Fixed internal error.
+
 3.3.4 (2022070702)
  * Added compatibility of Moodle 4.0.1+.
  * Fixed error on 100% counpon discount.
