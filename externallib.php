@@ -58,6 +58,9 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
             $cost = format_float($cost, 2, false);
         }
+        else{
+             throw new Exception('Invalid coupon');
+        }
 
         $result = array();
         $result['status'] = $cost;
@@ -306,6 +309,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             // Create new Checkout Session for the order 
             try {
                 $session = \Stripe\Checkout\Session::create([ 
+                    'payment_intent_data' => ['description' => $description ],
                     'payment_method_types' => ['card'], 
                     'line_items' => [[ 
                         'price_data' => [ 
@@ -313,13 +317,13 @@ class moodle_enrol_stripepayment_external extends external_api {
                                 'name' => $description, 
                                 'metadata' => [ 
                                     'pro_id' => $courseid 
-                                ]
+                                ], 
+                                'description' => $description,
                             ],
                             'unit_amount' => $amount, 
                             'currency' => $currency, 
                         ],
-                        'quantity' => 1, 
-                        'description' => $description, 
+                        'quantity' => 1 
                     ]],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&courseid=' .$courseid. '&couponid=' .$couponid. '&user_id=' .$user_id. '&instance_id=' .$instance_id. '',

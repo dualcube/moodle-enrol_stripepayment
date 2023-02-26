@@ -139,7 +139,6 @@ body#page-enrol-index #region-main .generalbox:last-of-type {
    padding-left: 2rem;
    padding-right: 2rem;
    margin: 0 auto;
-   float: left;
    box-shadow: 0 0 10px #ccc;
    clear: both;
    padding-bottom:30px !Important;
