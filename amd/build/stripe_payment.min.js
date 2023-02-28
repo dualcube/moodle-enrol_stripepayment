@@ -37,7 +37,7 @@ define(['jquery', 'core/ajax'
                 get_card_zero_cost.click(function () {
                     var promises = ajax.call([{
                         methodname: 'moodle_stripepayment_free_enrolsettings',
-                        args: { couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, email: email},
+                        args: { couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, description: description, email: email},
                     }]);
                     promises[0].then(function(data) {
                         location.reload();

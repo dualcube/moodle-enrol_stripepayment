@@ -75,6 +75,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
                 'course_id' => new external_value(PARAM_RAW, 'Update data course id'),
                 'instance_id' => new external_value(PARAM_RAW, 'Update data instance id'),
+                'description' => new external_value(PARAM_RAW, 'Update description'),
                 'email' => new external_value(PARAM_RAW, 'Update data email')
             )
         );
@@ -88,7 +89,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         );
     }
 
-    public static function stripepayment_free_enrolsettings($couponid, $user_id, $course_id, $instance_id, $email) {
+    public static function stripepayment_free_enrolsettings($couponid, $user_id, $course_id, $instance_id, $description, $email) {
         require('Stripe/init.php');
         require("../../config.php");
         require('../../lib/setup.php');
@@ -103,6 +104,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         $data->courseid         = (int)$course_id;
         $data->instanceid       = (int)$instance_id;
         $data->timeupdated      = time();
+        $data->item_name       = $description;
 
         if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
             self::message_stripepayment_error_to_admin("Not a valid user id", $data);
@@ -484,13 +486,14 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $charge->failure_code = 'NA';
             }
 
-            $data->receiver_email = $data->stripeEmail;
+            $data->receiver_email = $checkout_session->customer_details->email;
             $data->txn_id = $charge->id;
             $data->tax = $charge->amount / 100;
             $data->memo = $charge->payment_method;
             $data->payment_status = $charge->status;
             $data->pending_reason = $charge->failure_message;
             $data->reason_code = $charge->failure_code;
+            $data->item_name = $course->fullname;
 
             // Stripe Authentication Checking.
 
