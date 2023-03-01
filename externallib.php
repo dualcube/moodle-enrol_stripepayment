@@ -26,10 +26,11 @@ class moodle_enrol_stripepayment_external extends external_api {
 
     public static function stripepayment_couponsettings($coupon_id, $courseid, $secret_key, $get_cost_from_plugin) {
         global $DB, $CFG;
-        require("../../config.php");
         require_once('Stripe/init.php');
+        require_once("../../config.php");
+        require_once('../../lib/setup.php');
+        require_once("lib.php");
 
-        $answer = 'wrong';
         $couponid = $coupon_id;
         $courseid = $courseid;
         $plugininstance = $DB->get_record("enrol", array("enrol" => 'stripepayment', "status" => 0, 'courseid' => $courseid));
@@ -43,13 +44,9 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         \Stripe\Stripe::setApiKey($secret_key);
 
-        // Needs if coupon_id is not blank.
-        try {
-            $coupon = \Stripe\Coupon::retrieve( $couponid );
-        } catch (Exception $e) {
-            // Variable $answer is already set to false.
-            echo $answer;
-        }
+        // Throws an exception if coupon not found (handled by calling js code)
+        $coupon = \Stripe\Coupon::retrieve( $couponid );
+
         if ($coupon->valid) {
             if (isset($coupon->percent_off)) {
                 $cost = $cost - ( $cost * ( $coupon->percent_off / 100 ) );
@@ -136,6 +133,28 @@ class moodle_enrol_stripepayment_external extends external_api {
         }
 
         $plugin = enrol_get_plugin('stripepayment');
+
+        $secretkey = $plugin->get_config('secretkey');
+         \Stripe\Stripe::setApiKey($secretkey);
+ 
+         $checkcustomer = $DB->get_records('enrol_stripepayment',
+         array('receiver_email' => $data->stripeEmail));
+         foreach ($checkcustomer as $keydata => $valuedata) {
+             $checkcustomer = $valuedata;
+         }
+ 
+        if (!$checkcustomer) {
+            $customerarray = array("email" => $data->stripeEmail,
+            "description" => get_string('charge_description1', 'enrol_stripepayment'));
+            $customerarray["coupon"] = $data->coupon_id;
+        $charge1 = \Stripe\Customer::create($customerarray);
+            $data->receiver_id = $charge1->id;
+        } else {
+            $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
+            $cu->coupon = $data->coupon_id;
+            $cu->save();
+            $data->receiver_id = $checkcustomer->receiver_id;
+        }
 
         $data->receiver_email = $user->email;
         $data->payment_status = 'succeeded';
@@ -292,10 +311,16 @@ class moodle_enrol_stripepayment_external extends external_api {
         require_once('../../config.php');
         require('Stripe/init.php');
         require_once('../../lib/setup.php');
-        global $CFG;
+        global $CFG, $DB;
         $secretkey = $secret_key;
         $plugin = enrol_get_plugin('stripepayment');
         $user_token = $plugin->get_config('webservice_token');
+
+        if (! $user = $DB->get_record("user", array("id" => $user_id))) {
+            self::message_stripepayment_error_to_admin("Not a valid user id", $data);
+            redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
+        }
+
         if (empty($secretkey) || empty($courseid) || empty($amount) || empty($currency) || empty($description)) {
             redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
         } else {
@@ -308,9 +333,27 @@ class moodle_enrol_stripepayment_external extends external_api {
                     'message' => 'Invalid Request!'    
                 ) 
             );
+
+            // retrieve Stripe customer_id if previously set
+            $checkcustomer = $DB->get_records('enrol_stripepayment',
+            array('receiver_email' => $user->email));
+            foreach ($checkcustomer as $keydata => $valuedata) {
+                $checkcustomer = $valuedata;
+            }
+
+            if ($checkcustomer) {
+                $receiver_id = $checkcustomer->receiver_id;
+                $receiver_email = null;   // must not be set if customer id provided
+            } else {
+                $receiver_id = null;  // Stripe will create customer id in checkout
+                $receiver_email = $user->email;
+            }
+
             // Create new Checkout Session for the order 
             try {
                 $session = \Stripe\Checkout\Session::create([ 
+                    'customer' => $receiver_id,
+                    'customer_email' => $receiver_email,
                     'payment_intent_data' => ['description' => $description ],
                     'payment_method_types' => ['card'], 
                     'line_items' => [[ 
@@ -381,10 +424,10 @@ class moodle_enrol_stripepayment_external extends external_api {
 
     public static function success_stripe_url($session_id, $courseid, $couponid, $user_id, $instance_id) {
         require('Stripe/init.php');
-        require("../../config.php");
-        require('../../lib/setup.php');
+        require_once("../../config.php");
+        require_once('../../lib/setup.php');
         require_once("lib.php");
-        global $DB, $USER, $CFG, $PAGE;
+        global $DB, $USER, $CFG, $PAGE, $OUTPUT;
         require_once($CFG->libdir.'/enrollib.php');
         require_once($CFG->libdir . '/filelib.php');
         $data = new stdClass();
@@ -401,9 +444,12 @@ class moodle_enrol_stripepayment_external extends external_api {
         $data->coupon_id = $couponid;
 
         $data->stripeEmail = $charge->receipt_email;
+        $data->receiver_id = $charge->customer;
         $data->courseid = $courseid;
         $data->instanceid = $instance_id;
         $data->userid = (int)$user_id;
+        $data->timeupdated = time();
+
 
         if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
             self::message_stripepayment_error_to_admin("Not a valid user id", $data);
@@ -439,7 +485,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         try {
 
             $iscoupon = false;
-            if ($data->coupon_id && $data->coupon_id != 0) {
+            if ($data->coupon_id && $data->coupon_id != '0') {
                 $coupon = \Stripe\Coupon::retrieve($data->coupon_id);
                 if (!$coupon->valid) {
                     redirect($CFG->wwwroot.'/enrol/index.php?id='.$data->courseid, get_string("invalidcouponcodevalue",
@@ -454,27 +500,12 @@ class moodle_enrol_stripepayment_external extends external_api {
                 }
             }
 
-            $checkcustomer = $DB->get_records('enrol_stripepayment',
-            array('receiver_email' => $data->stripeEmail));
-            foreach ($checkcustomer as $keydata => $valuedata) {
-                $checkcustomer = $valuedata;
-            }
-
-            if (!$checkcustomer) {
-                $customerarray = array("email" => $data->stripeEmail,
-                "description" => get_string('charge_description1', 'enrol_stripepayment'));
-                if ($iscoupon) {
-                    $customerarray["coupon"] = $data->coupon_id;
-                }
-                $charge1 = \Stripe\Customer::create($customerarray);
-                $data->receiver_id = $charge1->id;
-            } else {
-                if ($iscoupon) {
-                    $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
-                    $cu->coupon = $data->coupon_id;
-                    $cu->save();
-                }
-                $data->receiver_id = $checkcustomer->receiver_id;
+            // if coupon used, redeem that, saving with the customer
+            if ($iscoupon) {
+                $cu = \Stripe\Customer::retrieve($data->receiver_id);
+                $cu->coupon = $data->coupon_id;
+                $cu->customer_details->name = $user->username;
+                $cu->save();
             }
 
             // Send the file, this line will be reached if no error was thrown above.
@@ -581,7 +612,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
             $fullname = format_string($course->fullname, true, array('context' => $context));
 
-            if (is_enrolled($context, null, '', true)) { // TODO: use real stripe check.
+            if (is_enrolled($context, $user, '', true)) { // TODO: use real stripe check.
                 redirect($destination, get_string('paymentthanks', '', $fullname));
             } else {
                 // Somehow they aren't enrolled yet!
