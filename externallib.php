@@ -504,7 +504,6 @@ class moodle_enrol_stripepayment_external extends external_api {
             if ($iscoupon) {
                 $cu = \Stripe\Customer::retrieve($data->receiver_id);
                 $cu->coupon = $data->coupon_id;
-                $cu->customer_details->name = $user->username;
                 $cu->save();
             }
 
