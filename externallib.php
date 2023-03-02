@@ -87,11 +87,11 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
 
     public static function stripepayment_free_enrolsettings($couponid, $user_id, $course_id, $instance_id, $description, $email) {
+        global $DB, $USER, $CFG, $PAGE;
         require('Stripe/init.php');
         require("../../config.php");
         require('../../lib/setup.php');
         require_once("lib.php");
-        global $DB, $USER, $CFG, $PAGE;
         require_once($CFG->libdir.'/enrollib.php');
         require_once($CFG->libdir . '/filelib.php');
         $data = new stdClass();
@@ -142,18 +142,20 @@ class moodle_enrol_stripepayment_external extends external_api {
          foreach ($checkcustomer as $keydata => $valuedata) {
              $checkcustomer = $valuedata;
          }
- 
-        if (!$checkcustomer) {
-            $customerarray = array("email" => $data->stripeEmail,
-            "description" => get_string('charge_description1', 'enrol_stripepayment'));
-            $customerarray["coupon"] = $data->coupon_id;
-        $charge1 = \Stripe\Customer::create($customerarray);
-            $data->receiver_id = $charge1->id;
-        } else {
+         $cu = null;
+        if($checkcustomer->receiver_id){
             $cu = \Stripe\Customer::retrieve($checkcustomer->receiver_id);
+        }
+        if ($checkcustomer->receiver_id && $cu != null) {
             $cu->coupon = $data->coupon_id;
             $cu->save();
             $data->receiver_id = $checkcustomer->receiver_id;
+        } else {
+            $customerarray = array("email" => $data->stripeEmail,
+            "description" => get_string('charge_description1', 'enrol_stripepayment'));
+            $customerarray["coupon"] = $data->coupon_id;
+            $charge1 = \Stripe\Customer::create($customerarray);
+            $data->receiver_id = $charge1->id;
         }
 
         $data->receiver_email = $user->email;
