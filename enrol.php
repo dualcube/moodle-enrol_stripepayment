@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+
 /**
  * Listens for Instant Payment Notification from Stripe
  *
@@ -26,6 +27,7 @@
  * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 // Disable moodle specific debug messages and any errors in output,
 // comment out when debugging or better look into error log!
@@ -40,26 +42,34 @@ $plugin = enrol_get_plugin('stripepayment');
 $enable_coupon_section = !empty($plugin->get_config('enable_coupon_section')) ? true : false;
 $dataa = optional_param('data', null, PARAM_RAW);
 ?>
-<div align="center">
+<div class="strip-wrap">
+    <div class="stripe-header" align="center">
     <div class="stripe-img">
-        <img src="<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/pix/stripe.png"></div>
+        <img src="<?php echo $CFG->wwwroot; ?>/enrol/stripepayment/pix/stripe.png">
+    </div>
         <p><?php print_string("paymentrequired") ?></p>
+</div>
 
 
         <?php if ($enable_coupon_section) { ?>
             <div class="couponcode-wrap">
-                <p>
-                <span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span>
-                <input type=text id="coupon"/>
-                <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
-            </p>
-            <?php if ( isset($dataa) ) if($cost>$dataa){ 
+            <?php if ( isset($dataa) ) if($cost>$dataa){
                 (float)$discount = $cost - $dataa;
             ?>
             <p><b><?php echo get_string("couponapplied", "enrol_stripepayment").": {$currency_symbol}{$discount} off"; ?></b></p>
             <?php } ?>
+
+
+                <p class="stripe-cupon-input">
+                <span class="couponcode-text"> <?php echo get_string("couponcode", "enrol_stripepayment"); ?>: </span>
+                <input type=text id="coupon"/>
+                <button id="apply"><?php echo get_string("applycode", "enrol_stripepayment"); ?></button>
+            </p>
+         
             </div>
         <?php } ?>
+
+
 
 
         <form id="form_data_new" action="" method="post">
@@ -68,11 +78,14 @@ $dataa = optional_param('data', null, PARAM_RAW);
         </form>
 
 
+
+
         <div class="paydetail">
             <p><b><?php echo get_string("cost").": {$currency_symbol}{$cost}"; ?></b></p>
             <div id="reload">
                 <div id="new_coupon"></div>
             <?php
+
 
             $couponid = 0;
             if ( isset($dataa) ) {
@@ -82,16 +95,17 @@ $dataa = optional_param('data', null, PARAM_RAW);
             $amount = enrol_get_plugin('stripepayment')->get_stripe_amount($cost, $instance->currency, false);
             echo $enable_coupon_section ? "<p><b> ". get_string("final_cost", "enrol_stripepayment") ." : $currency_symbol$cost </b></p>" : '';
 
+
             $costvalue = str_replace(".", "", $cost);
             if ($costvalue == 000) {  ?>
-            <div id="amountequalzero">
+            <div id="amountequalzero" class="stripe-buy-btn">
               <button id="card-button-zero">
                 <?php echo get_string("enrol_now", "enrol_stripepayment"); ?>
               </button>
             </div>
             <br>
             <?php } else { ?>
-            <div id="paymentResponse"></div>
+            <div id="paymentResponse" class="stripe-buy-btn">
             <div id="buynow">
                 <button class="stripe-button" id="payButton"><?php echo get_string("buy_now", "enrol_stripepayment"); ?></button>
             </div>
@@ -99,14 +113,32 @@ $dataa = optional_param('data', null, PARAM_RAW);
         </div>
      <?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array($publishablekey, $plugin->get_config('secretkey'), $course->id, $amount, $instance->currency, $coursefullname, $couponid, $USER->id, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), $plugin->get_config('cost'), $cost, $USER->email, get_string("invalidcouponcode", "enrol_stripepayment"))); ?>
 
+
     </div>
 </div>
 
+
+
+
 <style>
+.strip-wrap {
+    max-width: 650px;
+    margin: auto;
+}
+.stripe-header p{
+    text-align:center;
+}
+.stripe-buy-btn{
+    text-align: end;
+}
 .couponcode-wrap {
     display: flex;
-    justify-content: center;
+    justify-content:space-between;
     align-items: center;
+    gap:1rem;
+}
+.stripe-cupon-input{
+    margin-left:auto;
 }
 .couponcode-wrap .couponcode-text{
     font-size:14px;
@@ -120,7 +152,7 @@ div#transaction-status, div#transaction-status-zero {
     color: chocolate;
     display: none;
 }
-.CardField-input-wrapper{ overflow: inherit;} 
+.CardField-input-wrapper{ overflow: inherit;}
 .coursebox .content .summary{width:100%}
 button#apply, button#payButton, button#card-button-zero{
    color: #fff;
@@ -148,15 +180,8 @@ body#page-enrol-index #region-main .generalbox .card a img{
 #page-enrol-index .access-btn{
  display: none;
 }
-body#page-enrol-index #region-main .generalbox:last-of-type {
-   width: 468px;
-   padding-left: 2rem;
-   padding-right: 2rem;
-   margin: 0 auto;
-/*   float: left;*/
-   box-shadow: 0 0 10px #ccc;
-   clear: both;
-   padding-bottom:30px !Important;
+.payment-left p{
+    text-align:center;
 }
 #page-enrol-index #region-main-box .card-title {
    position: relative;
@@ -176,17 +201,17 @@ body#page-enrol-index #region-main .generalbox:last-of-type {
 @media (min-width: 200px) and (max-width: 700px) {
 #region-main{
     padding:0;
-}   
+}  
 .generalbox {
-   width: 300px;} 
+   width: 300px;}
 body#page-enrol-index #region-main .generalbox:last-of-type{
  width: 320px;
  margin: 0 auto;
  float: none;
-} 
+}
 #page-enrol-index p{
  text-align: center;
-} 
+}
 #apply{
  margin-top: 10px;
 }
@@ -205,4 +230,8 @@ body#page-enrol-index #region-main .generalbox:last-of-type{
 #region-main h2 { display:none; }
 .enrolmenticons { display: none;}
 #new_coupon {margin-bottom:10px;}
+button#final-payment-button {
+line-height:1;
+}
 </style>
+
