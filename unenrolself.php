@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Stripe enrolment plugin - support for user self unenrolment.
+ * Stripe enrolment plugin.
+ *
+ * This plugin allows you to set up paid courses.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 Dualcube Team
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  DualCube (https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require('../../config.php');
 $enrolid = required_param('enrolid', PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_BOOL);

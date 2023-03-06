@@ -1,7 +1,7 @@
 Moodle Stripe Enrollment Plugin [enrol_stripepayment]
 =======================
 * Developed by: Team DualCube
-* Copyright: (c) 2023 DualCube<admin@dulacube.com>
+* Copyright: (c) 2023 DualCube <admin@dulacube.com>
 * License: [GNU GENERAL PUBLIC LICENSE](LICENSE)
 * Contributors:  DualCube
 

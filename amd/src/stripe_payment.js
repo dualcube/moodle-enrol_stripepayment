@@ -1,7 +1,5 @@
-define(['jquery', 'core/ajax'
-],
-    function ($, ajax
-    ) {
+define(['jquery', 'core/ajax'],
+    function ($, ajax) {
         return {
             stripe_payment: function (publishablekey, secret_key, courseid, amount, currency, description, couponid, user_id, instance_id, please_wait_string, buy_now_string, get_cost_from_plugin, cost, email, invalid_code_string) {
                 // coupon js code

@@ -20,7 +20,8 @@
  * or edits current instance.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 Dualcube Team
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  DualCube (https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require('../../config.php');

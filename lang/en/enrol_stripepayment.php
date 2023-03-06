@@ -17,7 +17,8 @@
  * Strings for component 'enrol_stripepayment', language 'en'.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 Dualcube Team
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  DualCube (https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['assignrole'] = 'Assign role';
@@ -102,3 +103,6 @@ $string['stripeauthfail'] = 'Authentication with Stripe API failed';
 $string['connectionfailed'] = 'Network communication with Stripe failed';
 $string['stripeerror'] = 'Stripe Error ';
 $string['notstripeerror'] = 'Something else happened, completely unrelated to Stripe';
+$string['couponcodedescription'] = 'If you have any coupon please apply here';
+$string['enrol_btn_color'] = 'Choose Enroll button Color';
+$string['enrol_btn_color_des'] = 'Choose your own custom Color scheme for the Enroll Button.';

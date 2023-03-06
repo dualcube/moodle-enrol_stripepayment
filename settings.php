@@ -14,12 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Stript enrolments plugin settings and presets.
+ * Stripe enrolment plugin.
+ *
+ * This plugin allows you to set up paid courses.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 Dualcube Team
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  DualCube (https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/enrol/stripepayment/lib.php');
@@ -61,7 +65,21 @@ if (is_siteadmin()) {
         '',
         0
     ));
-    $settings->add(new admin_setting_configcheckbox('enrol_stripepayment/enable_coupon_section', get_string('enable_coupon_section', 'enrol_stripepayment'), '', 0));
+    
+    $settings->add(new admin_setting_configcheckbox(
+        'enrol_stripepayment/enable_coupon_section', 
+        get_string('enable_coupon_section', 'enrol_stripepayment'), 
+        '', 
+        0
+    ));
+
+    // Variable $enroll button color.
+    $settings->add( new admin_setting_configcolourpicker(
+        'enrol_stripepayment/enrolbtncolor', 
+        get_string('enrol_btn_color', 'enrol_stripepayment'), 
+        get_string('enrol_btn_color_des', 'enrol_stripepayment'), 
+        '#1177d1'
+    ));
     // Note: let's reuse the ext sync constants and strings here, internally it is very similar,
     // it describes what should happen when users are not supposed to be enrolled any more.
     $options = array(
