@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Strings for component 'enrol_stripepayment', language 'en'.
  *
@@ -21,7 +20,6 @@
  * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 $string['assignrole'] = 'Assign role';
 $string['secretkey'] = 'Stripe Secret Key';
 $string['publishablekey'] = 'Stripe Publishable Key';
@@ -60,20 +58,16 @@ $string['status'] = 'Allow Stripe enrolments';
 $string['status_desc'] = 'Allow users to use Stripe to enrol into a course by default.';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['messageprovider:stripepayment_enrolment'] = 'Message Provider';
-
 $string['maxenrolled'] = 'Max enrolled users';
 $string['maxenrolled_help'] = 'Specifies the maximum number of users that can stripepayment enrol. 0 means no limit.';
 $string['maxenrolledreached'] = 'Maximum number of users allowed to stripepayment-enrol was already reached.';
-
 $string['canntenrol'] = 'Enrolment is disabled or inactive';
 $string['stripepayment:config'] = 'Configure stripepayment';
 $string['stripepayment:manage'] = 'Manage stripepayment';
 $string['stripepayment:unenrol'] = 'Unenrol stripepayment';
 $string['stripepayment:unenrolself'] = 'Unenrolself stripepayment';
-
 $string['charge_description1'] = "create customer for email receipt";
 $string['charge_description2'] = 'Charge for Course Enrolment Cost.';
-
 $string['stripe_sorry'] = "Sorry, you can not use the script that way.";
 $string['newcost'] = 'New Cost';
 $string['couponcode'] = 'Coupon Code';
@@ -92,3 +86,19 @@ $string['enabled_rest_protocol'] = 'Also kindly create your token';
 $string['from_here'] = 'from here';
 $string['token_empty_error'] = 'Web service token could not be empty';
 $string['enable_coupon_section'] = 'Enable coupon section';
+$string['invalidrequest'] = 'Invalid Request!';
+$string['sessioncreated'] = 'Checkout Session created successfully!';
+$string['sessioncreatefail'] = 'Checkout Session creation failed! ';
+$string['invalidcoupon'] = 'Invalid coupon!';
+$string['invaliduserid'] = 'Not a valid user id! ';
+$string['invalidcourseid'] = 'Not a valid course id!';
+$string['invalidcontextid'] = 'Not a valid context id! ';
+$string['invalidinstance'] = 'Not a valid instance id!';
+$string['unmatchedcourse'] = 'Course Id does not match to the course settings, received: ';
+$string['enrollsuccess'] = 'Thankyou! Now you are enrolled into the course ';
+$string['error'] = 'Error! ';
+$string['invalidstripeparam'] = 'Invalid parameters were supplied to Stripe API';
+$string['stripeauthfail'] = 'Authentication with Stripe API failed';
+$string['connectionfailed'] = 'Network communication with Stripe failed';
+$string['stripeerror'] = 'Stripe Error ';
+$string['notstripeerror'] = 'Something else happened, completely unrelated to Stripe';
