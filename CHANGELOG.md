@@ -5,7 +5,7 @@
  * Added Script library 10.7.0.
  * Fixed Chackout error.
  * Fixed Expired Coupon Faild silently.
- * FIxed Payment description no stripe dashboard not shows.
+ * Fixed Payment description no stripe dashboard not shows.
  * Fixed coupon apply resister in Stripe.
  * Fixed internal error.
 
