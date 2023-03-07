@@ -13,19 +13,16 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Capabilities for stripe enrolment plugin.
  *
  * @package    enrol_stripepayment
- * @copyright  2019 Dualcube Team
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
-
 $capabilities = array(
-
     'enrol/stripepayment:config' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -33,7 +30,6 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
         )
     ),
-
     'enrol/stripepayment:manage' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -42,7 +38,6 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
         )
     ),
-
     'enrol/stripepayment:unenrol' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -50,14 +45,9 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
         )
     ),
-
     'enrol/stripepayment:unenrolself' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-        )
+        'archetypes' => array()
     ),
-
 );
-
-
