@@ -20,7 +20,7 @@
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
- * @copyright  DualCube (https://dualcube.com)
+ * @copyright  2019 Dualcube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

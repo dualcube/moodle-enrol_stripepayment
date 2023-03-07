@@ -2,11 +2,15 @@
 require_once("$CFG->libdir/externallib.php");
 require_once("$CFG->libdir/enrollib.php");
 require_once("$CFG->libdir/filelib.php");
-    use \Stripe\Stripe as Stripe;
-    use \Stripe\Coupon as Coupon;
-    use \Stripe\Customer as Customer;
-    use \Stripe\Checkout\Session as Session;
-    use \Stripe\PaymentIntent as PaymentIntent;
+require_once('Stripe/init.php');
+require_once("../../config.php");
+require_once('../../lib/setup.php');
+require_once("lib.php");
+use \Stripe\Stripe as Stripe;
+use \Stripe\Coupon as Coupon;
+use \Stripe\Customer as Customer;
+use \Stripe\Checkout\Session as Session;
+use \Stripe\PaymentIntent as PaymentIntent;
 class moodle_enrol_stripepayment_external extends external_api {
     public static function stripepayment_couponsettings_parameters() {
         return new external_function_parameters(
@@ -27,10 +31,6 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
     public static function stripepayment_couponsettings($coupon_id, $courseid, $secret_key, $get_cost_from_plugin) {
         global $DB, $CFG;
-        require_once('Stripe/init.php');
-        require_once("../../config.php");
-        require_once('../../lib/setup.php');
-        require_once("lib.php");
         $couponid = $coupon_id;
         $courseid = $courseid;
         $plugininstance = $DB->get_record("enrol", array("enrol" => 'stripepayment', "status" => 0, 'courseid' => $courseid));
@@ -80,12 +80,6 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
     public static function stripepayment_free_enrolsettings($couponid, $user_id, $course_id, $instance_id, $description, $email) {
         global $DB, $USER, $CFG, $PAGE;
-        require('Stripe/init.php');
-        require("../../config.php");
-        require('../../lib/setup.php');
-        require_once("lib.php");
-        require_once($CFG->libdir.'/enrollib.php');
-        require_once($CFG->libdir . '/filelib.php');
         $data = new stdClass();
         $data->coupon_id = $couponid;
         $data->stripeEmail = $email;
@@ -267,9 +261,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         );
     }
     public static function stripe_js_method($secret_key, $courseid, $amount, $currency, $description, $couponid, $user_id, $instance_id) {
-        require_once('../../config.php');
-        require('Stripe/init.php');
-        require_once('../../lib/setup.php');
+        
         global $CFG, $DB;
         $secretkey = $secret_key;
         $plugin = enrol_get_plugin('stripepayment');
@@ -371,13 +363,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         );
     }
     public static function success_stripe_url($session_id, $courseid, $couponid, $user_id, $instance_id) {
-        require('Stripe/init.php');
-        require_once("../../config.php");
-        require_once('../../lib/setup.php');
-        require_once("lib.php");
         global $DB, $USER, $CFG, $PAGE, $OUTPUT;
-        require_once($CFG->libdir.'/enrollib.php');
-        require_once($CFG->libdir . '/filelib.php');
         $data = new stdClass();
         $session_id = $session_id;
         $plugin = enrol_get_plugin('stripepayment');
