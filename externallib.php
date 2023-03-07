@@ -1,11 +1,7 @@
 <?php
 require_once("$CFG->libdir/externallib.php");
 require_once("$CFG->libdir/enrollib.php");
-require_once("$CFG->libdir/filelib.php");
 require_once('Stripe/init.php');
-require_once("../../config.php");
-require_once('../../lib/setup.php');
-require_once("lib.php");
 use \Stripe\Stripe as Stripe;
 use \Stripe\Coupon as Coupon;
 use \Stripe\Customer as Customer;
