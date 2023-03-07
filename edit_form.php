@@ -16,20 +16,20 @@
 /**
  * Course wise edit form.
  *
- * This plugin allows you to set up paid courses.
+ * Adds new instance of enrol_stripepayment to specified course
+ * or edits current instance.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  DualCube (https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/formslib.php');
 require_once('lib.php');
 /**
  * Sets up moodle edit form class methods.
- * @copyright  2023 DualCube Team
+ * @copyright  2019 Dualcube Team
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class enrol_stripepayment_edit_form extends moodleform {

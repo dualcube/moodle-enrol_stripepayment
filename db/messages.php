@@ -17,7 +17,8 @@
  * Defines message providers (types of message sent) for the Stripe enrolment plugin.
  *
  * @package    enrol_stripepayment
- * @copyright  2023 DualCube Team
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  DualCube (https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
