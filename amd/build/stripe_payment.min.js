@@ -7,7 +7,7 @@ define(['jquery', 'core/ajax'],
                     var coupon_id_name = $("#coupon").val();
                     var promises = ajax.call([{
                         methodname: 'moodle_stripepayment_couponsettings',
-                        args: { coupon_id: coupon_id_name, courseid: courseid, secret_key: secret_key, get_cost_from_plugin: get_cost_from_plugin },
+                        args: { coupon_id: coupon_id_name, courseid: courseid, secret_key: secret_key, get_cost_from_plugin: get_cost_from_plugin, instance_id: instance_id},
                     }]);
                     promises[0].then(function (data) {
                         $("#form_data_new_data").attr("value", data.status);

@@ -14,7 +14,8 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'coupon_id' => new external_value(PARAM_RAW, 'The coupon id to operate on'),
                 'courseid' => new external_value(PARAM_RAW, 'Update course id'),
                 'secret_key' => new external_value(PARAM_RAW, 'Update secret key'),
-                'get_cost_from_plugin' => new external_value(PARAM_RAW, 'Update data cost')
+                'get_cost_from_plugin' => new external_value(PARAM_RAW, 'Update data cost'),
+                'instance_id' => new external_value(PARAM_RAW, 'Update instance id')
             )    
         );
     }
@@ -25,11 +26,11 @@ class moodle_enrol_stripepayment_external extends external_api {
             )
         );
     }
-    public static function stripepayment_couponsettings($coupon_id, $courseid, $secret_key, $get_cost_from_plugin) {
+    public static function stripepayment_couponsettings($coupon_id, $courseid, $secret_key, $get_cost_from_plugin, $instance_id) {
         global $DB, $CFG;
         $couponid = $coupon_id;
         $courseid = $courseid;
-        $plugininstance = $DB->get_record("enrol", array("enrol" => 'stripepayment', "status" => 0, 'courseid' => $courseid));
+        $plugininstance = $DB->get_record("enrol", array("id" => $instance_id, "status" => 0));
         if ( (float) $plugininstance->cost <= 0 ) {
             $cost = ( float ) $get_cost_from_plugin;
         } else {
