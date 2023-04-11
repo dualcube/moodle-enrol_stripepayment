@@ -3,7 +3,6 @@
 3.3.6 (2023040400)
  * Fixed internal error.
 
-
 3.3.5 (2023022500)
  * Added compatibility of Moodle 4.1+.
  * Added Script library 10.7.0.
