@@ -95,8 +95,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), $data);
             redirect($CFG->wwwroot);
         }
-        $description = format_string($course->fullname, true, array('context' => $context));
-        $data->item_name = $description;
+        $data->item_name = format_string($course->fullname, true, array('context' => $context));
         $PAGE->set_context($context);
         // If currency is incorrectly set then someone maybe trying to cheat the system.
         if ($data->courseid != $plugininstance->courseid) {
@@ -250,7 +249,6 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
     public static function stripe_js_method( $user_id, $couponid, $instance_id) {
         global $CFG, $DB;
-        $user_id = $user_id;
         $plugin = enrol_get_plugin('stripepayment');
         $secretkey = $plugin->get_config('secretkey');
         $user_token = $plugin->get_config('webservice_token');
@@ -269,7 +267,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), $data);
             redirect($CFG->wwwroot);
         }
-        $description = $description = format_string($course->fullname, true, array('context' => $context));
+        $description  = format_string($course->fullname, true, array('context' => $context));
         if (! $user = $DB->get_record("user", array("id" => $user_id))) {
             self::message_stripepayment_error_to_admin("Not orderdetails valid user id", $data);
             redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
@@ -384,7 +382,6 @@ class moodle_enrol_stripepayment_external extends external_api {
         $courseid = $plugininstance->courseid;
         $data->courseid = $courseid;
         $data->instanceid = $instance_id;
-        $user_id = $user_id;
         $data->userid = (int)$user_id;
         $data->timeupdated = time();
         if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
@@ -448,7 +445,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             // Stripe Authentication Checking.
             $checkemail = $charge->charges->data[0]->billing_details->email;
             // ALL CLEAR !
-            // $DB->insert_record("enrol_stripepayment", $data);
+            $DB->insert_record("enrol_stripepayment", $data);
             if ($plugininstance->enrolperiod) {
                 $timestart = time();
                 $timeend   = $timestart + $plugininstance->enrolperiod;
