@@ -12,9 +12,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         return new external_function_parameters(
             array(
                 'coupon_id' => new external_value(PARAM_RAW, 'The coupon id to operate on'),
-                'courseid' => new external_value(PARAM_RAW, 'Update course id'),
-                'secret_key' => new external_value(PARAM_RAW, 'Update secret key'),
-                'get_cost_from_plugin' => new external_value(PARAM_RAW, 'Update data cost')
+                'instance_id' => new external_value(PARAM_RAW, 'Update instance id')
             )    
         );
     }
@@ -25,18 +23,19 @@ class moodle_enrol_stripepayment_external extends external_api {
             )
         );
     }
-    public static function stripepayment_couponsettings($coupon_id, $courseid, $secret_key, $get_cost_from_plugin) {
+    public static function stripepayment_couponsettings($coupon_id, $instance_id) {
         global $DB, $CFG;
+        $plugin = enrol_get_plugin('stripepayment');
         $couponid = $coupon_id;
-        $courseid = $courseid;
-        $plugininstance = $DB->get_record("enrol", array("enrol" => 'stripepayment', "status" => 0, 'courseid' => $courseid));
+        $plugininstance = $DB->get_record("enrol", array("id" => $instance_id, "status" => 0));
+        $courseid = $plugininstance->courseid;
         if ( (float) $plugininstance->cost <= 0 ) {
-            $cost = ( float ) $get_cost_from_plugin;
+            $cost = ( float ) $plugin->get_config('cost');
         } else {
             $cost = (float) $plugininstance->cost;
         }
         $cost = format_float($cost, 2, false);
-        Stripe::setApiKey($secret_key);
+        Stripe::setApiKey(enrol_get_plugin('stripepayment')->get_config('secretkey'));
         // Throws an exception if coupon not found (handled by calling js code)
         $coupon = Coupon::retrieve( $couponid );
         if ($coupon->valid) {
@@ -58,12 +57,9 @@ class moodle_enrol_stripepayment_external extends external_api {
     public static function stripepayment_free_enrolsettings_parameters() {
         return new external_function_parameters(
             array(
-                'couponid' => new external_value(PARAM_RAW, 'Update data coupon id'),
                 'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
-                'course_id' => new external_value(PARAM_RAW, 'Update data course id'),
-                'instance_id' => new external_value(PARAM_RAW, 'Update data instance id'),
-                'description' => new external_value(PARAM_RAW, 'Update description'),
-                'email' => new external_value(PARAM_RAW, 'Update data email')
+                'couponid' => new external_value(PARAM_RAW, 'Update data coupon id'),
+                'instance_id' => new external_value(PARAM_RAW, 'Update data instance id')
             )
         );
     }
@@ -74,20 +70,23 @@ class moodle_enrol_stripepayment_external extends external_api {
             )
         );
     }
-    public static function stripepayment_free_enrolsettings($couponid, $user_id, $course_id, $instance_id, $description, $email) {
-        global $DB, $USER, $CFG, $PAGE;
+    public static function stripepayment_free_enrolsettings($couponid, $user_id, $instance_id ) {
+        global $DB, $CFG, $PAGE;
         $data = new stdClass();
         $data->coupon_id = $couponid;
-        $data->stripeEmail = $email;
         $data->userid           = (int)$user_id;
-        $data->courseid         = (int)$course_id;
         $data->instanceid       = (int)$instance_id;
         $data->timeupdated      = time();
-        $data->item_name       = $description;
         if (! $user = $DB->get_record("user", array("id" => $data->userid))) {
             self::message_stripepayment_error_to_admin(get_string('invaliduserid', 'enrol_stripepayment'), $data);
             redirect($CFG->wwwroot);
         }
+        $data->stripeEmail = $user->email;
+        if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
+            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+        $data->courseid         = (int)$plugininstance->courseid;
         if (! $course = $DB->get_record("course", array("id" => $data->courseid))) {
             self::message_stripepayment_error_to_admin(get_string('invalidcourseid', 'enrol_stripepayment'), $data);
             redirect($CFG->wwwroot);
@@ -96,11 +95,8 @@ class moodle_enrol_stripepayment_external extends external_api {
             self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), $data);
             redirect($CFG->wwwroot);
         }
+        $data->item_name = format_string($course->fullname, true, array('context' => $context));
         $PAGE->set_context($context);
-        if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
-            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
         // If currency is incorrectly set then someone maybe trying to cheat the system.
         if ($data->courseid != $plugininstance->courseid) {
             self::message_stripepayment_error_to_admin(get_string('unmatchedcourse', 'enrol_stripepayment').$data->courseid, $data);
@@ -238,13 +234,8 @@ class moodle_enrol_stripepayment_external extends external_api {
     public static function stripe_js_method_parameters() {
         return new external_function_parameters(
             array(
-                'secret_key' => new external_value(PARAM_RAW, 'Update secret_key'),
-                'courseid' => new external_value(PARAM_RAW, 'Update courseid'),
-                'amount' => new external_value(PARAM_RAW, 'Update amount'),
-                'currency' => new external_value(PARAM_RAW, 'Update currency'),
-                'description' => new external_value(PARAM_RAW, 'Update description'),
+                'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
                 'couponid' => new external_value(PARAM_RAW, 'Update coupon id'),
-                'user_id' => new external_value(PARAM_RAW, 'Update user id'),
                 'instance_id' => new external_value(PARAM_RAW, 'Update instance id')
             )    
         );
@@ -256,12 +247,27 @@ class moodle_enrol_stripepayment_external extends external_api {
             )
         );
     }
-    public static function stripe_js_method($secret_key, $courseid, $amount, $currency, $description, $couponid, $user_id, $instance_id) {
-        
+    public static function stripe_js_method( $user_id, $couponid, $instance_id) {
         global $CFG, $DB;
-        $secretkey = $secret_key;
         $plugin = enrol_get_plugin('stripepayment');
+        $secretkey = $plugin->get_config('secretkey');
         $user_token = $plugin->get_config('webservice_token');
+        if (! $plugininstance = $DB->get_record("enrol", array("id" => $instance_id, "status" => 0))) {
+            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+        $amount = $plugin->get_stripe_amount($plugininstance->cost, $instance->currency, false);
+        $courseid = $plugininstance->courseid;
+        $currency = $plugininstance->currency;
+        if (! $course = $DB->get_record("course", array("id" => $courseid))) {
+            self::message_stripepayment_error_to_admin(get_string('invalidcourseid', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+        if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
+            self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+        $description  = format_string($course->fullname, true, array('context' => $context));
         if (! $user = $DB->get_record("user", array("id" => $user_id))) {
             self::message_stripepayment_error_to_admin("Not orderdetails valid user id", $data);
             redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
@@ -312,7 +318,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                         'quantity' => 1 
                     ]],
                     'mode' => 'payment',
-                    'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&courseid=' .$courseid. '&couponid=' .$couponid. '&user_id=' .$user_id. '&instance_id=' .$instance_id. '',
+                    'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&user_id=' .$user_id. '&couponid=' .$couponid. '&instance_id=' .$instance_id. '',
                     'cancel_url' => $CFG->wwwroot.'/course/view.php?id='.$courseid, 
                 ]);
             } catch(Exception $e) {
@@ -344,9 +350,8 @@ class moodle_enrol_stripepayment_external extends external_api {
         return new external_function_parameters(
             array(
                 'session_id' => new external_value(PARAM_RAW, 'The item id to operate on'),
-                'courseid'  => new external_value(PARAM_RAW, 'The item id to operate course id'),
+                'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
                 'couponid'  => new external_value(PARAM_RAW, 'The item id to operate coupon id'),
-                'user_id'  => new external_value(PARAM_RAW, 'The item id to operate user id'),
                 'instance_id'  => new external_value(PARAM_RAW, 'The item id to operate instance id')
             )    
         );
@@ -358,8 +363,8 @@ class moodle_enrol_stripepayment_external extends external_api {
             )
         );
     }
-    public static function success_stripe_url($session_id, $courseid, $couponid, $user_id, $instance_id) {
-        global $DB, $USER, $CFG, $PAGE, $OUTPUT;
+    public static function success_stripe_url($session_id, $user_id, $couponid, $instance_id) {
+        global $DB, $CFG, $PAGE, $OUTPUT;
         $data = new stdClass();
         $session_id = $session_id;
         $plugin = enrol_get_plugin('stripepayment');
@@ -370,6 +375,11 @@ class moodle_enrol_stripepayment_external extends external_api {
         $data->coupon_id = $couponid;
         $data->stripeEmail = $charge->receipt_email;
         $data->receiver_id = $charge->customer;
+        if (! $plugininstance = $DB->get_record("enrol", array("id" => $instance_id, "status" => 0))) {
+            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+        $courseid = $plugininstance->courseid;
         $data->courseid = $courseid;
         $data->instanceid = $instance_id;
         $data->userid = (int)$user_id;
@@ -387,10 +397,6 @@ class moodle_enrol_stripepayment_external extends external_api {
             redirect($CFG->wwwroot);
         }
         $PAGE->set_context($context);
-        if (! $plugininstance = $DB->get_record("enrol", array("id" => $data->instanceid, "status" => 0))) {
-            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
         // Check that amount paid is the correct amount.
         if ( (float) $plugininstance->cost <= 0 ) {
             $cost = (float) $plugin->get_config('cost');

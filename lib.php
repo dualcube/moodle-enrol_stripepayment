@@ -426,7 +426,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     }
 }
 // required web service token fileds in admin settings
-class admin_enrol_stripepayment_configtext extends admin_setting_configtext {
+class admin_enrol_stripepayment_configtext extends admin_setting_requiredtext {
     public function write_setting($data) {
         if ($this->name == 'webservice_token' && $data == '') {
             return get_string('token_empty_error', 'enrol_stripepayment');

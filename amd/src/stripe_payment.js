@@ -1,13 +1,13 @@
 define(['jquery', 'core/ajax'],
     function ($, ajax) {
         return {
-            stripe_payment: function (publishablekey, secret_key, courseid, amount, currency, description, couponid, user_id, instance_id, please_wait_string, buy_now_string, get_cost_from_plugin, cost, email, invalid_code_string) {
+            stripe_payment: function (user_id, publishablekey, couponid, instance_id, please_wait_string, buy_now_string, invalid_code_string) {
                 // coupon js code
                 $('#apply').click(function () {
                     var coupon_id_name = $("#coupon").val();
                     var promises = ajax.call([{
                         methodname: 'moodle_stripepayment_couponsettings',
-                        args: { coupon_id: coupon_id_name, courseid: courseid, secret_key: secret_key, get_cost_from_plugin: get_cost_from_plugin },
+                        args: { coupon_id: coupon_id_name, instance_id: instance_id},
                     }]);
                     promises[0].then(function (data) {
                         $("#form_data_new_data").attr("value", data.status);
@@ -34,7 +34,7 @@ define(['jquery', 'core/ajax'],
                     get_card_zero_cost.click(function () {
                         var promises = ajax.call([{
                             methodname: 'moodle_stripepayment_free_enrolsettings',
-                            args: { couponid: couponid, user_id: user_id, course_id: courseid, instance_id: instance_id, description: description, email: email },
+                            args: { user_id:user_id, couponid: couponid, instance_id: instance_id },
                         }]);
                         promises[0].then(function (data) {
                             location.reload();
@@ -62,7 +62,7 @@ define(['jquery', 'core/ajax'],
                         buyBtn.text(please_wait_string);
                         var promises = ajax.call([{
                             methodname: 'moodle_stripepayment_stripe_js_settings',
-                            args: { secret_key: secret_key, courseid: courseid, amount: amount, currency: currency, description: description, couponid: couponid, user_id: user_id, instance_id: instance_id },
+                            args: {user_id:user_id, couponid: couponid, instance_id: instance_id },
                         }]);
                         promises[0].then(function (data) {
                             if (data.status) {
