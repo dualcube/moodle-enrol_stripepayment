@@ -296,6 +296,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $receiver_id = null;  // Stripe will create customer id in checkout
                 $receiver_email = $user->email;
             }
+
             // Create new Checkout Session for the order 
             try {
                 $session = Session::create([ 
@@ -337,6 +338,8 @@ class moodle_enrol_stripepayment_external extends external_api {
                         'message' => get_string('sessioncreatefail', 'enrol_stripepayment') .$api_error    
                     )
                 ); 
+                $log  = date("Fj,Y,g:ia").' :: '. $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&user_id=' .$user_id. '&couponid=' .$couponid. '&instance_id=' .$instance_id. ' => ' .PHP_EOL;
+                file_put_contents('../enrol/stripepayment/log', $log, FILE_APPEND);
             }
             // Return response 
             $pass_session_id = isset($response['sessionId']) && !empty($response['sessionId']) ? $response['sessionId'] : '';

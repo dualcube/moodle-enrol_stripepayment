@@ -1,6 +1,6 @@
 ##Stripe Payment Moodle Plugin Change Log
 
-3.3.6 (2023041700)
+3.3.6 (2023042100)
  * Added Token fild required issue #120
  * Code optimized.
 

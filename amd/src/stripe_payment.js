@@ -1,7 +1,7 @@
 define(['jquery', 'core/ajax'],
     function ($, ajax) {
         return {
-            stripe_payment: function (user_id, publishablekey, couponid, instance_id, please_wait_string, buy_now_string, invalid_code_string) {
+            stripe_payment: function (pluginname, user_id, publishablekey, couponid, instance_id, please_wait_string, buy_now_string, invalid_code_string) {
                 // coupon js code
                 $('#apply').click(function () {
                     var coupon_id_name = $("#coupon").val();
@@ -61,7 +61,7 @@ define(['jquery', 'core/ajax'],
                         buyBtn.prop('disabled', true);
                         buyBtn.text(please_wait_string);
                         var promises = ajax.call([{
-                            methodname: 'moodle_stripepayment_stripe_js_settings',
+                            methodname: 'moodle_' + pluginname + '_stripe_js_settings',
                             args: {user_id:user_id, couponid: couponid, instance_id: instance_id },
                         }]);
                         promises[0].then(function (data) {
