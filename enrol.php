@@ -62,7 +62,7 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
             <?php } ?>
             <div id="reload">
                 <?php
-                $couponid = 0;
+                $couponid = null;
                 if (isset($dataa)) {
                     $cost = $dataa;
                     $couponid = required_param('coupon_id', PARAM_RAW);
@@ -93,7 +93,7 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
                         </div>
                     <?php } ?>
                     </div>
-                    <?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array($USER->id, $plugin->get_config('publishablekey'), $couponid, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), get_string("invalidcouponcode", "enrol_stripepayment"))); ?>
+                    <?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array('stripepayment', $USER->id, $plugin->get_config('publishablekey'), $couponid, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), get_string("invalidcouponcode", "enrol_stripepayment"))); ?>
             </div>
         </div>
     </div>

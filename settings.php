@@ -102,7 +102,7 @@ if (is_siteadmin()) {
         get_string('webservice_token_string', 'enrol_stripepayment'),
         get_string('create_user_token', 'enrol_stripepayment') . '<a href="' . $rest_web_link . '" target="_blank"> ' . get_string('from_here', 'enrol_stripepayment') . '</a> . ' . get_string('enabled_rest_protocol', 'enrol_stripepayment') . '<a href="' . $create_token . '" target="_blank"> ' . get_string('from_here', 'enrol_stripepayment') . '</a>
         ',
-        PARAM_TEXT
+        ''
     ));
     // Enrol instance defaults.
     $settings->add(new admin_setting_heading(

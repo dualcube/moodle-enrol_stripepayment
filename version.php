@@ -22,9 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2023041700;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2023042200;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2015111600;        // Requires this Moodle version.
 $plugin->component = 'enrol_stripepayment';    // Full name of the plugin (used for diagnostics).
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.3.6 (Build: 2023041700)';
-$plugin->cron      = 60;
+$plugin->release   = '3.4.0 (Build: 2023042200)';
