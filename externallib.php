@@ -318,6 +318,9 @@ class moodle_enrol_stripepayment_external extends external_api {
                         ],
                         'quantity' => 1 
                     ]],
+                    'discounts' => [[
+                        'coupon' => $couponid,
+                    ]],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&user_id=' .$user_id. '&couponid=' .$couponid. '&instance_id=' .$instance_id. '',
                     'cancel_url' => $CFG->wwwroot.'/course/view.php?id='.$courseid, 
@@ -338,8 +341,8 @@ class moodle_enrol_stripepayment_external extends external_api {
                         'message' => get_string('sessioncreatefail', 'enrol_stripepayment') .$api_error    
                     )
                 ); 
-                $log  = date("Fj,Y,g:ia").' :: '. $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&user_id=' .$user_id. '&couponid=' .$couponid. '&instance_id=' .$instance_id. ' => ' .PHP_EOL;
-                file_put_contents('../enrol/stripepayment/log', $log, FILE_APPEND);
+                $log  = date("Fj,Y,g:ia").' :: '. $api_error .PHP_EOL;
+                file_put_contents($CFG->dirroot . '/enrol/stripepayment/log', $log,FILE_APPEND);
             }
             // Return response 
             $pass_session_id = isset($response['sessionId']) && !empty($response['sessionId']) ? $response['sessionId'] : '';

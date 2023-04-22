@@ -62,7 +62,7 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
             <?php } ?>
             <div id="reload">
                 <?php
-                $couponid = 0;
+                $couponid = null;
                 if (isset($dataa)) {
                     $cost = $dataa;
                     $couponid = required_param('coupon_id', PARAM_RAW);
