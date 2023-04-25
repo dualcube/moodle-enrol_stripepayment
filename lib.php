@@ -425,8 +425,9 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         return has_capability('enrol/stripepayment:config', $context);
     }
 }
+
 // required web service token fileds in admin settings
-class admin_enrol_stripepayment_configtext extends admin_setting_requiredtext {
+class admin_enrol_stripepayment_configtext extends admin_setting_configtext {
     public function write_setting($data) {
         if ($this->name == 'webservice_token' && $data == '') {
             return get_string('token_empty_error', 'enrol_stripepayment');
@@ -441,5 +442,19 @@ class admin_enrol_stripepayment_configtext extends admin_setting_requiredtext {
             return $validated;
         }
         return ($this->config_write($this->name, $data) ? '' : get_string('errorsetting', 'admin'));
+    }
+    /**
+     * Validate data before storage.
+     *
+     * @param string $data The string to be validated.
+     * @return bool|string true for success or error string if invalid.
+     */
+    public function validate($data) {
+        $cleaned = clean_param($data, PARAM_TEXT);
+        if ($cleaned === '') {
+            return get_string('required');
+        }
+
+        return parent::validate($data);
     }
 }
