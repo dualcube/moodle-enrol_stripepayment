@@ -1,5 +1,10 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.4.1 (2023042500)
+ * Added compatibility of Moodle 4.2+.
+ * Fixed compatibility issue with 3.9+ #122
+
+
 3.4.0 (2023042200)
  * Added Token fild required issue #120
  * Code optimized.
