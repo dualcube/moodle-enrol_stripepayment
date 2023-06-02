@@ -70,7 +70,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             )
         );
     }
-    public static function stripepayment_free_enrolsettings($couponid, $user_id, $instance_id ) {
+    public static function stripepayment_free_enrolsettings($user_id, $couponid, $instance_id ) {
         global $DB, $CFG, $PAGE;
         $data = new stdClass();
         $data->coupon_id = $couponid;
@@ -474,8 +474,8 @@ class moodle_enrol_stripepayment_external extends external_api {
             $mailadmins   = $plugin->get_config('mailadmins');
             $shortname = format_string($course->shortname, true, array('context' => $context));
             $coursecontext = context_course::instance($course->id);
+            $orderdetails = new stdClass();
             if (!empty($mailstudents)) {
-                $orderdetails = new stdClass();
                 $orderdetails->coursename = format_string($course->fullname, true, array('context' => $coursecontext));
                 $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
                 $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;

@@ -62,6 +62,7 @@ if ($mform->is_cancelled()) {
     if ($instance->id) {
         $reset = ($instance->status != $data->status);
         $instance->status         = $data->status;
+        $instance->name           = $data->name;
         $instance->cost           = unformat_float($data->cost);
         $instance->currency       = $DB->get_field(
             'config_plugins',
