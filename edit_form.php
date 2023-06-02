@@ -40,6 +40,9 @@ class enrol_stripepayment_edit_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
         list($instance, $plugin, $context) = $this->_customdata;
+        $mform->addElement('header', 'header', get_string('pluginname', 'enrol_stripepayment'));
+        $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
+        $mform->setType('name', PARAM_TEXT);
         $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
                          ENROL_INSTANCE_DISABLED => get_string('no'));
         $mform->addElement('select', 'status', get_string('status', 'enrol_stripepayment'), $options);

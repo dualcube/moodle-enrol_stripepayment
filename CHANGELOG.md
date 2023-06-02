@@ -1,12 +1,18 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.4.2 (2023060200)
+ * Fixed Missing Instance name #124.
+ * Fixed Free enrol - coupon id and user id arguments swapped #125.
+ * Fixed Successful Enrolment - Exception Error Message (stdClass undefined) #126.
+ * Added Script library 10.14.0.
+
 3.4.1 (2023042500)
  * Added compatibility of Moodle 4.2+.
- * Fixed compatibility issue with 3.9+ #122
+ * Fixed compatibility issue with 3.9+ #122.
 
 
 3.4.0 (2023042200)
- * Added Token fild required issue #120
+ * Added Token fild required issue #120.
  * Code optimized.
 
 3.3.5 (2023022500)
