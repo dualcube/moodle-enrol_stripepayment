@@ -1,7 +1,11 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.4.4 (2023101300)
+ * Fixed cost in float number #133.
+ * Fived UI #133.
+
 3.4.3 (2023101000)
-* Added Moodle 4.3 supports. 
+* Added Moodle 4.3 supports.
 
 3.4.2 (2023060200)
  * Fixed Missing Instance name #124.
