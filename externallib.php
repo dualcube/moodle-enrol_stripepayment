@@ -268,6 +268,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             redirect($CFG->wwwroot);
         }
         $description  = format_string($course->fullname, true, array('context' => $context));
+        $shortname = format_string($course->shortname, true, array('context' => $context));
         if (! $user = $DB->get_record("user", array("id" => $user_id))) {
             self::message_stripepayment_error_to_admin("Not orderdetails valid user id", $data);
             redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
@@ -321,6 +322,10 @@ class moodle_enrol_stripepayment_external extends external_api {
                     'discounts' => [[
                         'coupon' => $couponid,
                     ]],
+                    'metadata' => [
+                        'projectCode' => $shortname,
+                        'productCode' => $course->id,
+                    ],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&user_id=' .$user_id. '&couponid=' .$couponid. '&instance_id=' .$instance_id. '',
                     'cancel_url' => $CFG->wwwroot.'/course/view.php?id='.$courseid, 
