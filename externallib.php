@@ -323,8 +323,8 @@ class moodle_enrol_stripepayment_external extends external_api {
                         'coupon' => $couponid,
                     ]],
                     'metadata' => [
-                        'projectCode' => $shortname,
-                        'productCode' => $course->id,
+                        'course_shortname' => $shortname,
+                        'course_id' => $course->id,
                     ],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$user_token. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&session_id={CHECKOUT_SESSION_ID}&user_id=' .$user_id. '&couponid=' .$couponid. '&instance_id=' .$instance_id. '',
