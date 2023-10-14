@@ -97,6 +97,7 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
             </div>
         </div>
     </div>
+</div>
     <style>
         .generalbox {
             margin: auto;
