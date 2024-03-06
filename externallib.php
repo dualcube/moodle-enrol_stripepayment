@@ -256,7 +256,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
             redirect($CFG->wwwroot);
         }
-        $amount = $plugin->get_stripe_amount($plugininstance->cost, $instance->currency, false);
+        $amount = $plugin->get_stripe_amount($plugininstance->cost, $plugininstance->currency, false);
         $courseid = $plugininstance->courseid;
         $currency = $plugininstance->currency;
         if (! $course = $DB->get_record("course", array("id" => $courseid))) {
