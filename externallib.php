@@ -294,10 +294,16 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $receiver_id = $checkcustomer->receiver_id;
                 $receiver_email = null;   // must not be set if customer id provided
             } else {
-                $receiver_id = null;  // Stripe will create customer id in checkout
-                $receiver_email = $user->email;
+                $customers = Customer::all(['email' => $customerEmail]);
+                if(empty($customers->data)){
+                    $customerarray = array("email" => $user->email,
+                    "description" => get_string('charge_description1', 'enrol_stripepayment'));
+                    $customer = Customer::create($customerarray);
+                } else {
+                    $customer = $customers->data[0];
+                }
+                $receiver_id = $customer->id;
             }
-
             // Create new Checkout Session for the order 
             try {
                 $session = Session::create([ 
@@ -377,7 +383,6 @@ class moodle_enrol_stripepayment_external extends external_api {
     public static function success_stripe_url($session_id, $user_id, $couponid, $instance_id) {
         global $DB, $CFG, $PAGE, $OUTPUT;
         $data = new stdClass();
-        $session_id = $session_id;
         $plugin = enrol_get_plugin('stripepayment');
         $secretkey = $plugin->get_config('secretkey');
         Stripe::setApiKey($secretkey);
@@ -431,12 +436,6 @@ class moodle_enrol_stripepayment_external extends external_api {
                         $cost = (($cost * 100) - $coupon->amount_off) / 100;
                     }
                 }
-            }
-            // if coupon used, redeem that, saving with the customer
-            if ($iscoupon) {
-                $coupon = Customer::retrieve($data->receiver_id);
-                $coupon->coupon = $data->coupon_id;
-                $coupon->save();
             }
             // Send the file, this line will be reached if no error was thrown above.
             if (!isset($charge->failure_message) || is_null($charge->failure_message)) {
