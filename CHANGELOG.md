@@ -1,4 +1,9 @@
 ##Stripe Payment Moodle Plugin Change Log
+3.4.6 (2024041800)
+ * Fixed the stripe checkout page displays the last email address of the customer.  
+  
+3.4.5 (2024030600)
+ * Fixed purchases with coupon getting redeemed twice.
 
 3.4.4 (2023101400)
  * Fixed cost in float number #133.
