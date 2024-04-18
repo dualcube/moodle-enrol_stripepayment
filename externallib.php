@@ -294,7 +294,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $receiver_id = $checkcustomer->receiver_id;
                 $receiver_email = null;   // must not be set if customer id provided
             } else {
-                $customers = Customer::all(['email' => $customerEmail]);
+                $customers = Customer::all(['email' => $user->email]);
                 if(empty($customers->data)){
                     $customerarray = array("email" => $user->email,
                     "description" => get_string('charge_description1', 'enrol_stripepayment'));
