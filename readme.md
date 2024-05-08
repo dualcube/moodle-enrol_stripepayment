@@ -70,7 +70,7 @@ Useful links
 ============
 * Moodle Forum: [https://moodle.org/course](https://moodle.org/course)
 * Moodle Plugins Directory:  [https://moodle.org/plugins](https://moodle.org/plugins)
-* Stripe API: [https://stripe.com/docs/api?lang=php#intro](https://stripe.com/docs/api?lang=php#intro)
+* Stripe API: [https://docs.stripe.com/api?lang=php](https://docs.stripe.com/api?lang=php)
 * DualCube Contributions: [https://moodle.org/plugins/browse.php?list=contributor&id=1832609](https://moodle.org/plugins/browse.php?list=contributor&id=1832609)
 
 
