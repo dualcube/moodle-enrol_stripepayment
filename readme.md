@@ -61,7 +61,7 @@ How to create Stripe account
 --------------
 1. Create account at https://stripe.com.
 2. Complete your merchant profile details from https://dashboard.stripe.com/account.
-3. Now set up secret key and publishers key at https://dashboard.stripe.com/account/apikeys.
+3. Now set up secret key and publishers key at https://dashboard.stripe.com/apikeys.
 4. For test mode use test api keys and for live mode use live api keys.
 5. Now you are done with merchant account set up.
 
