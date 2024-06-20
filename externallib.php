@@ -476,7 +476,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
             $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
             $fullname = format_string($course->fullname, true, array('context' => $context));
-            if (is_enrolled($context, $user, '', true)) { // TODO: use real stripe check.
+            if (is_enrolled($context, $user, '', true)) { 
                 redirect($destination, get_string('paymentthanks', '', $fullname));
             } else {
                 // Somehow they aren't enrolled yet!
