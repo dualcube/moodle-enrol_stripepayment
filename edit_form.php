@@ -98,9 +98,7 @@ class enrol_stripepayment_edit_form extends moodleform {
      * @return $error error list
      */
     public function validation($data, $files) {
-        global $DB, $CFG;
         $errors = parent::validation($data, $files);
-        list($instance, $plugin, $context) = $this->_customdata;
         if (!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
             $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_stripepayment');
         }

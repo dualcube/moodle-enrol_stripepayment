@@ -72,7 +72,7 @@ define(['jquery', 'core/ajax'],
                             } else {
                                 handleResult(data);
                             }
-                        }).fail(function (ex) { // do something with the exception 
+                        }).fail(function (ex) { // do something with the exception
                             handleResult(ex);
                         });
                     });

@@ -13,41 +13,30 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+
 /**
- * Capabilities for stripe enrolment plugin.
+ * privacy api
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
-$capabilities = [
-    'enrol/stripepayment:config' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ]
-    ],
-    'enrol/stripepayment:manage' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-        ]
-    ],
-    'enrol/stripepayment:unenrol' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ]
-    ],
-    'enrol/stripepayment:unenrolself' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => []
-    ],
-];
+
+namespace enrol_stripepayment\privacy;
+
+/**
+ * privacy api
+ *
+ * @package    enrol_stripepayment
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  2019 DualCube Team(https://dualcube.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+class provider implements \core_privacy\local\metadata\null_provider {
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}
