@@ -239,11 +239,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
                                              '', '', '', '', false, true)) {
             $users = sort_by_roleassignment_authority($users, $context);
-            $teacher = array_shift($users);
-        } else {
-            $teacher = false;
         }
-        $publishablekey = $this->get_config('publishablekey');
         if ( (float) $instance->cost <= 0 ) {
             $cost = (float) $this->get_config('cost');
         } else {
@@ -269,15 +265,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 echo '<p><a href="'.$wwwroot.'/login/">'.get_string('loginsite').'</a></p>';
                 echo '</div>';
             } else {
-                // Sanitise some fields before building the Stripe form.
-                $coursefullname  = format_string($course->fullname, true, array('context' => $context));
-                $courseshortname = $shortname;
-                $userfullname    = fullname($USER);
-                $userfirstname   = $USER->firstname;
-                $userlastname    = $USER->lastname;
-                $useraddress     = $USER->address;
-                $usercity        = $USER->city;
-                $instancename    = $this->get_instance_name($instance);
                 include($CFG->dirroot.'/enrol/stripepayment/enrol.php');
             }
         }
