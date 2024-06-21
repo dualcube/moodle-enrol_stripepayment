@@ -13,28 +13,28 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Course wise edit settings.
- *
- * Adds new instance of enrol_stripepayment to specified course
- * or edits current instance.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require('../../config.php');
 require_once('edit_form.php');
+
 $courseid   = required_param('courseid', PARAM_INT);
 $instanceid = optional_param('id', 0, PARAM_INT); // Instanceid.
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 $context = context_course::instance($course->id, MUST_EXIST);
 require_login($course);
 require_capability('enrol/stripepayment:config', $context);
-$PAGE->set_url('/enrol/stripepayment/edit.php', array('courseid' => $course->id, 'id' => $instanceid));
+$PAGE->set_url('/enrol/stripepayment/edit.php', ['courseid' => $course->id, 'id' => $instanceid]);
 $PAGE->set_pagelayout('admin');
-$return = new moodle_url('/enrol/instances.php', array('id' => $course->id));
+$return = new moodle_url('/enrol/instances.php', ['id' => $course->id]);
 if (!enrol_is_enabled('stripepayment')) {
     redirect($return);
 }
@@ -42,7 +42,7 @@ $plugin = enrol_get_plugin('stripepayment');
 if ($instanceid) {
     $instance = $DB->get_record(
         'enrol',
-        array('courseid' => $course->id, 'enrol' => 'stripepayment', 'id' => $instanceid),
+        ['courseid' => $course->id, 'enrol' => 'stripepayment', 'id' => $instanceid],
         '*',
         MUST_EXIST
     );
@@ -50,12 +50,12 @@ if ($instanceid) {
 } else {
     require_capability('moodle/course:enrolconfig', $context);
     // No instance yet, we have to add new instance.
-    navigation_node::override_active_url(new moodle_url('/enrol/instances.php', array('id' => $course->id)));
+    navigation_node::override_active_url(new moodle_url('/enrol/instances.php', ['id' => $course->id]));
     $instance = new stdClass();
     $instance->id       = null;
     $instance->courseid = $course->id;
 }
-$mform = new enrol_stripepayment_edit_form(null, array($instance, $plugin, $context));
+$mform = new enrol_stripepayment_edit_form(null, [$instance, $plugin, $context]);
 if ($mform->is_cancelled()) {
     redirect($return);
 } else if ($data = $mform->get_data()) {
@@ -67,7 +67,7 @@ if ($mform->is_cancelled()) {
         $instance->currency       = $DB->get_field(
             'config_plugins',
             'value',
-            array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+            ['plugin' => 'enrol_stripepayment', 'name' => 'currency']
         );
         $instance->roleid         = $data->roleid;
         $instance->customint3     = $data->customint3;
@@ -81,12 +81,12 @@ if ($mform->is_cancelled()) {
             $context->mark_dirty();
         }
     } else {
-        $fields = array(
+        $fields = [
             'status' => $data->status, 'name' => $data->name, 'cost' => unformat_float($data->cost),
             'currency' => $DB->get_field(
                 'config_plugins',
                 'value',
-                array('plugin' => 'enrol_stripepayment', 'name' => 'currency')
+                ['plugin' => 'enrol_stripepayment', 'name' => 'currency']
             ),
             'roleid' => $data->roleid,
             'enrolperiod' => $data->enrolperiod,
@@ -94,7 +94,7 @@ if ($mform->is_cancelled()) {
             'enrolstartdate' => $data->enrolstartdate,
             'enrolenddate' => $data->enrolenddate,
             'currency'   => $data->currency,
-        );
+        ];
         $plugin->add_instance($course, $fields);
     }
     redirect($return);

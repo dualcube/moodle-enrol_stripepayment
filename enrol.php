@@ -15,20 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Listens for Instant Payment Notification from Stripe
- *
  * This script waits for Payment notification from Stripe,
  * then double checks that data by sending it back to Stripe.
  * If Stripe verifies this then it sets up the enrolment for that
- * user.
- *
+ * 
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// Disable moodle specific debug messages and any errors in output,
-// comment out when debugging or better look into error log!
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/enrollib.php');
@@ -37,7 +32,7 @@ require_once('Stripe/init.php');
 $currency_symbol = enrol_get_plugin('stripepayment')->show_currency_symbol(strtolower($instance->currency));
 $plugin = enrol_get_plugin('stripepayment');
 $enable_coupon_section = !empty($plugin->get_config('enable_coupon_section')) ? true : false;
-$dataa = optional_param('data', null, PARAM_RAW);
+$data = optional_param('data', null, PARAM_RAW);
 $enrolbtncolor = $plugin->get_config('enrolbtncolor');
 ?>
 <script src="https://js.stripe.com/v3/"></script>
@@ -55,8 +50,8 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
             <div class="stripe-line-row">
                 <div class="stripe-line-left"><?php echo get_string("cost") . ":<span> {$currency_symbol}{$cost}</span>"; ?></div>
             </div>
-            <?php if (isset($dataa)) if ($cost > $dataa) {
-                (float)$discount = $cost - $dataa;
+            <?php if (isset($data)) if ($cost > $data) {
+                (float)$discount = $cost - $data;
                 $couponid = required_param('coupon_id', PARAM_RAW);
             ?>
                 <div class='stripe-line-left'><?php echo get_string("couponapplied", "enrol_stripepayment") . ":<span> - {$currency_symbol}{$discount} [<i>{$couponid}</i>] </span>"; ?></div>
@@ -64,8 +59,8 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
             <div id="reload">
                 <?php
                 $couponid = null;
-                if (isset($dataa)) {
-                    $cost = $dataa;
+                if (isset($data)) {
+                    $cost = $data;
                     $couponid = required_param('coupon_id', PARAM_RAW);
                 }
                 $amount = enrol_get_plugin('stripepayment')->get_stripe_amount($cost, $instance->currency, false);

@@ -28,7 +28,7 @@ $capabilities = [
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
-        ]
+        ],
     ],
     'enrol/stripepayment:manage' => [
         'captype' => 'write',
@@ -36,18 +36,18 @@ $capabilities = [
         'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-        ]
+        ],
     ],
     'enrol/stripepayment:unenrol' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
-        ]
+        ],
     ],
     'enrol/stripepayment:unenrolself' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => []
+        'archetypes' => [],
     ],
 ];

@@ -34,7 +34,6 @@ namespace enrol_stripepayment\privacy;
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class provider implements \core_privacy\local\metadata\null_provider {
     public static function get_reason(): string {
         return 'privacy:metadata';

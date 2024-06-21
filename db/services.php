@@ -1,18 +1,41 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// You should have received a copy of the GNU General Public License
+// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Web services for stripe enrolment plugin.
+ *
+ * @package    enrol_stripepayment
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  2019 DualCube Team(https://dualcube.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
 $services = [
-    'moodle_enrol_stripepayment' => [                  // the name of the web service
-        'functions' =>      [
-                            'moodle_stripepayment_couponsettings',        // web service functions of this service
-                             'moodle_stripepayment_free_enrolsettings',
-                             'moodle_stripepayment_stripe_js_settings', 
-                             'moodle_stripepayment_success_stripe_url',
-                            ], 
-        'requiredcapability' => '',                 //if set, the web service user need this capability to access 
-                                                    // any function of this service. For example: 'some/capability:specified'                 
-        'restrictedusers' => 0,                     //if enabled, the Moodle administrator must link some user to this service
-                                                    //into the administration
-        'enabled' => 1,                             //if enabled, the service can be reachable on a default installation
-        'shortname' => 'enrolstripepayment'         //the short name used to refer to this service from elsewhere including when fetching a token
+    'moodle_enrol_stripepayment' => [                  
+        'functions' => [
+            'moodle_stripepayment_couponsettings',        
+            'moodle_stripepayment_free_enrolsettings',
+            'moodle_stripepayment_stripe_js_settings', 
+            'moodle_stripepayment_success_stripe_url',
+        ],
+        'requiredcapability' => '',
+        'restrictedusers' => 0,
+        'enabled' => 1,
+        'shortname' => 'enrolstripepayment',
     ]
 ];
 $functions = [
