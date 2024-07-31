@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $services = [
     'moodle_enrol_stripepayment' => [                  
         'functions' => [
-            'moodle_stripepayment_couponsettings',        
+            'moodle_stripepayment_couponsettings',
             'moodle_stripepayment_free_enrolsettings',
             'moodle_stripepayment_stripe_js_settings', 
             'moodle_stripepayment_success_stripe_url',

@@ -39,6 +39,7 @@ if (!enrol_is_enabled('stripepayment')) {
     redirect($return);
 }
 $plugin = enrol_get_plugin('stripepayment');
+
 if ($instanceid) {
     $instance = $DB->get_record(
         'enrol',
@@ -59,18 +60,15 @@ $mform = new enrol_stripepayment_edit_form(null, [$instance, $plugin, $context])
 if ($mform->is_cancelled()) {
     redirect($return);
 } else if ($data = $mform->get_data()) {
+
+    // when we edit the stripe of a code then update all feild.
     if ($instance->id) {
         $reset = ($instance->status != $data->status);
         $instance->status         = $data->status;
         $instance->name           = $data->name;
         $instance->cost           = unformat_float($data->cost);
-        $instance->currency       = $DB->get_field(
-            'config_plugins',
-            'value',
-            ['plugin' => 'enrol_stripepayment', 'name' => 'currency']
-        );
         $instance->roleid         = $data->roleid;
-        $instance->customint3     = $data->customint3;
+        $instance->customint3     = $data->customint3; // Max enrolled user number
         $instance->enrolperiod    = $data->enrolperiod;
         $instance->enrolstartdate = $data->enrolstartdate;
         $instance->enrolenddate   = $data->enrolenddate;
@@ -81,13 +79,11 @@ if ($mform->is_cancelled()) {
             $context->mark_dirty();
         }
     } else {
+        // for first time create the instance of the plugin for the course.
         $fields = [
-            'status' => $data->status, 'name' => $data->name, 'cost' => unformat_float($data->cost),
-            'currency' => $DB->get_field(
-                'config_plugins',
-                'value',
-                ['plugin' => 'enrol_stripepayment', 'name' => 'currency']
-            ),
+            'status' => $data->status,
+            'name' => $data->name,
+            'cost' => unformat_float($data->cost),
             'roleid' => $data->roleid,
             'enrolperiod' => $data->enrolperiod,
             'customint3' => $data->customint3,

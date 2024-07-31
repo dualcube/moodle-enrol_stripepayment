@@ -253,7 +253,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @return string html text, usually a form in a text box
      */
     public function enrol_page_hook(stdClass $instance) {
-        global $CFG, $USER, $OUTPUT, $PAGE, $DB;
+        global $CFG, $USER, $OUTPUT, $DB;
         $enrolstatus = $this->can_stripepayment_enrol($instance);
         if (!$enrolstatus) {
             return get_string('maxenrolledreached', 'enrol_stripepayment');
@@ -448,7 +448,10 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     }
 }
 
-// required web service token fileds in admin settings
+
+/**
+ * class for helping built the admin setting form 
+ */
 class admin_enrol_stripepayment_configtext extends admin_setting_configtext {
     public function write_setting($data) {
         if ($this->name == 'webservice_token' && $data == '') {

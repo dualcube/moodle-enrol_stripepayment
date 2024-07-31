@@ -28,7 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/enrollib.php');
 require_once('Stripe/init.php');
-// get currency symbal
+
+// get currency symbol
 $currency_symbol = enrol_get_plugin('stripepayment')->show_currency_symbol(strtolower($instance->currency));
 $plugin = enrol_get_plugin('stripepayment');
 $enable_coupon_section = !empty($plugin->get_config('enable_coupon_section')) ? true : false;
@@ -89,7 +90,7 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
                         </div>
                     <?php } ?>
                     </div>
-                    <?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array('stripepayment', $USER->id, $plugin->get_config('publishablekey'), $couponid, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), get_string("invalidcouponcode", "enrol_stripepayment"))); ?>
+                    <?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array( $USER->id, $plugin->get_config('publishablekey'), $couponid, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), get_string("invalidcouponcode", "enrol_stripepayment"))); ?>
             </div>
         </div>
     </div>

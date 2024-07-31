@@ -138,29 +138,9 @@ class moodle_enrol_stripepayment_external extends external_api {
     public static function stripepayment_free_enrolsettings($userid, $couponid, $instanceid) {
         global $DB, $CFG;
 
-        // Validate user.
-        if (! $user = $DB->get_record("user", ["id" => $userid])) {
-            self::message_stripepayment_error_to_admin(get_string('invaliduserid', 'enrol_stripepayment'), ['user_id' => $userid]);
-            redirect($CFG->wwwroot);
-        }
-
-        // Validate plugin instance.
-        if (! $plugininstance = $DB->get_record("enrol", ["id" => $instanceid, "status" => 0])) {
-            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), ['instance_id' => $instanceid]);
-            redirect($CFG->wwwroot);
-        }
-
-        // Validate course.
-        if (! $course = $DB->get_record("course", ["id" => $plugininstance->courseid])) {
-            self::message_stripepayment_error_to_admin(get_string('invalidcourseid', 'enrol_stripepayment'), ['courseid' => $plugininstance->courseid]);
-            redirect($CFG->wwwroot);
-        }
-
-        // Validate context.
-        if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
-            self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), ['contextid' => $course->id]);
-            redirect($CFG->wwwroot);
-        }
+        $validateddata = self::validate_data( $userid, $instanceid);
+        $plugininstance = $validateddata[0];
+        $user = $validateddata[3];
 
         $plugin = enrol_get_plugin('stripepayment');
         $secretkey = $plugin->get_config('secretkey');
@@ -246,34 +226,27 @@ class moodle_enrol_stripepayment_external extends external_api {
         $plugin = enrol_get_plugin('stripepayment');
         $secretkey = $plugin->get_config('secretkey');
         $usertoken = $plugin->get_config('webservice_token');
-        if (! $plugininstance = $DB->get_record("enrol", ["id" => $instanceid, "status" => 0])) {
-            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
+        
+        // validate users, course, conntext, plugininstance
+        $validateddata = self::validate_data( $userid, $instanceid);
+        $plugininstance = $validateddata[0];
+        $course = $validateddata[1];
+        $context = $validateddata[2];
+        $user = $validateddata[3];
+        
         $amount = $plugin->get_stripe_amount($plugininstance->cost, $plugininstance->currency, false);
         $courseid = $plugininstance->courseid;
         $currency = $plugininstance->currency;
-        if (! $course = $DB->get_record("course", ["id" => $courseid])) {
-            self::message_stripepayment_error_to_admin(get_string('invalidcourseid', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
-        if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
-            self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
         $description  = format_string($course->fullname, true, ['context' => $context]);
         $shortname = format_string($course->shortname, true, ['context' => $context]);
-        if (! $user = $DB->get_record("user", ["id" => $userid])) {
-            self::message_stripepayment_error_to_admin("Not orderdetails valid user id", $data);
-            redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
-        }
+
         if (empty($secretkey) || empty($courseid) || empty($amount) || empty($currency) || empty($description)) {
             redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
         } else {
             // Set API key
             Stripe::setApiKey($secretkey);
             $response = [
-                'status' => 0, 
+                'status' => 0,
                 'error' => [
                     'message' => get_string('invalidrequest', 'enrol_stripepayment'),
                 ],
@@ -301,7 +274,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
             // Create new Checkout Session for the order 
             try {
-                $session = Session::create([ 
+                $session = Session::create([
                     'customer' => $receiverid,
                     'customer_email' => $receiveremail,
                     'payment_intent_data' => ['description' => $description ],
@@ -329,7 +302,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                     ],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$usertoken. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&sessionid={CHECKOUT_sessionid}&user_id=' .$userid. '&couponid=' .$couponid. '&instance_id=' .$instanceid. '',
-                    'cancel_url' => $CFG->wwwroot.'/course/view.php?id='.$courseid, 
+                    'cancel_url' => $CFG->wwwroot.'/course/view.php?id='.$courseid,
                 ]);
             } catch (Exception $e) {
                 $apierror = $e->getMessage();
@@ -369,6 +342,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             ]
         );
     }
+    
     /**
      * function for define return type for success_stripe_url
      */
@@ -398,27 +372,21 @@ class moodle_enrol_stripepayment_external extends external_api {
         $data->couponid = $couponid;
         $data->stripeEmail = $charge->receipt_email;
         $data->receiver_id = $charge->customer;
-        if (! $plugininstance = $DB->get_record("enrol", ["id" => $instanceid, "status" => 0])) {
-            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
+
+        // validate users, course, conntext, plugininstance
+        $validateddata = self::validate_data( $userid, $instanceid);
+        $plugininstance = $validateddata[0];
+        $course = $validateddata[1];
+        $context = $validateddata[2];
+        $user = $validateddata[3];
+        
         $courseid = $plugininstance->courseid;
         $data->courseid = $courseid;
         $data->instanceid = $instanceid;
         $data->userid = (int)$userid;
         $data->timeupdated = time();
-        if (! $user = $DB->get_record("user", ["id" => $data->userid])) {
-            self::message_stripepayment_error_to_admin(get_string('invaliduserid', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
-        if (! $course = $DB->get_record("course", ["id" => $data->courseid])) {
-            self::message_stripepayment_error_to_admin(get_string('invalidcourseid', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
-        if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
-            self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), $data);
-            redirect($CFG->wwwroot);
-        }
+        
+
         if ( $checkoutsession->payment_status !== 'paid') {
             self::message_stripepayment_error_to_admin("Payment status: ".$checkoutsession->payment_status, $data);
             redirect($CFG->wwwroot);
@@ -487,6 +455,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             $orderdetails->coursename = format_string($course->fullname, true, ['context' => $coursecontext]);
             $subject = get_string("enrolmentnew", 'enrol', $shortname);
             $orderdetails->user = fullname($user);
+            
             if (!empty($mailstudents)) {
                 $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
                 $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;
@@ -538,6 +507,40 @@ class moodle_enrol_stripepayment_external extends external_api {
         }
         
     }
+
+    /**
+     * validate plugininstance, course, user, context if validate then ok 
+     * else send message to admin 
+     */
+    public static function validate_data( $userid, $instanceid ) {
+        global $DB, $CFG;
+
+        // Validate enrolment instance.
+        if (! $plugininstance = $DB->get_record("enrol", ["id" => $instanceid, "status" => 0])) {
+            self::message_stripepayment_error_to_admin(get_string('invalidinstance', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+
+        // Validate course.
+        if (! $course = $DB->get_record("course", ["id" => $plugininstance->courseid])) {
+            self::message_stripepayment_error_to_admin(get_string('invalidcourseid', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+
+        // Validate context.
+        if (! $context = context_course::instance($course->id, IGNORE_MISSING)) {
+            self::message_stripepayment_error_to_admin(get_string('invalidcontextid', 'enrol_stripepayment'), $data);
+            redirect($CFG->wwwroot);
+        }
+
+        //validate user
+        if (! $user = $DB->get_record("user", ["id" => $userid])) {
+            self::message_stripepayment_error_to_admin("Not orderdetails valid user id", $data);
+            redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
+        }
+        return [$plugininstance, $course, $context, $user];
+    }
+
     /**
      * send email with errror message to admin 
      * @param string  $subject
