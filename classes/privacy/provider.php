@@ -13,15 +13,29 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+
 /**
- * Defines message providers (types of message sent) for the Stripe enrolment plugin.
+ * privacy api
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
-$messageproviders = [
-    'stripepayment_enrolment' => [],
-];
+
+namespace enrol_stripepayment\privacy;
+
+/**
+ * privacy api
+ *
+ * @package    enrol_stripepayment
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  2019 DualCube Team(https://dualcube.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}

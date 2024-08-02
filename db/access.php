@@ -22,32 +22,32 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-$capabilities = array(
-    'enrol/stripepayment:config' => array(
+$capabilities = [
+    'enrol/stripepayment:config' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-        )
-    ),
-    'enrol/stripepayment:manage' => array(
+        ],
+    ],
+    'enrol/stripepayment:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-        )
-    ),
-    'enrol/stripepayment:unenrol' => array(
+        ],
+    ],
+    'enrol/stripepayment:unenrol' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'manager' => CAP_ALLOW,
-        )
-    ),
-    'enrol/stripepayment:unenrolself' => array(
+        ],
+    ],
+    'enrol/stripepayment:unenrolself' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array()
-    ),
-);
+        'archetypes' => [],
+    ],
+];

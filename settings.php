@@ -34,16 +34,16 @@ if (is_siteadmin()) {
         get_string('pluginname_desc', 'enrol_stripepayment')
     ));
     $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/secretkey',
-        get_string('secretkey', 'enrol_stripepayment'),
-        get_string('secretkey_desc', 'enrol_stripepayment'),
+        'enrol_stripepayment/publishablekey',
+        get_string('publishablekey', 'enrol_stripepayment'),
+        get_string('publishablekey_desc', 'enrol_stripepayment'),
         '',
         PARAM_TEXT
     ));
     $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/publishablekey',
-        get_string('publishablekey', 'enrol_stripepayment'),
-        get_string('publishablekey_desc', 'enrol_stripepayment'),
+        'enrol_stripepayment/secretkey',
+        get_string('secretkey', 'enrol_stripepayment'),
+        get_string('secretkey_desc', 'enrol_stripepayment'),
         '',
         PARAM_TEXT
     ));

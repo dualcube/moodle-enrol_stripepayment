@@ -43,16 +43,16 @@ class enrol_stripepayment_edit_form extends moodleform {
         $mform->addElement('header', 'header', get_string('pluginname', 'enrol_stripepayment'));
         $mform->addElement('text', 'name', get_string('custominstancename', 'enrol'));
         $mform->setType('name', PARAM_TEXT);
-        $options = array(ENROL_INSTANCE_ENABLED  => get_string('yes'),
-                         ENROL_INSTANCE_DISABLED => get_string('no'));
+        $options = [ENROL_INSTANCE_ENABLED  => get_string('yes'),
+                         ENROL_INSTANCE_DISABLED => get_string('no')];
         $mform->addElement('select', 'status', get_string('status', 'enrol_stripepayment'), $options);
         $mform->setDefault('status', $plugin->get_config('status'));
-        $costarray = array();
-        $costarray[] =& $mform->createElement('text', 'cost', get_string('cost', 'enrol_stripepayment'), array('size' => 4));
+        $costarray = [];
+        $costarray[] =& $mform->createElement('text', 'cost', get_string('cost', 'enrol_stripepayment'), ['size' => 4]);
         $mform->setDefault('cost', format_float($plugin->get_config('cost'), 2, true));
         $mform->setType('cost', PARAM_FLOAT);
-        $mform->addGroup($costarray, 'costar', get_string('cost', 'enrol_stripepayment'), array(' '), false);
-        // Currency select
+        $mform->addGroup($costarray, 'costar', get_string('cost', 'enrol_stripepayment'), [' '], false);
+        // Currency select.
         $currency = enrol_get_plugin('stripepayment')->get_currencies();
         $mform->addElement('select', 'currency', get_string('currency', 'enrol_stripepayment'), $currency);
         $mform->setDefault('currency', $plugin->get_config('currency'));
@@ -61,7 +61,7 @@ class enrol_stripepayment_edit_form extends moodleform {
         } else {
             $roles = get_default_enrol_roles($context, $plugin->get_config('roleid'));
         }
-        // Assign role
+        // Assign role.
         $mform->addElement('select', 'roleid', get_string('assignrole', 'enrol_stripepayment'), $roles);
         $mform->setDefault('roleid', $plugin->get_config('roleid'));
         $mform->addElement('text', 'customint3', get_string('maxenrolled', 'enrol_stripepayment'));
@@ -69,15 +69,15 @@ class enrol_stripepayment_edit_form extends moodleform {
         $mform->addHelpButton('customint3', 'maxenrolled', 'enrol_stripepayment');
         $mform->setType('customint3', PARAM_INT);
         $mform->addElement('duration', 'enrolperiod', get_string('enrolperiod', 'enrol_stripepayment'),
-        array('optional' => true, 'defaultunit' => 86400));
+        ['optional' => true, 'defaultunit' => 86400]);
         $mform->setDefault('enrolperiod', $plugin->get_config('enrolperiod'));
         $mform->addHelpButton('enrolperiod', 'enrolperiod', 'enrol_stripepayment');
         $mform->addElement('date_time_selector', 'enrolstartdate', get_string('enrolstartdate', 'enrol_stripepayment'),
-        array('optional' => true));
+        ['optional' => true]);
         $mform->setDefault('enrolstartdate', 0);
         $mform->addHelpButton('enrolstartdate', 'enrolstartdate', 'enrol_stripepayment');
         $mform->addElement('date_time_selector', 'enrolenddate', get_string('enrolenddate', 'enrol_stripepayment'),
-        array('optional' => true));
+        ['optional' => true]);
         $mform->setDefault('enrolenddate', 0);
         $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_stripepayment');
         $mform->addElement('hidden', 'id');
@@ -98,10 +98,8 @@ class enrol_stripepayment_edit_form extends moodleform {
      * @return $error error list
      */
     public function validation($data, $files) {
-        global $DB, $CFG;
         $errors = parent::validation($data, $files);
-        list($instance, $plugin, $context) = $this->_customdata;
-        if (!empty($data['enrolenddate']) and $data['enrolenddate'] < $data['enrolstartdate']) {
+        if (!empty($data['enrolenddate']) && $data['enrolenddate'] < $data['enrolstartdate']) {
             $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_stripepayment');
         }
         $cost = str_replace(get_string('decsep', 'langconfig'), '.', $data['cost']);

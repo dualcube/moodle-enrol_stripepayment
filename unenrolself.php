@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Stripe enrolment plugin.
  *
@@ -24,13 +25,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require('../../config.php');
+defined('MOODLE_INTERNAL') || die();
+
 $enrolid = required_param('enrolid', PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_BOOL);
 $instance = $DB->get_record('enrol', array('id' => $enrolid, 'enrol' => 'stripepayment'), '*', MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $instance->courseid), '*', MUST_EXIST);
 $context = context_course::instance($course->id, MUST_EXIST);
-require_login();
 if (!is_enrolled($context)) {
     redirect(new moodle_url('/'));
 }

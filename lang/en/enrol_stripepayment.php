@@ -22,9 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['applycode'] = 'Apply Code';
+$string['applycode'] = 'Apply code';
 $string['assignrole'] = 'Assign role';
-$string['buy_now'] = 'Buy Now';
+$string['buy_now'] = 'Buy now';
 $string['canntenrol'] = 'Enrolment is disabled or inactive';
 $string['charge_description1'] = "create customer for email receipt";
 $string['charge_description2'] = 'Charge for Course Enrolment Cost.';
