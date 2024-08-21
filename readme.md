@@ -53,7 +53,7 @@ This completes all the steps from the administrator end. Now registered users ca
 
 Requirements
 ------------
-* Moodle 3.0 - 4.3
+* Moodle 4.3 - 4.5 (dev)
 * Stripe account
 
 
