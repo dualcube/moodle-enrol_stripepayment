@@ -1,8 +1,9 @@
 ##Stripe Payment Moodle Plugin Change Log
 
 3.4.8 (2024082100)
- * Fixed :  Error notice Call to a member function js_call_amd() on null
- * Fixed : Multiple redemptions of coupon not prevented in free enrollment case
+ * Fixed :  Error notice Call to a member function js_call_amd() on null.
+ * Fixed : Multiple redemptions of coupon not prevented in free enrollment case.
+ * Updated : Stripe library. 
 
 3.4.7 (2024081400)
  * Revamped : Refactored core code for improved loading times and reduced server load.
