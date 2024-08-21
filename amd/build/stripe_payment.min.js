@@ -32,6 +32,8 @@ define(['jquery', 'core/ajax'],
                 var get_card_zero_cost = $('#card-button-zero');
                 if (get_card_zero_cost) {
                     get_card_zero_cost.click(function () {
+                        get_card_zero_cost.prop('disabled', true);
+                        get_card_zero_cost.text(please_wait_string);
                         var promises = ajax.call([{
                             methodname: 'moodle_stripepayment_free_enrolsettings',
                             args: { user_id:user_id, couponid: couponid, instance_id: instance_id },
