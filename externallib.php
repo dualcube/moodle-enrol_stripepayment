@@ -301,7 +301,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                         'course_id' => $course->id,
                     ],
                     'mode' => 'payment',
-                    'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$usertoken. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&sessionid={CHECKOUT_sessionid}&user_id=' .$userid. '&couponid=' .$couponid. '&instance_id=' .$instanceid. '',
+                    'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$usertoken. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&sessionid={CHECKOUT_SESSION_ID}&user_id=' .$userid. '&couponid=' .$couponid. '&instance_id=' .$instanceid. '',
                     'cancel_url' => $CFG->wwwroot.'/course/view.php?id='.$courseid,
                 ]);
             } catch (Exception $e) {
