@@ -160,13 +160,6 @@ body#page-enrol-index #region-main .generalbox .card a img {
     background: #f9f9f9;
     box-shadow: 0 10px 6px -4px #d4d2d2;
 }
-
-.StripeElement input[placeholder],
-[placeholder],
-*[placeholder] {
-    color: red !important;
-}
-
 @media (min-width: 200px) and (max-width: 700px) {
 
     .stripe-img,
