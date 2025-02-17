@@ -93,9 +93,117 @@ $enrolbtncolor = $plugin->get_config('enrolbtncolor');
                     <?php $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment', array( $USER->id, $plugin->get_config('publishablekey'), $couponid, $instance->id, get_string("please_wait", "enrol_stripepayment"), get_string("buy_now", "enrol_stripepayment"), get_string("invalidcouponcode", "enrol_stripepayment"))); ?>
             </div>
         </div>
+                
+
+      <div class="paydetail wrapper">
+                
+           <ul>
+                <li class="stripe-row">
+                	<div class="details">
+                		<div class="name"> Enrolment in course Hello Dolly </div>
+                	</div>
+                	<div class="price">
+                		<div class="total-price">$0.00</div>
+                	</div>
+                </li>
+                
+                <li class="stripe-row">
+                	<div class="details">
+                		<div class="name"> Hello Dolly </div>
+                	</div>
+                	<div class="price">
+                		<div class="total-price">$0.00</div>
+                	</div>
+                </li>                
+           </ul>
+                
+           <div class="stripe-row">
+                <div class="details">
+                    <div class="name">Sub Total</div>
+                </div>
+                <div class="price">
+                    <div class="total-price">$22.50</div>
+                </div>
+           </div>
+                
+           <div class="promotion-code">
+                <div class="couponcode-wrap">
+                        <span class="couponcode-text">  If you have any coupon please apply here</span>
+                        <p class="stripe-cupon-input">
+                            <input type=text id="coupon" />
+                            <button id="apply" class="stripe-cupon-apply">Apply code</button>
+                        </p>
+                        <div id="new_coupon"></div>
+                 </div>
+           </div>
+          
+       </div>          
+                
     </div>
 </div>
 <style>
+    .paydetail.wrapper{
+      	padding-top:3rem;
+        width:60%;  
+        margin:auto;         
+     }           
+    .paydetail .heading{
+        font-size: 1rem;
+  		margin: 0;
+  		color: #6f6f6f;
+     }
+	.paydetail .price-row{
+    	display:flex;
+    	align-items: center;
+  		gap: 0.5rem;
+    }
+	.paydetail .price-row .price{
+    	font-size:2.375rem;
+    }
+	.paydetail .price-row .duration{
+    	display:flex;
+    	flex-direction:column;
+    }
+	.paydetail ul{
+    	padding-top:2.5rem;
+    	padding-left:0;
+    	border-bottom: 0.063rem solid #eee;
+    }
+	.paydetail .stripe-row{
+    	text-decoration:none;
+    	padding:0;
+    	display:flex;
+    	justify-content: space-between;
+    	margin-bottom:0.875rem;
+    }
+	.paydetail .stripe-row .details .name,
+	.paydetail .stripe-row .price .total-price{
+    	font-size: 1rem;
+  		font-weight: 600;
+    }
+	.paydetail .stripe-row .duratuion{
+    	color: #888787;
+  		font-size: 0.85rem;
+	}
+	.paydetail .stripe-row .price{
+    	text-align:right;
+    }
+	.paydetail .promotion-code{
+    	color:#1177d1;
+    	font-size:1.1rem;
+    	border-bottom: 0.063rem solid #eee;
+        padding-bottom:1rem;
+    }
+	.paydetail .promotion-code .couponcode-wrap{
+    	width:100%;
+    }
+	.stripe-row.total{
+    	padding-top:1rem;
+    	margin-bottom:0;
+    	color: #00000087;
+    	font-weight:500;
+    }               
+   
     button#apply {
         color: #fff;
         background-color: <?php echo $enrolbtncolor; ?>;
