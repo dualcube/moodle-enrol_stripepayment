@@ -214,14 +214,6 @@ body#page-enrol-index #region-main .generalbox .card a img {
     }
 }
 
-#region-main h2 {
-    display: none;
-}
-
-.enrolmenticons {
-    display: none;
-}
-
 #new_coupon {
     margin-bottom: 10px;
 }
