@@ -402,18 +402,18 @@ class moodle_enrol_stripepayment_external extends external_api {
         $cost = format_float($cost, 2, false);
         try {
             if ($data->couponid && $data->couponid != '0') {
-                $coupon = Coupon::retrieve($data->couponid);
-                if (!$coupon->valid) {
-                    redirect($CFG->wwwroot.'/enrol/index.php?id='.$data->courseid, get_string("invalidcouponcodevalue",
-                        "enrol_stripepayment", $data->couponid));
-                } else {
+                try {
+                    $coupon = Coupon::retrieve($data->couponid);
                     if (isset($coupon->percent_off)) {
-                        $cost = $cost - ( $cost * ( $coupon->percent_off / 100 ) );
+                        $cost = $cost - ($cost * ($coupon->percent_off / 100));
                     } else if (isset($coupon->amount_off)) {
                         $cost = (($cost * 100) - $coupon->amount_off) / 100;
                     }
+                } catch (Exception $e) {
+                    debugging('Stripe coupon retrieval failed: '.$e->getMessage(), DEBUG_DEVELOPER);
                 }
             }
+    
             // Send the file, this line will be reached if no error was thrown above.
             if (!isset($charge->failure_message) || is_null($charge->failure_message)) {
                 $charge->failure_message = 'NA';
