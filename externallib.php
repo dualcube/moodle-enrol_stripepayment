@@ -392,28 +392,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             redirect($CFG->wwwroot);
         }
         $PAGE->set_context($context);
-        // Check that amount paid is the correct amount.
-        if ( (float) $plugininstance->cost <= 0 ) {
-            $cost = (float) $plugin->get_config('cost');
-        } else {
-            $cost = (float) $plugininstance->cost;
-        }
-        // Use the same rounding of floats as on the enrol form.
-        $cost = format_float($cost, 2, false);
         try {
-            if ($data->couponid && $data->couponid != '0') {
-                $coupon = Coupon::retrieve($data->couponid);
-                if (!$coupon->valid) {
-                    redirect($CFG->wwwroot.'/enrol/index.php?id='.$data->courseid, get_string("invalidcouponcodevalue",
-                        "enrol_stripepayment", $data->couponid));
-                } else {
-                    if (isset($coupon->percent_off)) {
-                        $cost = $cost - ( $cost * ( $coupon->percent_off / 100 ) );
-                    } else if (isset($coupon->amount_off)) {
-                        $cost = (($cost * 100) - $coupon->amount_off) / 100;
-                    }
-                }
-            }
             // Send the file, this line will be reached if no error was thrown above.
             if (!isset($charge->failure_message) || is_null($charge->failure_message)) {
                 $charge->failure_message = 'NA';
