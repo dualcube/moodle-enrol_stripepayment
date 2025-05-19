@@ -254,6 +254,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             // retrieve Stripe customer_id if previously set
             $checkcustomer = $DB->get_records('enrol_stripepayment',
             ['receiver_email' => $user->email]);
+            $receiveremail = $user->email;
             foreach ($checkcustomer as $keydata => $valuedata) {
                 $checkcustomer = $valuedata;
             }
