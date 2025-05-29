@@ -276,7 +276,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             // Create new Checkout Session for the order 
             try {
                 $session = Session::create([
-                    'customer' => $receiverid,
+                    // 'customer' => $receiverid,
                     'customer_email' => $receiveremail,
                     'payment_intent_data' => ['description' => $description ],
                     'payment_method_types' => ['card'],
