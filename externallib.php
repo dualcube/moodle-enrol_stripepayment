@@ -426,7 +426,6 @@ class moodle_enrol_stripepayment_external extends external_api {
             } else {
                 $teacher = false;
             }
-            $mailstudents = $plugin->get_config('mailstudents');
             $mailteachers = $plugin->get_config('mailteachers');
             $mailadmins   = $plugin->get_config('mailadmins');
             $shortname = format_string($course->shortname, true, ['context' => $context]);
@@ -436,17 +435,6 @@ class moodle_enrol_stripepayment_external extends external_api {
             $subject = get_string("enrolmentnew", 'enrol', $shortname);
             $orderdetails->user = fullname($user);
             
-            if (!empty($mailstudents)) {
-                $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
-                $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;
-                $fullmessage = get_string('welcometocoursetext', '', $orderdetails);
-                $fullmessagehtml = html_to_text('<p>'.get_string('welcometocoursetext', '', $orderdetails).'</p>');
-                // Send test email.
-                ob_start();
-                email_to_user($user, $userfrom, $subject, $fullmessage, $fullmessagehtml);
-                ob_get_contents();
-                ob_end_clean();
-            }
             if (!empty($mailteachers) && !empty($teacher)) {
                 $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
                 $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
