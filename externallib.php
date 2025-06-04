@@ -254,13 +254,11 @@ class moodle_enrol_stripepayment_external extends external_api {
             // retrieve Stripe customer_id if previously set
             $checkcustomer = $DB->get_records('enrol_stripepayment',
             ['receiver_email' => $user->email]);
-            $receiveremail = $user->email;
             foreach ($checkcustomer as $keydata => $valuedata) {
                 $checkcustomer = $valuedata;
             }
             if ($checkcustomer) {
                 $receiverid = $checkcustomer->receiver_id;
-                $receiveremail = null;   // must not be set if customer id provided
             } else {
                 $customers = Customer::all(['email' => $user->email]);
                 if ( empty($customers->data) ) {
@@ -276,8 +274,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             // Create new Checkout Session for the order 
             try {
                 $session = Session::create([
-                    // 'customer' => $receiverid,
-                    'customer_email' => $receiveremail,
+                    'customer' => $receiverid,
                     'payment_intent_data' => ['description' => $description ],
                     'payment_method_types' => ['card'],
                     'line_items' => [[ 
