@@ -80,6 +80,65 @@ class enrol_stripepayment_edit_form extends moodleform {
         ['optional' => true]);
         $mform->setDefault('enrolenddate', 0);
         $mform->addHelpButton('enrolenddate', 'enrolenddate', 'enrol_stripepayment');
+ 
+        // Course welcome message.
+        if (has_any_capability(['enrol/stripepayment:config', 'moodle/course:editcoursewelcomemessage'], $context)) {
+            $mform->addElement(
+                'select',
+                'customint1',
+                get_string(
+                    identifier: 'sendcoursewelcomemessage',
+                    component: 'core_enrol',
+                ),
+                enrol_send_welcome_email_options(),
+            );
+            $mform->addHelpButton(
+                elementname: 'customint1',
+                identifier: 'sendcoursewelcomemessage',
+                component: 'core_enrol',
+            );
+
+            $options = [
+                'cols' => '60',
+                'rows' => '8',
+            ];
+            $mform->addElement(
+                'textarea',
+                'customtext1',
+                get_string(
+                    identifier: 'customwelcomemessage',
+                    component: 'core_enrol',
+                ),
+                $options,
+            );
+            $mform->setDefault('customtext1', get_string('customwelcomemessageplaceholder', 'core_enrol'));
+            $mform->hideIf(
+                elementname: 'customtext1',
+                dependenton: 'customint1',
+                condition: 'eq',
+                value: ENROL_DO_NOT_SEND_EMAIL,
+            );
+
+            // Static form elements cannot be hidden by hideIf() so we need to add a dummy group.
+            // See: https://tracker.moodle.org/browse/MDL-66251.
+            $group[] = $mform->createElement(
+                'static',
+                'customwelcomemessage_extra_help',
+                null,
+                get_string(
+                    identifier: 'customwelcomemessage_help',
+                    component: 'core_enrol',
+                ),
+            );
+            $mform->addGroup($group, 'group_customwelcomemessage_extra_help', '', ' ', false);
+            $mform->hideIf(
+                elementname: 'group_customwelcomemessage_extra_help',
+                dependenton: 'customint1',
+                condition: 'eq',
+                value: ENROL_DO_NOT_SEND_EMAIL,
+            );
+        }
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
         $mform->addElement('hidden', 'courseid');

@@ -48,12 +48,6 @@ if (is_siteadmin()) {
         PARAM_TEXT
     ));
     $settings->add(new admin_setting_configcheckbox(
-        'enrol_stripepayment/mailstudents',
-        get_string('mailstudents', 'enrol_stripepayment'),
-        '',
-        0
-    ));
-    $settings->add(new admin_setting_configcheckbox(
         'enrol_stripepayment/mailteachers',
         get_string('mailteachers', 'enrol_stripepayment'),
         '',
