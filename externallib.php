@@ -169,6 +169,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             } else {
                 $customer = Customer::create([
                     "email" => $data->stripeEmail,
+                    "name" => fullname($user),
                     "coupon" => $data->couponid,
                     "description" => get_string('charge_description1', 'enrol_stripepayment')
                 ]);
@@ -264,6 +265,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 if ( empty($customers->data) ) {
                     $customer = Customer::create([
                         "email" => $user->email,
+                        "name" => fullname($user),
                         "description" => get_string('charge_description1', 'enrol_stripepayment')
                     ]);
                 } else {
