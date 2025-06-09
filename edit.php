@@ -68,7 +68,9 @@ if ($mform->is_cancelled()) {
         $instance->name           = $data->name;
         $instance->cost           = unformat_float($data->cost);
         $instance->roleid         = $data->roleid;
+        $instance->customint1     = $data->customint1;
         $instance->customint3     = $data->customint3; // Max enrolled user number
+        $instance->customtext1    = $data->customtext1;
         $instance->enrolperiod    = $data->enrolperiod;
         $instance->enrolstartdate = $data->enrolstartdate;
         $instance->enrolenddate   = $data->enrolenddate;

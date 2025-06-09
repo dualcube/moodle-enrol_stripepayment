@@ -169,6 +169,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             } else {
                 $customer = Customer::create([
                     "email" => $data->stripeEmail,
+                    "name" => fullname($user),
                     "coupon" => $data->couponid,
                     "description" => get_string('charge_description1', 'enrol_stripepayment')
                 ]);
@@ -254,18 +255,17 @@ class moodle_enrol_stripepayment_external extends external_api {
             // retrieve Stripe customer_id if previously set
             $checkcustomer = $DB->get_records('enrol_stripepayment',
             ['receiver_email' => $user->email]);
-            $receiveremail = $user->email;
             foreach ($checkcustomer as $keydata => $valuedata) {
                 $checkcustomer = $valuedata;
             }
             if ($checkcustomer) {
                 $receiverid = $checkcustomer->receiver_id;
-                $receiveremail = null;   // must not be set if customer id provided
             } else {
                 $customers = Customer::all(['email' => $user->email]);
                 if ( empty($customers->data) ) {
                     $customer = Customer::create([
                         "email" => $user->email,
+                        "name" => fullname($user),
                         "description" => get_string('charge_description1', 'enrol_stripepayment')
                     ]);
                 } else {
@@ -276,8 +276,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             // Create new Checkout Session for the order 
             try {
                 $session = Session::create([
-                    // 'customer' => $receiverid,
-                    'customer_email' => $receiveremail,
+                    'customer' => $receiverid,
                     'payment_intent_data' => ['description' => $description ],
                     'payment_method_types' => ['card'],
                     'line_items' => [[ 
@@ -419,55 +418,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
             // Enrol user.
             $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, $timestart, $timeend);
-            if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
-                                                     '', '', '', '', false, true)) {
-                $users = sort_by_roleassignment_authority($users, $context);
-                $teacher = array_shift($users);
-            } else {
-                $teacher = false;
-            }
-            $mailstudents = $plugin->get_config('mailstudents');
-            $mailteachers = $plugin->get_config('mailteachers');
-            $mailadmins   = $plugin->get_config('mailadmins');
-            $shortname = format_string($course->shortname, true, ['context' => $context]);
-            $coursecontext = context_course::instance($course->id);
-            $orderdetails = new stdClass();
-            $orderdetails->coursename = format_string($course->fullname, true, ['context' => $coursecontext]);
-            $subject = get_string("enrolmentnew", 'enrol', $shortname);
-            $orderdetails->user = fullname($user);
-            
-            if (!empty($mailstudents)) {
-                $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
-                $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;
-                $fullmessage = get_string('welcometocoursetext', '', $orderdetails);
-                $fullmessagehtml = html_to_text('<p>'.get_string('welcometocoursetext', '', $orderdetails).'</p>');
-                // Send test email.
-                ob_start();
-                email_to_user($user, $userfrom, $subject, $fullmessage, $fullmessagehtml);
-                ob_get_contents();
-                ob_end_clean();
-            }
-            if (!empty($mailteachers) && !empty($teacher)) {
-                $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-                $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
-                // Send test email.
-                ob_start();
-                email_to_user($teacher, $user, $subject, $fullmessage, $fullmessagehtml);
-                ob_get_contents();
-                ob_end_clean();
-            }
-            if (!empty($mailadmins)) {
-                $admins = get_admins();
-                foreach ($admins as $admin) {
-                    $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-                    $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
-                    // Send test email.
-                    ob_start();
-                    email_to_user($admin, $user, $subject, $fullmessage, $fullmessagehtml);
-                    ob_get_contents();
-                    ob_end_clean();
-                }
-            }
+
             $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
             $fullname = format_string($course->fullname, true, ['context' => $context]);
             if (is_enrolled($context, $user, '', true)) { 
