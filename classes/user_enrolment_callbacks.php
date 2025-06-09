@@ -44,4 +44,58 @@ class user_enrolment_callbacks {
             );
         }
     }
+
+    public static function send_teacher_admin_message(\core_enrol\hook\after_user_enrolled $hook): void {
+        $instance = $hook->get_enrolinstance();
+        if ($instance->enrol != 'stripepayment') {
+            return;
+        }
+        $userid = $hook->get_userid();
+        $plugin = enrol_get_plugin($instance->enrol);
+        $context = \context_course::instance($instance->courseid);
+        $course = get_course($instance->courseid);
+        $user = \core_user::get_user($userid);
+        $mailteachers = $plugin->get_config('mailteachers');
+        $mailadmins = $plugin->get_config('mailadmins');
+        $shortname = format_string($course->shortname, true, ['context' => $context]);
+        $subject = get_string("enrolmentnew", 'enrol', $shortname);
+        $orderdetails = new \stdClass();
+        $orderdetails->course = format_string($course->fullname, true, ['context' => $context]);
+        $orderdetails->user = fullname($user);
+        $orderdetails->email = $user->email;
+
+        if (!empty($mailteachers)) {
+            if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
+                                                     '', '', '', '', false, true)) {
+                $users = sort_by_roleassignment_authority($users, $context);
+                $teacher = array_shift($users);
+            } else {
+                $teacher = false;
+            }
+
+            if (!empty($teacher)) {
+                $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
+                $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
+                // Send test email.
+                ob_start();
+                email_to_user($teacher, $user, $subject, $fullmessage, $fullmessagehtml);
+                ob_get_contents();
+                ob_end_clean();
+            }
+        }
+
+        if (!empty($mailadmins)) {
+            $admins = get_admins();
+            foreach ($admins as $admin) {
+                $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
+                $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
+                // Send test email.
+                ob_start();
+                email_to_user($admin, $user, $subject, $fullmessage, $fullmessagehtml);
+                ob_get_contents();
+                ob_end_clean();
+            }
+        }
+    }
+
 }

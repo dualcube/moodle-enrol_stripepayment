@@ -418,43 +418,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
             // Enrol user.
             $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, $timestart, $timeend);
-            if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
-                                                     '', '', '', '', false, true)) {
-                $users = sort_by_roleassignment_authority($users, $context);
-                $teacher = array_shift($users);
-            } else {
-                $teacher = false;
-            }
-            $mailteachers = $plugin->get_config('mailteachers');
-            $mailadmins   = $plugin->get_config('mailadmins');
-            $shortname = format_string($course->shortname, true, ['context' => $context]);
-            $coursecontext = context_course::instance($course->id);
-            $orderdetails = new stdClass();
-            $orderdetails->coursename = format_string($course->fullname, true, ['context' => $coursecontext]);
-            $subject = get_string("enrolmentnew", 'enrol', $shortname);
-            $orderdetails->user = fullname($user);
-            
-            if (!empty($mailteachers) && !empty($teacher)) {
-                $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-                $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
-                // Send test email.
-                ob_start();
-                email_to_user($teacher, $user, $subject, $fullmessage, $fullmessagehtml);
-                ob_get_contents();
-                ob_end_clean();
-            }
-            if (!empty($mailadmins)) {
-                $admins = get_admins();
-                foreach ($admins as $admin) {
-                    $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-                    $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
-                    // Send test email.
-                    ob_start();
-                    email_to_user($admin, $user, $subject, $fullmessage, $fullmessagehtml);
-                    ob_get_contents();
-                    ob_end_clean();
-                }
-            }
+
             $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
             $fullname = format_string($course->fullname, true, ['context' => $context]);
             if (is_enrolled($context, $user, '', true)) { 
