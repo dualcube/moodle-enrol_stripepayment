@@ -14,16 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
-/**
- * privacy api
- *
- * @package    enrol_stripepayment
- * @author     DualCube <admin@dualcube.com>
- * @copyright  2019 DualCube Team(https://dualcube.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace enrol_stripepayment\privacy;
 
 /**
@@ -35,6 +25,11 @@ namespace enrol_stripepayment\privacy;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {
+    /**
+     * Returns the reason why no personal data is stored.
+     *
+     * @return string The language string key explaining why no data is stored.
+     */
     public static function get_reason(): string {
         return 'privacy:metadata';
     }

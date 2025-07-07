@@ -14,25 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * External library for stripepayment
- *
- * @package    enrol_stripepayment
- * @author     DualCube <admin@dualcube.com>
- * @copyright  2019 DualCube Team(https://dualcube.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
- 
 defined('MOODLE_INTERNAL') || die();
 
-require_once("$CFG->libdir/externallib.php"); // support for previous version of moodle 4.2
+require_once("$CFG->libdir/externallib.php"); // Support for previous version of moodle 4.2.
 require_once("$CFG->libdir/enrollib.php");
-require_once('Stripe/init.php');
-use \Stripe\Stripe as Stripe;
-use \Stripe\Coupon as Coupon;
-use \Stripe\Customer as Customer;
-use \Stripe\Checkout\Session as Session;
-use \Stripe\PaymentIntent as PaymentIntent;
+require_once('vendor/stripe/stripe-php/init.php');
+use Stripe\Stripe as Stripe;
+use Stripe\Coupon as Coupon;
+use Stripe\Customer as Customer;
+use Stripe\Checkout\Session as Session;
+use Stripe\PaymentIntent as PaymentIntent;
 
 /**
  * External library for stripepayment
@@ -45,7 +36,7 @@ use \Stripe\PaymentIntent as PaymentIntent;
 class moodle_enrol_stripepayment_external extends external_api {
 
     /**
-     * Parameter for couponsettings function 
+     * Parameter for couponsettings function
      */
     public static function stripepayment_couponsettings_parameters() {
         return new external_function_parameters(
@@ -62,7 +53,10 @@ class moodle_enrol_stripepayment_external extends external_api {
     public static function stripepayment_couponsettings_returns() {
         return new external_single_structure(
             [
-                'status' => new external_value(PARAM_RAW, 'status: true if success')
+                'status' => new external_value(PARAM_RAW, 'status: true if success'),
+                'coupon_name' => new external_value(PARAM_RAW, 'coupon name', VALUE_OPTIONAL),
+                'coupon_type' => new external_value(PARAM_RAW, 'coupon type: percent_off or amount_off', VALUE_OPTIONAL),
+                'discount_value' => new external_value(PARAM_RAW, 'discount value', VALUE_OPTIONAL),
             ]
         );
     }
@@ -89,10 +83,18 @@ class moodle_enrol_stripepayment_external extends external_api {
         try {
             $coupon = Coupon::retrieve($couponid);
             if ($coupon->valid) {
+                $couponname = isset($coupon->name) ? $coupon->name : $couponid;
+                $coupontype = '';
+                $discountvalue = 0;
+
                 if (isset($coupon->percent_off)) {
                     $cost -= $cost * ($coupon->percent_off / 100);
+                    $coupontype = 'percent_off';
+                    $discountvalue = $coupon->percent_off;
                 } else if (isset($coupon->amount_off)) {
                     $cost -= $coupon->amount_off / 100;
+                    $coupontype = 'amount_off';
+                    $discountvalue = $coupon->amount_off / 100;
                 }
                 $cost = format_float($cost, 2, false);
             } else {
@@ -102,7 +104,12 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception($e->getMessage());
         }
 
-        return ['status' => $cost];
+        return [
+            'status' => $cost,
+            'coupon_name' => $couponname,
+            'coupon_type' => $coupontype,
+            'discount_value' => $discountvalue,
+        ];
     }
 
     /**
@@ -143,8 +150,6 @@ class moodle_enrol_stripepayment_external extends external_api {
         $user = $validateddata[3];
 
         $plugin = enrol_get_plugin('stripepayment');
-        $secretkey = $plugin->get_config('secretkey');
-        Stripe::setApiKey($secretkey);
 
         $data = new stdClass();
         $data->couponid = $couponid;
@@ -154,37 +159,18 @@ class moodle_enrol_stripepayment_external extends external_api {
         $data->courseid = $plugininstance->courseid;
         $data->timeupdated = time();
 
-        // Check existing customer.
-        $checkcustomer = $DB->get_records('enrol_stripepayment', ['receiver_email' => $user->email]);
-        if ($checkcustomer) {
-            $checkcustomer = reset($checkcustomer);
-        }
-
-        try {
-            if ($checkcustomer && $checkcustomer->receiver_id) {
-                $customer = Customer::retrieve($checkcustomer->receiver_id);
-                $customer->coupon = $couponid;
-                $customer->save();
-                $data->receiver_id = $checkcustomer->receiver_id;
-            } else {
-                $customer = Customer::create([
-                    "email" => $data->stripeEmail,
-                    "coupon" => $data->couponid,
-                    "description" => get_string('charge_description1', 'enrol_stripepayment')
-                ]);
-                $data->receiver_id = $customer->id;
-            }
-        } catch (Exception $e) {
-            self::message_stripepayment_error_to_admin($e->getMessage(), $data);
-            redirect($CFG->wwwroot);
-        }
-
+        // For free enrollment, we don't need to create/update Stripe customers
+        // Just set basic data for record keeping.
         $data->receiver_email = $user->email;
         $data->payment_status = 'succeeded';
+        $data->receiver_id = 'free_enrollment_' . time(); // Use a placeholder ID for free enrollments.
+
+        // Insert enrollment record.
         $DB->insert_record("enrol_stripepayment", $data);
 
-        // Enrol user
-        $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, time(), $plugininstance->enrolperiod ? time() + $plugininstance->enrolperiod : 0);
+        // Enrol user.
+        $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, time(),
+        $plugininstance->enrolperiod ? time() + $plugininstance->enrolperiod : 0);
 
         $result = ['status' => 'working'];
         return $result;
@@ -221,29 +207,26 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @param number $instanceid
      * @return array
      */
-    public static function stripe_js_method( $userid, $couponid, $instanceid ) {
+    public static function stripe_js_method($userid, $couponid, $instanceid ) {
         global $CFG, $DB;
         $plugin = enrol_get_plugin('stripepayment');
         $secretkey = $plugin->get_config('secretkey');
         $usertoken = $plugin->get_config('webservice_token');
-        
-        // validate users, course, conntext, plugininstance
+        // Validate users, course, conntext, plugininstance.
         $validateddata = self::validate_data( $userid, $instanceid);
         $plugininstance = $validateddata[0];
         $course = $validateddata[1];
         $context = $validateddata[2];
         $user = $validateddata[3];
-        
         $amount = $plugin->get_stripe_amount($plugininstance->cost, $plugininstance->currency, false);
         $courseid = $plugininstance->courseid;
         $currency = $plugininstance->currency;
         $description  = format_string($course->fullname, true, ['context' => $context]);
         $shortname = format_string($course->shortname, true, ['context' => $context]);
-
         if (empty($secretkey) || empty($courseid) || empty($amount) || empty($currency) || empty($description)) {
             redirect($CFG->wwwroot.'/course/view.php?id='.$courseid);
         } else {
-            // Set API key
+            // Set API key.
             Stripe::setApiKey($secretkey);
             $response = [
                 'status' => 0,
@@ -251,7 +234,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                     'message' => get_string('invalidrequest', 'enrol_stripepayment'),
                 ],
             ];
-            // retrieve Stripe customer_id if previously set
+            // Retrieve Stripe customer_id if previously set.
             $checkcustomer = $DB->get_records('enrol_stripepayment',
             ['receiver_email' => $user->email]);
             $receiveremail = $user->email;
@@ -260,37 +243,36 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
             if ($checkcustomer) {
                 $receiverid = $checkcustomer->receiver_id;
-                $receiveremail = null;   // must not be set if customer id provided
+                $receiveremail = null;   // Must not be set if customer id provided.
             } else {
                 $customers = Customer::all(['email' => $user->email]);
                 if ( empty($customers->data) ) {
                     $customer = Customer::create([
                         "email" => $user->email,
-                        "description" => get_string('charge_description1', 'enrol_stripepayment')
+                        "description" => get_string('charge_description1', 'enrol_stripepayment'),
                     ]);
                 } else {
                     $customer = $customers->data[0];
                 }
                 $receiverid = $customer->id;
             }
-            // Create new Checkout Session for the order 
+            // Create new Checkout Session for the order.
             try {
                 $session = Session::create([
-                    // 'customer' => $receiverid,
                     'customer_email' => $receiveremail,
                     'payment_intent_data' => ['description' => $description ],
                     'payment_method_types' => ['card'],
-                    'line_items' => [[ 
-                        'price_data' => [ 
-                            'product_data' => [ 
-                                'name' => $description, 
-                                'metadata' => [ 
-                                    'pro_id' => $courseid 
-                                ], 
+                    'line_items' => [[
+                        'price_data' => [
+                            'product_data' => [
+                                'name' => $description,
+                                'metadata' => [
+                                    'pro_id' => $courseid,
+                                ],
                                 'description' => $description,
                             ],
-                            'unit_amount' => $amount, 
-                            'currency' => $currency, 
+                            'unit_amount' => $amount,
+                            'currency' => $currency,
                         ],
                         'quantity' => 1,
                     ]],
@@ -302,8 +284,14 @@ class moodle_enrol_stripepayment_external extends external_api {
                         'course_id' => $course->id,
                     ],
                     'mode' => 'payment',
-                    'success_url' => $CFG->wwwroot.'/webservice/rest/server.php?wstoken=' .$usertoken. '&wsfunction=moodle_stripepayment_success_stripe_url&moodlewsrestformat=json&sessionid={CHECKOUT_SESSION_ID}&user_id=' .$userid. '&couponid=' .$couponid. '&instance_id=' .$instanceid. '',
-                    'cancel_url' => $CFG->wwwroot.'/course/view.php?id='.$courseid,
+                    'success_url' => $CFG->wwwroot . '/webservice/rest/server.php?wstoken=' . $usertoken .
+                    '&wsfunction=moodle_stripepayment_success_stripe_url' .
+                    '&moodlewsrestformat=json' .
+                    '&sessionid={CHECKOUT_SESSION_ID}' .
+                    '&user_id=' . $userid .
+                    '&couponid=' . $couponid .
+                    '&instance_id=' . $instanceid,
+                    'cancel_url' => $CFG->wwwroot . '/course/view.php?id=' . $courseid,
                 ]);
             } catch (Exception $e) {
                 $apierror = $e->getMessage();
@@ -322,7 +310,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                     ],
                 ];
             }
-            // Return response 
+            // Return response.
             $passsessionid = isset($response['sessionId']) && !empty($response['sessionId']) ? $response['sessionId'] : '';
             $result = [];
             $result['status'] = $passsessionid;
@@ -343,7 +331,6 @@ class moodle_enrol_stripepayment_external extends external_api {
             ]
         );
     }
-    
     /**
      * function for define return type for success_stripe_url
      */
@@ -374,19 +361,17 @@ class moodle_enrol_stripepayment_external extends external_api {
         $data->stripeEmail = $charge->receipt_email;
         $data->receiver_id = $charge->customer;
 
-        // validate users, course, conntext, plugininstance
+        // Validate users, course, conntext, plugininstance.
         $validateddata = self::validate_data( $userid, $instanceid);
         $plugininstance = $validateddata[0];
         $course = $validateddata[1];
         $context = $validateddata[2];
         $user = $validateddata[3];
-        
         $courseid = $plugininstance->courseid;
         $data->courseid = $courseid;
         $data->instanceid = $instanceid;
         $data->userid = (int)$userid;
         $data->timeupdated = time();
-        
 
         if ( $checkoutsession->payment_status !== 'paid') {
             self::message_stripepayment_error_to_admin("Payment status: ".$checkoutsession->payment_status, $data);
@@ -433,44 +418,93 @@ class moodle_enrol_stripepayment_external extends external_api {
             $coursecontext = context_course::instance($course->id);
             $orderdetails = new stdClass();
             $orderdetails->coursename = format_string($course->fullname, true, ['context' => $coursecontext]);
+            // For enrolmentnewuser string.
+            $orderdetails->course = format_string($course->fullname, true, ['context' => $coursecontext]);
             $subject = get_string("enrolmentnew", 'enrol', $shortname);
             $orderdetails->user = fullname($user);
-            
             if (!empty($mailstudents)) {
                 $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
-                $userfrom = empty($teacher) ? core_user::get_support_user() : $teacher;
+                $userfrom = empty($teacher) ? core_user::get_noreply_user() : $teacher;
                 $fullmessage = get_string('welcometocoursetext', '', $orderdetails);
-                $fullmessagehtml = html_to_text('<p>'.get_string('welcometocoursetext', '', $orderdetails).'</p>');
-                // Send test email.
-                ob_start();
-                email_to_user($user, $userfrom, $subject, $fullmessage, $fullmessagehtml);
-                ob_get_contents();
-                ob_end_clean();
+                $fullmessagehtml = '<p>'.get_string('welcometocoursetext', '', $orderdetails).'</p>';
+
+                // Send message using Message API.
+                $message = new \core\message\message();
+                $message->courseid = $course->id;
+                $message->component = 'enrol_stripepayment';
+                $message->name = 'stripepayment_enrolment';
+                $message->userfrom = $userfrom;
+                $message->userto = $user;
+                $message->subject = $subject;
+                $message->fullmessage = $fullmessage;
+                $message->fullmessageformat = FORMAT_PLAIN;
+                $message->fullmessagehtml = $fullmessagehtml;
+                $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
+                $message->notification = 1;
+                $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
+                $message->contexturlname = $orderdetails->coursename;
+
+                $messageid = message_send($message);
+                if (!$messageid) {
+                    debugging('Failed to send stripepayment enrolment notification to student: ' . $user->id, DEBUG_DEVELOPER);
+                }
             }
             if (!empty($mailteachers) && !empty($teacher)) {
                 $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-                $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
-                // Send test email.
-                ob_start();
-                email_to_user($teacher, $user, $subject, $fullmessage, $fullmessagehtml);
-                ob_get_contents();
-                ob_end_clean();
+                $fullmessagehtml = '<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>';
+
+                // Send message using Message API.
+                $message = new \core\message\message();
+                $message->courseid = $course->id;
+                $message->component = 'enrol_stripepayment';
+                $message->name = 'stripepayment_enrolment';
+                $message->userfrom = $user;
+                $message->userto = $teacher;
+                $message->subject = $subject;
+                $message->fullmessage = $fullmessage;
+                $message->fullmessageformat = FORMAT_PLAIN;
+                $message->fullmessagehtml = $fullmessagehtml;
+                $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
+                $message->notification = 1;
+                $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
+                $message->contexturlname = $orderdetails->coursename;
+
+                $messageid = message_send($message);
+                if (!$messageid) {
+                    debugging('Failed to send stripepayment enrolment notification to teacher: ' . $teacher->id, DEBUG_DEVELOPER);
+                }
             }
             if (!empty($mailadmins)) {
                 $admins = get_admins();
                 foreach ($admins as $admin) {
                     $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-                    $fullmessagehtml = html_to_text('<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>');
-                    // Send test email.
-                    ob_start();
-                    email_to_user($admin, $user, $subject, $fullmessage, $fullmessagehtml);
-                    ob_get_contents();
-                    ob_end_clean();
+                    $fullmessagehtml = '<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>';
+
+                    // Send message using Message API.
+                    $message = new \core\message\message();
+                    $message->courseid = $course->id;
+                    $message->component = 'enrol_stripepayment';
+                    $message->name = 'stripepayment_enrolment';
+                    $message->userfrom = $user;
+                    $message->userto = $admin;
+                    $message->subject = $subject;
+                    $message->fullmessage = $fullmessage;
+                    $message->fullmessageformat = FORMAT_PLAIN;
+                    $message->fullmessagehtml = $fullmessagehtml;
+                    $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
+                    $message->notification = 1;
+                    $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
+                    $message->contexturlname = $orderdetails->coursename;
+
+                    $messageid = message_send($message);
+                    if (!$messageid) {
+                        debugging('Failed to send stripepayment enrolment notification to admin: ' . $admin->id, DEBUG_DEVELOPER);
+                    }
                 }
             }
             $destination = "$CFG->wwwroot/course/view.php?id=$course->id";
             $fullname = format_string($course->fullname, true, ['context' => $context]);
-            if (is_enrolled($context, $user, '', true)) { 
+            if (is_enrolled($context, $user, '', true)) {
                 redirect($destination, get_string('paymentthanks', '', $fullname));
             } else {
                 // Somehow they aren't enrolled yet!
@@ -485,14 +519,13 @@ class moodle_enrol_stripepayment_external extends external_api {
             self::message_stripepayment_error_to_admin($e->getMessage(), ['sessionid' => $sessionid]);
             throw new invalid_parameter_exception($e->getMessage());
         }
-        
     }
 
     /**
-     * validate plugininstance, course, user, context if validate then ok 
-     * else send message to admin 
+     * validate plugininstance, course, user, context if validate then ok
+     * else send message to admin
      */
-    public static function validate_data( $userid, $instanceid ) {
+    public static function validate_data($userid, $instanceid ) {
         global $DB, $CFG;
 
         // Validate enrolment instance.
@@ -513,7 +546,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             redirect($CFG->wwwroot);
         }
 
-        //validate user
+        // Validate user.
         if (! $user = $DB->get_record("user", ["id" => $userid])) {
             self::message_stripepayment_error_to_admin("Not orderdetails valid user id", $data);
             redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
@@ -522,24 +555,43 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
 
     /**
-     * send email with errror message to admin 
+     * send error message to admin using Message API
      * @param string  $subject
      * @param array $data
      */
     public static function message_stripepayment_error_to_admin($subject, $data) {
+        global $PAGE;
+        $PAGE->set_context(context_system::instance());
+
         $admin = get_admin();
         $site = get_site();
-        $message = "$site->fullname:  Transaction failed.\n\n$subject\n\n";
+        $messagebody = "$site->fullname:  Transaction failed.\n\n$subject\n\n";
         foreach ($data as $key => $value) {
-            $message .= s($key) ." => ". s($value)."\n";
+            $messagebody .= s($key) ." => ". s($value)."\n";
         }
-        $subject = "STRIPE PAYMENT ERROR: ".$subject;
-        $fullmessage = $message;
-        $fullmessagehtml = html_to_text('<p>'.$message.'</p>');
-        // Send test email.
-        ob_start();
-        email_to_user($admin, $admin, $subject, $fullmessage, $fullmessagehtml);
-        ob_get_contents();
-        ob_end_clean();
+        $messagesubject = "STRIPE PAYMENT ERROR: ".$subject;
+        $fullmessage = $messagebody;
+        $fullmessagehtml = '<p>'.nl2br(s($messagebody)).'</p>';
+
+        // Send message using Message API.
+        $message = new \core\message\message();
+        $message->courseid = SITEID;
+        $message->component = 'enrol_stripepayment';
+        $message->name = 'stripepayment_enrolment';
+        $message->userfrom = core_user::get_noreply_user();
+        $message->userto = $admin;
+        $message->subject = $messagesubject;
+        $message->fullmessage = $fullmessage;
+        $message->fullmessageformat = FORMAT_PLAIN;
+        $message->fullmessagehtml = $fullmessagehtml;
+        $message->smallmessage = 'Stripe payment error occurred';
+        $message->notification = 1;
+        $message->contexturl = new \moodle_url('/admin/index.php');
+        $message->contexturlname = 'Site administration';
+
+        $messageid = message_send($message);
+        if (!$messageid) {
+            debugging('Failed to send stripepayment error notification to admin: ' . $admin->id, DEBUG_DEVELOPER);
+        }
     }
 }

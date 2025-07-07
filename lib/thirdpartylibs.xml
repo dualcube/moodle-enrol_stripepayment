@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <libraries>
     <library>
-        <location>Stripe</location>
-        <name>Stripe/sdk-php</name>
-        <version>13.13.0</version>
+        <location>vendor</location>
+        <name>vendor/stripe/stripe-php/init.php</name>
+        <version>17.3.0</version>
         <repository>https://github.com/stripe/stripe-php</repository>
         <license>The MIT License</license>
         <licenseversion>1</licenseversion>

@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Stripe enrolment plugin.
  *
@@ -27,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/enrol/stripepayment/lib.php');
-if (is_siteadmin()) {
+if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
         'enrol_stripepayment_settings',
         '',
@@ -65,28 +66,27 @@ if (is_siteadmin()) {
         '',
         0
     ));
-    
     $settings->add(new admin_setting_configcheckbox(
-        'enrol_stripepayment/enable_coupon_section', 
-        get_string('enable_coupon_section', 'enrol_stripepayment'), 
-        '', 
-        0
+        'enrol_stripepayment/enable_coupon_section',
+        get_string('enable_coupon_section', 'enrol_stripepayment'),
+        '',
+        0,
     ));
 
     // Variable $enroll button color.
     $settings->add( new admin_setting_configcolourpicker(
-        'enrol_stripepayment/enrolbtncolor', 
-        get_string('enrol_btn_color', 'enrol_stripepayment'), 
-        get_string('enrol_btn_color_des', 'enrol_stripepayment'), 
+        'enrol_stripepayment/enrolbtncolor',
+        get_string('enrol_btn_color', 'enrol_stripepayment'),
+        get_string('enrol_btn_color_des', 'enrol_stripepayment'),
         '#1177d1'
     ));
     // Note: let's reuse the ext sync constants and strings here, internally it is very similar,
     // it describes what should happen when users are not supposed to be enrolled any more.
-    $options = array(
+    $options = [
         ENROL_EXT_REMOVED_KEEP           => get_string('extremovedkeep', 'enrol'),
         ENROL_EXT_REMOVED_SUSPENDNOROLES => get_string('extremovedsuspendnoroles', 'enrol'),
         ENROL_EXT_REMOVED_UNENROL        => get_string('extremovedunenrol', 'enrol'),
-    );
+    ];
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/expiredaction',
         get_string('expiredaction', 'enrol_stripepayment'),
@@ -94,13 +94,20 @@ if (is_siteadmin()) {
         ENROL_EXT_REMOVED_SUSPENDNOROLES,
         $options
     ));
-    // webservice token
-    $rest_web_link = $CFG->wwwroot . '/admin/settings.php?section=webserviceprotocols';
-    $create_token = $CFG->wwwroot . '/admin/webservice/tokens.php';
+
+    // Webservice token.
+    $webservicesoverview = $CFG->wwwroot . '/admin/search.php?query=enablewebservices';
+    $restweblink = $CFG->wwwroot . '/admin/settings.php?section=webserviceprotocols';
+    $createtoken = $CFG->wwwroot . '/admin/webservice/tokens.php';
     $settings->add(new admin_enrol_stripepayment_configtext(
         'enrol_stripepayment/webservice_token',
         get_string('webservice_token_string', 'enrol_stripepayment'),
-        get_string('create_user_token', 'enrol_stripepayment') . '<a href="' . $rest_web_link . '" target="_blank"> ' . get_string('from_here', 'enrol_stripepayment') . '</a> . ' . get_string('enabled_rest_protocol', 'enrol_stripepayment') . '<a href="' . $create_token . '" target="_blank"> ' . get_string('from_here', 'enrol_stripepayment') . '</a>
+        get_string('enable_webservices_first', 'enrol_stripepayment') . '<a href="' . $webservicesoverview . '" target="_blank"> '
+        . get_string('from_here', 'enrol_stripepayment') . '</a> . '
+        . get_string('create_user_token', 'enrol_stripepayment') . '<a href="' . $restweblink . '" target="_blank"> '
+        . get_string('from_here', 'enrol_stripepayment') . '</a> . '
+        . get_string('enabled_rest_protocol', 'enrol_stripepayment') . '<a href="' . $createtoken . '" target="_blank"> '
+        . get_string('from_here', 'enrol_stripepayment') . '</a>
         ',
         ''
     ));
@@ -110,10 +117,10 @@ if (is_siteadmin()) {
         get_string('enrolinstancedefaults', 'admin'),
         get_string('enrolinstancedefaults_desc', 'admin')
     ));
-    $options = array(
+    $options = [
         ENROL_INSTANCE_ENABLED  => get_string('yes'),
-        ENROL_INSTANCE_DISABLED => get_string('no')
-    );
+        ENROL_INSTANCE_DISABLED => get_string('no'),
+    ];
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/status',
         get_string('status', 'enrol_stripepayment'),

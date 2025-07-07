@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Strings for component 'enrol_stripepayment', language 'en'.
  *
@@ -35,11 +36,12 @@ $string['costorkey'] = 'Please choose one of the following methods of enrolment.
 $string['couponapplied'] = 'Coupon Applied';
 $string['couponcode'] = 'Coupon Code';
 $string['couponcodedescription'] = 'If you have any coupon please apply here';
-$string['create_user_token'] = 'REQUIRED: To make Stripe callback work, you must enable Moodle REST protocol on your site';
+$string['create_user_token'] = 'Then enable Moodle REST protocol on your site';
 $string['currency'] = 'Currency';
 $string['defaultrole'] = 'Default role assignment';
 $string['defaultrole_desc'] = 'Select role which should be assigned to users during Stripe enrolments';
 $string['enable_coupon_section'] = 'Enable coupon section';
+$string['enable_webservices_first'] = 'REQUIRED: First enable web services globally';
 $string['enabled_rest_protocol'] = ' You must also create a token of moodle_enrol_stripepayment service with Administrator privilege ';
 $string['enrol'] = 'Enrol';
 $string['enrol_btn_color'] = 'Choose Enroll button Color';
@@ -75,7 +77,7 @@ $string['maxenrolled'] = 'Max enrolled users';
 $string['maxenrolled_help'] = 'Specifies the maximum number of users that can stripepayment enrol. 0 means no limit.';
 $string['maxenrolledreached'] = 'Maximum number of users allowed to stripepayment-enrol was already reached.';
 $string['messageprovider:stripe_enrolment'] = 'Stripe enrolment messages';
-$string['messageprovider:stripepayment_enrolment'] = 'Message Provider';
+$string['messageprovider:stripepayment_enrolment'] = 'Stripe payment enrolment notifications';
 $string['newcost'] = 'New Cost';
 $string['nocost'] = 'There is no cost associated with enrolling in this course!';
 $string['notstripeerror'] = 'Something else happened, completely unrelated to Stripe';

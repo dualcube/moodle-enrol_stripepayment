@@ -1,0 +1,363 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template enrol_stripepayment/enrol_page
+
+    Contents of the enrolment widget on the course enrolment page
+
+    Example context (json):
+    {
+        "hascost": true
+        "cost": "10.00",
+        "currency": "USD",
+        "coursename": "Course Name",
+        "instanceid": "1",
+        "wwwroot": "https://example.com"
+    }
+}}
+<div class="payment-container">
+    <div class="currency-box">
+        <span class="currency-selected">
+            {{currency}} {{cost}}
+        </span>
+    </div>
+
+    <div class="item">
+        <div class="item-title">{{coursename}}</div>
+        <div class="item-price">{{currency}} {{cost}}</div>
+    </div>
+    <p class="item-subtitle">{{coursename}}</p>
+
+    <div class="line"></div>
+
+    <div class="subtotal">
+        <span>Subtotal</span>
+        <span id="subtotal-amount-{{instanceid}}">{{currency}} {{cost}}</span>
+    </div>
+
+    {{#hascost}}
+    <!-- Coupon input section -->
+    <div class="coupon-section">
+        <div class="coupon-input-group">
+            <input type="text" id="coupon-{{instanceid}}" placeholder="Enter coupon code" />
+            <button id="apply-{{instanceid}}" class="apply-btn">Apply</button>
+        </div>
+        <div id="new_coupon-{{instanceid}}" class="coupon-message"></div>
+    </div>
+    {{/hascost}}
+
+    <!-- Discount section (hidden by default, shown when coupon is applied) -->
+    <div id="discount-section-{{instanceid}}" style="display: none;">
+        <div class="discount">
+            <span class="tag" id="discount-tag-{{instanceid}}">Discount</span>
+            <span class="discount-amount" id="discount-amount-display-{{instanceid}}">-{{currency}} 0.00</span>
+        </div>
+        <p class="discount-note" id="discount-note-{{instanceid}}">Discount applied</p>
+    </div>
+
+    <div class="total">
+        <strong>Total due</strong>
+        <strong id="total-amount-{{instanceid}}">{{currency}} {{cost}}</strong>
+    </div>
+
+    <!-- Container for displaying payment response/errors -->
+    <div id="paymentResponse-{{instanceid}}" class="error-message" style="display: none;"></div>
+
+    <!-- Payment button -->
+    {{#hascost}}
+    <div id="amountgreaterzero-{{instanceid}}">
+        <button id="payButton-{{instanceid}}" class="pay-btn">
+            {{# str }} buy_now, enrol_stripepayment {{/ str }}
+        </button>
+    </div>
+    {{/hascost}}
+
+    <!-- Free enrollment button (shown when course is free or when coupon makes cost 0) -->
+    <div id="amountequalzero-{{instanceid}}" {{#hascost}}style="display: none;"{{/hascost}}>
+        <button id="card-button-zero-{{instanceid}}" class="pay-btn">
+            {{# str }} enrol_now, enrol_stripepayment {{/ str }}
+        </button>
+    </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<style>
+    .payment-container {
+        background: transparent;
+        padding: 20px 0;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    h2 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .currency-box {
+        margin-bottom: 8px;
+    }
+
+    .currency-selected {
+        display: inline-flex;
+        align-items: center;
+        border: 2px solid #ccc;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: #f1f1f1;
+        font-weight: bold;
+    }
+
+    .currency-selected img {
+        width: 20px;
+        height: 14px;
+        margin-right: 6px;
+    }
+
+    .note {
+        font-size: 12px;
+        color: gray;
+        margin-bottom: 20px;
+    }
+
+    .item, .subtotal, .discount, .total {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .item-title {
+        font-weight: bold;
+    }
+
+    .item-subtitle, .discount-note {
+        font-size: 13px;
+        color: gray;
+        margin-bottom: 12px;
+    }
+
+    .line {
+        height: 1px;
+        background: #eee;
+        margin: 12px 0;
+    }
+
+    .tag {
+        background: #f1f1f1;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .discount-amount {
+        color:rgb(167, 167, 167);
+    }
+
+    .coupon-section {
+        margin: 18px 0 12px 0;
+        padding: 15px 0 12px 0;
+        border-top: 1px solid #eee;
+    }
+
+    /* Uncomment the code below to hide the coupon input section */
+    /*
+    .coupon-section {
+        display: none !important;
+    }
+    */
+
+    .total {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #eee;
+    }
+
+    .coupon-input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .coupon-section input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .apply-btn {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        min-width: 80px;
+    }
+
+    .apply-btn:hover {
+        background-color: #5a6268;
+    }
+
+    .coupon-message {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-size: 14px;
+    }
+
+    .pay-btn {
+        margin-top: 18px;
+        width: 100%;
+        background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#0070f3{{/enrolbtncolor}};
+        color: white;
+        border: none;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    .pay-btn:hover {
+        background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#005fd1{{/enrolbtncolor}};
+        filter: brightness(0.9);
+    }
+
+    .pay-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .payment-container {
+            width: 100%;
+            max-width: 100%;
+            padding: 15px 10px;
+        }
+
+        .currency-selected {
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+
+        .currency-selected img {
+            width: 18px;
+            height: 12px;
+        }
+
+        h2 {
+            font-size: 15px;
+        }
+
+        .item-title {
+            font-size: 14px;
+        }
+
+        .coupon-input-group {
+            gap: 6px;
+        }
+
+        .coupon-section input {
+            padding: 10px 12px;
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        .apply-btn {
+            padding: 10px 12px;
+            font-size: 16px;
+            min-width: 70px;
+        }
+
+        .pay-btn {
+            padding: 14px 0;
+            font-size: 18px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .payment-container {
+            padding: 10px 5px;
+        }
+
+        .currency-selected {
+            font-size: 13px;
+            padding: 6px 10px;
+        }
+
+        .item, .subtotal, .discount, .total {
+            font-size: 14px;
+        }
+
+        .coupon-input-group {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .apply-btn {
+            width: 100%;
+            min-width: auto;
+        }
+
+        .coupon-section {
+            margin: 15px 0 10px 0;
+            padding: 12px 0 10px 0;
+        }
+    }
+
+    /* Interactive Elements */
+    .apply-btn:active {
+        transform: translateY(1px);
+        background-color: #495057;
+    }
+
+    .pay-btn:active {
+        transform: translateY(1px);
+        background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#004bb5{{/enrolbtncolor}};
+        filter: brightness(0.8);
+    }
+
+    .coupon-section input:focus {
+        outline: none;
+        border-color: #0070f3;
+        box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
+    }
+
+    /* Smooth transitions */
+    .apply-btn, .pay-btn {
+        transition: all 0.2s ease;
+    }
+
+    .coupon-section input {
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+</style>
