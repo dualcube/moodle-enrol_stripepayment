@@ -175,6 +175,15 @@ class moodle_enrol_stripepayment_external extends external_api {
         $plugin->enrol_user($plugininstance, $user->id, $plugininstance->roleid, time(),
         $plugininstance->enrolperiod ? time() + $plugininstance->enrolperiod : 0);
 
+        // Add notification and mail features (same as paid enrollment)
+        if ($users = get_users_by_capability($context, 'moodle/course:update', 'u.*', 'u.id ASC',
+                                                 '', '', '', '', false, true)) {
+            $users = sort_by_roleassignment_authority($users, $context);
+            $teacher = array_shift($users);
+        } else {
+            $teacher = false;
+        }
+
         $mailstudents = $plugin->get_config('mailstudents');
         $mailteachers = $plugin->get_config('mailteachers');
         $mailadmins   = $plugin->get_config('mailadmins');
@@ -186,6 +195,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         $orderdetails->course = format_string($course->fullname, true, ['context' => $coursecontext]);
         $subject = get_string("enrolmentnew", 'enrol', $shortname);
         $orderdetails->user = fullname($user);
+
         if (!empty($mailstudents)) {
             $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
             $userfrom = empty($teacher) ? core_user::get_noreply_user() : $teacher;
@@ -213,7 +223,8 @@ class moodle_enrol_stripepayment_external extends external_api {
                 debugging('Failed to send stripepayment enrolment notification to student: ' . $user->id, DEBUG_DEVELOPER);
             }
         }
-    if (!empty($mailteachers) && !empty($teacher)) {
+
+        if (!empty($mailteachers) && !empty($teacher)) {
             $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
             $fullmessagehtml = '<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>';
 
@@ -238,6 +249,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 debugging('Failed to send stripepayment enrolment notification to teacher: ' . $teacher->id, DEBUG_DEVELOPER);
             }
         }
+
         if (!empty($mailadmins)) {
             $admins = get_admins();
             foreach ($admins as $admin) {
