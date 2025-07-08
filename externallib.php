@@ -57,6 +57,16 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'coupon_name' => new external_value(PARAM_RAW, 'coupon name', VALUE_OPTIONAL),
                 'coupon_type' => new external_value(PARAM_RAW, 'coupon type: percent_off or amount_off', VALUE_OPTIONAL),
                 'discount_value' => new external_value(PARAM_RAW, 'discount value', VALUE_OPTIONAL),
+                'original_cost' => new external_value(PARAM_RAW, 'original cost before discount', VALUE_OPTIONAL),
+                'currency' => new external_value(PARAM_RAW, 'currency code', VALUE_OPTIONAL),
+                'discount_amount' => new external_value(PARAM_RAW, 'discount amount', VALUE_OPTIONAL),
+                'ui_state' => new external_value(PARAM_RAW, 'UI state: free|paid|error', VALUE_OPTIONAL),
+                'error_message' => new external_value(PARAM_RAW, 'error message if any', VALUE_OPTIONAL),
+                'show_sections' => new external_single_structure([
+                    'free_enrollment' => new external_value(PARAM_BOOL, 'show free enrollment section'),
+                    'paid_enrollment' => new external_value(PARAM_BOOL, 'show paid enrollment section'),
+                    'discount_section' => new external_value(PARAM_BOOL, 'show discount section'),
+                ], 'sections to show/hide', VALUE_OPTIONAL),
             ]
         );
     }
@@ -75,28 +85,38 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception('Invalid instance ID');
         }
 
-        $cost = (float)$plugininstance->cost > 0 ? (float)$plugininstance->cost : (float)$plugin->get_config('cost');
+        $originalcost = (float)$plugininstance->cost > 0 ? (float)$plugininstance->cost : (float)$plugin->get_config('cost');
+        $cost = $originalcost;
+        $currency = $plugininstance->currency ? $plugininstance->currency : 'USD';
+
         $cost = format_float($cost, 2, false);
+        $originalcost = format_float($originalcost, 2, false);
 
         Stripe::setApiKey($plugin->get_config('secretkey'));
+
+        $couponname = '';
+        $coupontype = '';
+        $discountvalue = 0;
+        $discountamount = 0;
 
         try {
             $coupon = Coupon::retrieve($couponid);
             if ($coupon->valid) {
                 $couponname = isset($coupon->name) ? $coupon->name : $couponid;
-                $coupontype = '';
-                $discountvalue = 0;
 
                 if (isset($coupon->percent_off)) {
-                    $cost -= $cost * ($coupon->percent_off / 100);
+                    $discountamount = $cost * ($coupon->percent_off / 100);
+                    $cost -= $discountamount;
                     $coupontype = 'percent_off';
                     $discountvalue = $coupon->percent_off;
                 } else if (isset($coupon->amount_off)) {
-                    $cost -= $coupon->amount_off / 100;
+                    $discountamount = $coupon->amount_off / 100;
+                    $cost -= $discountamount;
                     $coupontype = 'amount_off';
                     $discountvalue = $coupon->amount_off / 100;
                 }
                 $cost = format_float($cost, 2, false);
+                $discountamount = format_float($discountamount, 2, false);
             } else {
                 throw new Exception(get_string('invalidcoupon', 'enrol_stripepayment'));
             }
@@ -104,11 +124,23 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception($e->getMessage());
         }
 
+        // Calculate UI state and minimum cost validation (moved from JavaScript)
+        $uistate = self::calculate_ui_state($cost, $currency);
+
+        // Add discount section visibility
+        $uistate['show_sections']['discount_section'] = ($discountamount > 0);
+
         return [
             'status' => $cost,
             'coupon_name' => $couponname,
             'coupon_type' => $coupontype,
             'discount_value' => $discountvalue,
+            'original_cost' => $originalcost,
+            'currency' => $currency,
+            'discount_amount' => $discountamount,
+            'ui_state' => $uistate['state'],
+            'error_message' => $uistate['error_message'],
+            'show_sections' => $uistate['show_sections'],
         ];
     }
 
@@ -281,6 +313,108 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         $result = ['status' => 'working'];
         return $result;
+    }
+
+    /**
+     * Parameters for cost validation and calculation
+     */
+    public static function stripepayment_validate_cost_parameters() {
+        return new external_function_parameters(
+            [
+                'original_cost' => new external_value(PARAM_FLOAT, 'Original cost before any discounts'),
+                'currency' => new external_value(PARAM_RAW, 'Currency code'),
+                'instance_id' => new external_value(PARAM_RAW, 'Update instance id'),
+            ]
+        );
+    }
+
+    /**
+     * Return type for cost validation and calculation
+     */
+    public static function stripepayment_validate_cost_returns() {
+        return new external_single_structure(
+            [
+                'ui_state' => new external_value(PARAM_RAW, 'UI state: free|paid|error'),
+                'error_message' => new external_value(PARAM_RAW, 'error message if any', VALUE_OPTIONAL),
+                'show_sections' => new external_single_structure([
+                    'free_enrollment' => new external_value(PARAM_BOOL, 'show free enrollment section'),
+                    'paid_enrollment' => new external_value(PARAM_BOOL, 'show paid enrollment section'),
+                ], 'sections to show/hide'),
+            ]
+        );
+    }
+
+    /**
+     * Validate cost and determine UI state (moved from JavaScript)
+     * @param float $originalcost
+     * @param string $currency
+     * @param number $instanceid
+     * @return array
+     */
+    public static function stripepayment_validate_cost($originalcost, $currency, $instanceid) {
+        global $DB;
+
+        // Validate instance
+        $plugininstance = $DB->get_record("enrol", ["id" => $instanceid, "status" => 0]);
+        if (!$plugininstance) {
+            throw new invalid_parameter_exception('Invalid instance ID');
+        }
+
+        return self::calculate_ui_state($originalcost, $currency);
+    }
+
+    /**
+     * Calculate UI state based on cost and currency (moved from JavaScript)
+     * @param float $cost
+     * @param string $currency
+     * @return array
+     */
+    private static function calculate_ui_state($cost, $currency) {
+        // Minimum amounts for different currencies (moved from JavaScript)
+        $minamount = [
+            'USD' => 0.5, 'AED' => 2.0, 'AUD' => 0.5, 'BGN' => 1.0, 'BRL' => 0.5,
+            'CAD' => 0.5, 'CHF' => 0.5, 'CZK' => 15.0, 'DKK' => 2.5, 'EUR' => 0.5,
+            'GBP' => 0.3, 'HKD' => 4.0, 'HUF' => 175.0, 'INR' => 0.5, 'JPY' => 50,
+            'MXN' => 10, 'MYR' => 2, 'NOK' => 3.0, 'NZD' => 0.5, 'PLN' => 2.0,
+            'RON' => 2.0, 'SEK' => 3.0, 'SGD' => 0.5, 'THB' => 10,
+        ];
+
+        $minamount = isset($minamount[$currency]) ? $minamount[$currency] : 0.5; // Default to USD minimum
+        $finalcost = (float)$cost;
+
+        // If cost is 0 or negative, treat as free enrollment
+        if ($finalcost <= 0) {
+            return [
+                'state' => 'free',
+                'error_message' => '',
+                'show_sections' => [
+                    'free_enrollment' => true,
+                    'paid_enrollment' => false,
+                ]
+            ];
+        }
+
+        // If cost is between 0 and minimum, show error
+        if ($finalcost > 0 && $finalcost < $minamount) {
+            return [
+                'state' => 'error',
+                'error_message' => "Amount is less than supported minimum ({$currency} " . number_format($minamount, 2) . "). Please contact admin.",
+                'show_sections' => [
+                    'free_enrollment' => false,
+                    'paid_enrollment' => false,
+                ]
+            ];
+        }
+
+        // Cost is above minimum, show paid enrollment
+        return [
+            'state' => 'paid',
+            'error_message' => '',
+            'show_sections' => [
+                'free_enrollment' => false,
+                'paid_enrollment' => true,
+            ]
+        ];
     }
 
     /**

@@ -116,7 +116,7 @@ define(["core/ajax"], function (ajax) {
             '<p style="color:blue;">Applying coupon...</p>'
           );
 
-          // Call Moodle web service
+          // Call enhanced Moodle web service (now includes UI state calculation)
           const data = await MoodleAjax.call(
             "moodle_stripepayment_couponsettings",
             {
@@ -150,20 +150,13 @@ define(["core/ajax"], function (ajax) {
               couponInputGroup.style.display = "none";
             }
 
-            // Get original cost and currency from DOM first
-            const subtotalElement = DOM.get("subtotal-amount");
-            const originalCostText = subtotalElement
-              ? subtotalElement.textContent
-              : "";
-            const matches = originalCostText.match(/([A-Z$€£¥]+)\s*([\d.]+)/);
-            const currency = matches ? matches[1] : "USD";
-            const originalCost = matches ? parseFloat(matches[2]) : 0;
+            // Update UI based on server response (moved logic from client to server)
+            updateUIFromServerResponse(data);
 
-            // Update cost display and payment buttons
-            const finalCost = parseFloat(data.status);
-            checkmincost(finalCost, currency);
-            // Show the validcoupon section by triggering template update
-            showValidCouponSection(finalCost, originalCost, currency, data);
+            // Show the validcoupon section if discount was applied
+            if (data.show_sections && data.show_sections.discount_section) {
+              showValidCouponSection(data);
+            }
           } else {
             throw new Error("Invalid response from server");
           }
@@ -304,132 +297,85 @@ define(["core/ajax"], function (ajax) {
         }
       };
 
-      // Helper function to show valid coupon section
-      const showValidCouponSection = (
-        finalCost,
-        originalCost,
-        currency,
-        couponData
-      ) => {
-        // Calculate discount amount
-        const discountAmount = originalCost - finalCost;
+      // Helper function to update UI based on server response (moved logic from client to server)
+      const updateUIFromServerResponse = (data) => {
+        // Handle error state
+        if (data.ui_state === "error" && data.error_message) {
+          const errorContainer = DOM.get("paymentResponse");
+          if (errorContainer) {
+            errorContainer.innerHTML = `<p style="color: red; font-weight: bold;">${data.error_message}</p>`;
+            errorContainer.style.display = "block";
+          }
+        } else {
+          // Clear any existing error messages
+          const errorContainer = DOM.get("paymentResponse");
+          if (errorContainer) {
+            errorContainer.style.display = "none";
+            errorContainer.innerHTML = "";
+          }
+        }
 
+        // Update section visibility based on server response
+        if (data.show_sections) {
+          DOM.toggle("amountgreaterzero", data.show_sections.paid_enrollment);
+          DOM.toggle("amountequalzero", data.show_sections.free_enrollment);
+
+          if (data.show_sections.discount_section) {
+            const discountSection = DOM.get("discount-section");
+            if (discountSection) {
+              discountSection.style.display = "block";
+            }
+          }
+        }
+
+        // Update total amount if provided
+        if (data.status && data.currency) {
+          const totalAmount = DOM.get("total-amount");
+          if (totalAmount) {
+            totalAmount.textContent = `${data.currency} ${parseFloat(
+              data.status
+            ).toFixed(2)}`;
+          }
+        }
+      };
+
+      // Helper function to show valid coupon section (simplified to use server data)
+      const showValidCouponSection = (couponData) => {
         // Show discount section
         const discountSection = DOM.get("discount-section");
         if (discountSection) {
           discountSection.style.display = "block";
 
-          // Update discount tag with coupon name
+          // Update discount tag with coupon name (server provides the name)
           const discountTag = DOM.get("discount-tag");
-          if (discountTag) {
-            if (couponData && couponData.coupon_name) {
-              discountTag.textContent = couponData.coupon_name;
-            } else {
-              // Fallback to percentage if no coupon name
-              const discountPercent = Math.round(
-                (discountAmount / originalCost) * 100
-              );
-              discountTag.textContent = `${discountPercent}% off`;
-            }
+          if (discountTag && couponData.coupon_name) {
+            discountTag.textContent = couponData.coupon_name;
           }
 
-          // Update discount amount display
+          // Update discount amount display (server provides formatted amount)
           const discountAmountDisplay = DOM.get("discount-amount-display");
-          if (discountAmountDisplay) {
-            discountAmountDisplay.textContent = `-${currency} ${discountAmount.toFixed(
-              2
-            )}`;
+          if (
+            discountAmountDisplay &&
+            couponData.discount_amount &&
+            couponData.currency
+          ) {
+            discountAmountDisplay.textContent = `-${
+              couponData.currency
+            } ${parseFloat(couponData.discount_amount).toFixed(2)}`;
           }
 
-          // Update discount note based on coupon type
+          // Update discount note (server provides the discount value and type)
           const discountNote = DOM.get("discount-note");
           if (discountNote) {
-            if (couponData && couponData.coupon_type === "percent_off") {
+            if (couponData.coupon_type === "percent_off") {
               discountNote.textContent = `${couponData.discount_value}% off`;
-            } else if (couponData && couponData.coupon_type === "amount_off") {
-              discountNote.textContent = `${currency} ${couponData.discount_value.toFixed(
-                2
-              )} off`;
-            } else {
-              // Fallback to calculated percentage
-              const discountPercent = Math.round(
-                (discountAmount / originalCost) * 100
-              );
-              discountNote.textContent = `${discountPercent}% off`;
+            } else if (couponData.coupon_type === "amount_off") {
+              discountNote.textContent = `${couponData.currency} ${parseFloat(
+                couponData.discount_value
+              ).toFixed(2)} off`;
             }
           }
         }
-
-        // Update total amount
-        const totalAmount = DOM.get("total-amount");
-        if (totalAmount) {
-          totalAmount.textContent = `${currency} ${finalCost.toFixed(2)}`;
-        }
-      };
-
-      // Minimum amount for payment validation
-      const checkmincost = (finalcost, currency) => {
-        const minamount = {
-          USD: 0.5,
-          AED: 2.0,
-          AUD: 0.5,
-          BGN: 1.0,
-          BRL: 0.5,
-          CAD: 0.5,
-          CHF: 0.5,
-          CZK: 15.0,
-          DKK: 2.5,
-          EUR: 0.5,
-          GBP: 0.3,
-          HKD: 4.0,
-          HUF: 175.0,
-          INR: 0.5,
-          JPY: 50,
-          MXN: 10,
-          MYR: 2,
-          NOK: 3.0,
-          NZD: 0.5,
-          PLN: 2.0,
-          RON: 2.0,
-          SEK: 3.0,
-          SGD: 0.5,
-          THB: 10,
-        };
-
-        const minAmount = minamount[currency] || 0.5; // Default to USD minimum
-
-        // Clear any existing error messages
-        const errorContainer = DOM.get("paymentResponse");
-        if (errorContainer) {
-          errorContainer.style.display = "none";
-          errorContainer.innerHTML = "";
-        }
-
-        // If cost is 0 or negative, treat as free enrollment
-        if (finalcost <= 0) {
-          DOM.toggle("amountgreaterzero", false);
-          DOM.toggle("amountequalzero", true);
-          return;
-        }
-
-        // If cost is between 0 and minimum, show error
-        if (finalcost > 0 && finalcost < minAmount) {
-          DOM.toggle("amountgreaterzero", false);
-          DOM.toggle("amountequalzero", false);
-
-          // Show error message
-          if (errorContainer) {
-            errorContainer.innerHTML = `<p style="color: red; font-weight: bold;">Amount is less than supported minimum (${currency} ${minAmount.toFixed(
-              2
-            )}). Please contact admin.</p>`;
-            errorContainer.style.display = "block";
-          }
-          return;
-        }
-
-        // Cost is above minimum, show paid enrollment
-        DOM.toggle("amountgreaterzero", true);
-        DOM.toggle("amountequalzero", false);
       };
 
       // Event listeners setup
@@ -463,23 +409,48 @@ define(["core/ajax"], function (ajax) {
         }
       };
 
-      // Initial cost validation on page load
-      const performInitialCostValidation = () => {
+      // Helper function to extract cost and currency from DOM
+      const getCostAndCurrency = () => {
         const subtotalElement = DOM.get("subtotal-amount");
         if (subtotalElement) {
           const originalCostText = subtotalElement.textContent || "";
           const matches = originalCostText.match(/([A-Z$€£¥]+)\s*([\d.]+)/);
-          const currency = matches ? matches[1] : "USD";
-          const originalCost = matches ? parseFloat(matches[2]) : 0;
+          return {
+            currency: matches ? matches[1] : "USD",
+            cost: matches ? parseFloat(matches[2]) : 0,
+          };
+        }
+        return { currency: "USD", cost: 0 };
+      };
 
-          // Validate initial cost
-          checkmincost(originalCost, currency);
+      // Initial cost validation on page load (now uses server-side validation)
+      const performInitialCostValidation = async () => {
+        const { currency, cost } = getCostAndCurrency();
+
+        try {
+          // Call server-side validation for initial cost
+          const data = await MoodleAjax.call(
+            "moodle_stripepayment_validate_cost",
+            {
+              original_cost: cost,
+              currency: currency,
+              instance_id: instance_id,
+            }
+          );
+
+          // Update UI based on server response
+          updateUIFromServerResponse(data);
+        } catch (error) {
+          console.error("Initial cost validation failed:", error);
         }
       };
 
       // Initialize the module
       setupEventListeners();
-      performInitialCostValidation();
+      // Perform initial cost validation asynchronously
+      performInitialCostValidation().catch((error) => {
+        console.error("Initial cost validation failed:", error);
+      });
     },
   };
 });
