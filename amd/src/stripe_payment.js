@@ -8,7 +8,7 @@ define(["core/ajax"], function (ajax) {
   const MoodleAjax = {
     async call(methodname, args) {
       try {
-        const promises = ajax.call([
+        const promises = fetchMany([
           {
             methodname: methodname,
             args: args,
