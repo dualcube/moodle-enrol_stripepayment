@@ -77,8 +77,8 @@
     <!-- Container for displaying payment response/errors -->
     <div id="paymentResponse-{{instanceid}}" class="error-message" style="display: none;"></div>
 
-    <!-- Payment button -->
     {{#hascost}}
+    <!-- Payment button -->
     <div id="amountgreaterzero-{{instanceid}}">
         <button id="payButton-{{instanceid}}" class="pay-btn">
             {{# str }} buy_now, enrol_stripepayment {{/ str }}
@@ -86,12 +86,14 @@
     </div>
     {{/hascost}}
 
+    {{^hascost}}
     <!-- Free enrollment button (shown when course is free or when coupon makes cost 0) -->
-    <div id="amountequalzero-{{instanceid}}" {{#hascost}}style="display: none;"{{/hascost}}>
+    <div id="amountequalzero-{{instanceid}}" style="display: none;">
         <button id="card-button-zero-{{instanceid}}" class="pay-btn">
             {{# str }} enrol_now, enrol_stripepayment {{/ str }}
         </button>
     </div>
+    {{/hascost}}
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
