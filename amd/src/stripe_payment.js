@@ -8,7 +8,7 @@ define(["core/ajax"], function (ajax) {
   const MoodleAjax = {
     async call(methodname, args) {
       try {
-        const promises = fetchMany([
+        const promises = ajax.call([
           {
             methodname: methodname,
             args: args,
@@ -150,6 +150,10 @@ define(["core/ajax"], function (ajax) {
               couponInputGroup.style.display = "none";
             }
 
+            if (data.show_sections && data.show_sections.free_enrollment) {
+              enrolcoupon();
+            }
+
             // Update UI based on server response (moved logic from client to server)
             updateUIFromServerResponse(data);
 
@@ -177,6 +181,25 @@ define(["core/ajax"], function (ajax) {
           }
         }
       };
+      const enrolcoupon = async () => {
+        try {
+          // Call free enrollment web service
+          const result = await MoodleAjax.call(
+            "moodle_stripepayment_free_enrolsettings",
+            {
+              user_id: user_id,
+              couponid: couponid,
+              instance_id: instance_id,
+            }
+          );
+          console.log("Free enrollment result:", result);
+
+          // Reload page on success
+          location.reload();
+        } catch (error) {
+          console.error("Free enrollment failed:", error);
+        }
+      }
 
       // Free enrollment functionality
       const freeEnrollHandler = async () => {
@@ -318,8 +341,6 @@ define(["core/ajax"], function (ajax) {
         // Update section visibility based on server response
         if (data.show_sections) {
           DOM.toggle("amountgreaterzero", data.show_sections.paid_enrollment);
-          DOM.toggle("amountequalzero", data.show_sections.free_enrollment);
-
           if (data.show_sections.discount_section) {
             const discountSection = DOM.get("discount-section");
             if (discountSection) {
@@ -408,49 +429,9 @@ define(["core/ajax"], function (ajax) {
           payButton.addEventListener("click", paidEnrollHandler);
         }
       };
-
-      // Helper function to extract cost and currency from DOM
-      const getCostAndCurrency = () => {
-        const subtotalElement = DOM.get("subtotal-amount");
-        if (subtotalElement) {
-          const originalCostText = subtotalElement.textContent || "";
-          const matches = originalCostText.match(/([A-Z$€£¥]+)\s*([\d.]+)/);
-          return {
-            currency: matches ? matches[1] : "USD",
-            cost: matches ? parseFloat(matches[2]) : 0,
-          };
-        }
-        return { currency: "USD", cost: 0 };
-      };
-
-      // Initial cost validation on page load (now uses server-side validation)
-      const performInitialCostValidation = async () => {
-        const { currency, cost } = getCostAndCurrency();
-
-        try {
-          // Call server-side validation for initial cost
-          const data = await MoodleAjax.call(
-            "moodle_stripepayment_validate_cost",
-            {
-              original_cost: cost,
-              currency: currency,
-              instance_id: instance_id,
-            }
-          );
-
-          // Update UI based on server response
-          updateUIFromServerResponse(data);
-        } catch (error) {
-          console.error("Initial cost validation failed:", error);
-        }
-      };
-
       // Initialize the module
       setupEventListeners();
-      // Perform initial cost validation asynchronously
-      performInitialCostValidation().catch((error) => {
-        console.error("Initial cost validation failed:", error);
-      });
+      ;
     },
   };
 });
