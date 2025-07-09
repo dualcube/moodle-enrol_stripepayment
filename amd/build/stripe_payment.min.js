@@ -1,11 +1,30 @@
 define(["core/ajax"], function (ajax) {
-  // Simplified AJAX utility
-  const MoodleAjax = {
-    async call(methodname, args) {
-      const promises = ajax.call([{ methodname, args }]);
-      return await promises[0];
-    },
-  };
+  const { call: fetchMany } = ajax;
+
+  // Repository functions following ajaxdoc guidelines
+  const applyCoupon = (couponid, instance_id) =>
+    fetchMany([
+      {
+        methodname: "moodle_stripepayment_couponsettings",
+        args: { couponid, instance_id },
+      },
+    ])[0];
+
+  const processFreeEnrollment = (user_id, couponid, instance_id) =>
+    fetchMany([
+      {
+        methodname: "moodle_stripepayment_free_enrolsettings",
+        args: { user_id, couponid, instance_id },
+      },
+    ])[0];
+
+  const createPaymentSession = (user_id, couponid, instance_id) =>
+    fetchMany([
+      {
+        methodname: "moodle_stripepayment_stripe_js_settings",
+        args: { user_id, couponid, instance_id },
+      },
+    ])[0];
 
   // Optimized DOM utility with caching
   const createDOM = (instanceId) => {
@@ -92,13 +111,7 @@ define(["core/ajax"], function (ajax) {
 
         try {
           // PHP backend handles all validation, calculation, and auto-enrollment
-          const data = await MoodleAjax.call(
-            "moodle_stripepayment_couponsettings",
-            {
-              couponid: couponCode,
-              instance_id: instance_id,
-            }
-          );
+          const data = await applyCoupon(couponCode, instance_id);
 
           if (data?.status !== undefined) {
             couponid = couponCode; // Update for payment processing
@@ -151,11 +164,7 @@ define(["core/ajax"], function (ajax) {
         DOM.setButtonState("card-button-zero", true, please_wait_string);
 
         try {
-          await MoodleAjax.call("moodle_stripepayment_free_enrolsettings", {
-            user_id: user_id,
-            couponid: couponid,
-            instance_id: instance_id,
-          });
+          await processFreeEnrollment(user_id, couponid, instance_id);
           location.reload();
         } catch (error) {
           console.error("Free enrollment failed:", error);
@@ -175,13 +184,10 @@ define(["core/ajax"], function (ajax) {
         DOM.setButtonState("payButton", true, please_wait_string);
 
         try {
-          const data = await MoodleAjax.call(
-            "moodle_stripepayment_stripe_js_settings",
-            {
-              user_id: user_id,
-              couponid: couponid,
-              instance_id: instance_id,
-            }
+          const data = await createPaymentSession(
+            user_id,
+            couponid,
+            instance_id
           );
 
           if (data.error?.message) {
