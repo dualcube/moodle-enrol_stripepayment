@@ -73,17 +73,33 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
 
     /**
-     * function for couponsettings and offer set.
-     * @param number $couponid
-     * @param number $instanceid
+     * Enhanced function for couponsettings with improved validation
+     * @param string $couponid
+     * @param int $instanceid
      * @return array
      */
     public static function stripepayment_couponsettings($couponid, $instanceid) {
         global $DB;
+
+        // Enhanced input validation
+        if (empty($couponid) || trim($couponid) === '') {
+            throw new invalid_parameter_exception('Coupon code cannot be empty');
+        }
+
+        if (!is_numeric($instanceid) || $instanceid <= 0) {
+            throw new invalid_parameter_exception('Invalid instance ID format');
+        }
+
         $plugin = enrol_get_plugin('stripepayment');
         $plugininstance = $DB->get_record("enrol", ["id" => $instanceid, "status" => 0]);
         if (!$plugininstance) {
-            throw new invalid_parameter_exception('Invalid instance ID');
+            throw new invalid_parameter_exception('Enrollment instance not found or disabled');
+        }
+
+        // Validate Stripe configuration
+        $secretkey = $plugin->get_config('secretkey');
+        if (empty($secretkey)) {
+            throw new invalid_parameter_exception('Stripe configuration incomplete');
         }
 
         $originalcost = (float)$plugininstance->cost > 0 ? (float)$plugininstance->cost : (float)$plugin->get_config('cost');
@@ -93,7 +109,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         $cost = format_float($cost, 2, false);
         $originalcost = format_float($originalcost, 2, false);
 
-        Stripe::setApiKey($plugin->get_config('secretkey'));
+        Stripe::setApiKey($secretkey);
 
         $couponname = '';
         $coupontype = '';
@@ -102,26 +118,51 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         try {
             $coupon = Coupon::retrieve($couponid);
-            if ($coupon->valid) {
-                $couponname = isset($coupon->name) ? $coupon->name : $couponid;
 
-                if (isset($coupon->percent_off)) {
-                    $discountamount = $cost * ($coupon->percent_off / 100);
-                    $cost -= $discountamount;
-                    $coupontype = 'percent_off';
-                    $discountvalue = $coupon->percent_off;
-                } else if (isset($coupon->amount_off)) {
-                    $discountamount = $coupon->amount_off / 100;
-                    $cost -= $discountamount;
-                    $coupontype = 'amount_off';
-                    $discountvalue = $coupon->amount_off / 100;
-                }
-                $cost = format_float($cost, 2, false);
-                $discountamount = format_float($discountamount, 2, false);
-            } else {
+            // Enhanced coupon validation
+            if (!$coupon || !$coupon->valid) {
                 throw new Exception(get_string('invalidcoupon', 'enrol_stripepayment'));
             }
+
+            // Check if coupon has expired
+            if (isset($coupon->redeem_by) && $coupon->redeem_by < time()) {
+                throw new Exception('Coupon has expired');
+            }
+
+            // Check if coupon has usage limits
+            if (isset($coupon->max_redemptions) && isset($coupon->times_redeemed) &&
+                $coupon->times_redeemed >= $coupon->max_redemptions) {
+                throw new Exception('Coupon usage limit exceeded');
+            }
+
+            $couponname = isset($coupon->name) ? $coupon->name : $couponid;
+
+            if (isset($coupon->percent_off)) {
+                $discountamount = $cost * ($coupon->percent_off / 100);
+                $cost -= $discountamount;
+                $coupontype = 'percent_off';
+                $discountvalue = $coupon->percent_off;
+            } else if (isset($coupon->amount_off)) {
+                // Ensure currency matches
+                if (isset($coupon->currency) && strtoupper($coupon->currency) !== strtoupper($currency)) {
+                    throw new Exception('Coupon currency does not match course currency');
+                }
+                $discountamount = $coupon->amount_off / 100;
+                $cost -= $discountamount;
+                $coupontype = 'amount_off';
+                $discountvalue = $coupon->amount_off / 100;
+            } else {
+                throw new Exception('Invalid coupon type');
+            }
+
+            // Ensure cost doesn't go negative
+            $cost = max(0, $cost);
+            $cost = format_float($cost, 2, false);
+            $discountamount = format_float($discountamount, 2, false);
+
         } catch (Exception $e) {
+            // Log the error for debugging
+            error_log('Stripe coupon validation failed: ' . $e->getMessage());
             throw new invalid_parameter_exception($e->getMessage());
         }
 
@@ -464,23 +505,55 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
 
     /**
-     * function for create Checkout Session and process payment
-     * @param number $userid
-     * @param number $couponid
-     * @param number $instanceid
+     * Enhanced function for create Checkout Session and process payment
+     * @param int $userid
+     * @param string $couponid
+     * @param int $instanceid
      * @return array
      */
     public static function stripe_js_method($userid, $couponid, $instanceid ) {
         global $CFG, $DB;
+
+        // Enhanced input validation
+        if (!is_numeric($userid) || $userid <= 0) {
+            return [
+                'status' => 0,
+                'error' => ['message' => 'Invalid user ID'],
+            ];
+        }
+
+        if (!is_numeric($instanceid) || $instanceid <= 0) {
+            return [
+                'status' => 0,
+                'error' => ['message' => 'Invalid instance ID'],
+            ];
+        }
+
         $plugin = enrol_get_plugin('stripepayment');
         $secretkey = $plugin->get_config('secretkey');
         $usertoken = $plugin->get_config('webservice_token');
-        // Validate users, course, conntext, plugininstance.
-        $validateddata = self::validate_data( $userid, $instanceid);
-        $plugininstance = $validateddata[0];
-        $course = $validateddata[1];
-        $context = $validateddata[2];
-        $user = $validateddata[3];
+
+        // Validate Stripe configuration
+        if (empty($secretkey)) {
+            return [
+                'status' => 0,
+                'error' => ['message' => 'Stripe configuration incomplete'],
+            ];
+        }
+
+        // Validate users, course, context, plugininstance.
+        try {
+            $validateddata = self::validate_data($userid, $instanceid);
+            $plugininstance = $validateddata[0];
+            $course = $validateddata[1];
+            $context = $validateddata[2];
+            $user = $validateddata[3];
+        } catch (Exception $e) {
+            return [
+                'status' => 0,
+                'error' => ['message' => 'Validation failed: ' . $e->getMessage()],
+            ];
+        }
 
         // Calculate final cost after coupon application
         $finalcost = $plugininstance->cost;

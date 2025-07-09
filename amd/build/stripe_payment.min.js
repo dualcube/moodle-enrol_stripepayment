@@ -1,67 +1,51 @@
 define(["core/ajax"], function (ajax) {
-  /**
-   * Modern Stripe Payment Module
-   * Modernized to use async/await, fetch API, and vanilla JavaScript
-   */
-
-  // Utility functions for modern AJAX calls
+  // Simplified AJAX utility
   const MoodleAjax = {
     async call(methodname, args) {
-      try {
-        const promises = ajax.call([
-          {
-            methodname: methodname,
-            args: args,
-          },
-        ]);
-        return await promises[0];
-      } catch (error) {
-        throw new Error(`AJAX call failed: ${error.message}`);
-      }
+      const promises = ajax.call([{ methodname, args }]);
+      return await promises[0];
     },
   };
 
-  // Instance-aware DOM utility functions
-  const createDOM = (instanceId) => ({
-    get(id) {
-      return document.getElementById(`${id}-${instanceId}`);
-    },
+  // Optimized DOM utility with caching
+  const createDOM = (instanceId) => {
+    const cache = new Map();
 
-    setValue(id, value) {
-      const element = this.get(id);
-      if (element) {
-        element.value = value;
-      }
-    },
+    return {
+      get(id) {
+        const fullId = `${id}-${instanceId}`;
+        if (!cache.has(fullId)) {
+          cache.set(fullId, document.getElementById(fullId));
+        }
+        return cache.get(fullId);
+      },
 
-    setAttribute(id, attr, value) {
-      const element = this.get(id);
-      if (element) {
-        element.setAttribute(attr, value);
-      }
-    },
+      setHTML(id, html) {
+        const element = this.get(id);
+        if (element) element.innerHTML = html;
+      },
 
-    setHTML(id, html) {
-      const element = this.get(id);
-      if (element) {
-        element.innerHTML = html;
-      }
-    },
+      toggle(id, show) {
+        const element = this.get(id);
+        if (element) element.style.display = show ? "block" : "none";
+      },
 
-    toggle(id, show) {
-      const element = this.get(id);
-      if (element) {
-        element.style.display = show ? "block" : "none";
-      }
-    },
+      focus(id) {
+        const element = this.get(id);
+        if (element) element.focus();
+      },
 
-    focus(id) {
-      const element = this.get(id);
-      if (element) {
-        element.focus();
-      }
-    },
-  });
+      setButtonState(id, disabled, text, opacity = disabled ? "0.7" : "1") {
+        const button = this.get(id);
+        if (button) {
+          button.disabled = disabled;
+          button.textContent = text;
+          button.style.opacity = opacity;
+          button.style.cursor = disabled ? "not-allowed" : "pointer";
+        }
+      },
+    };
+  };
   return {
     stripe_payment: function (
       user_id,
@@ -84,13 +68,12 @@ define(["core/ajax"], function (ajax) {
       }
       const stripe = window.Stripe(publishablekey);
 
-      // Coupon application functionality
+      // Simplified coupon application - PHP backend handles all logic
       const applyCouponHandler = async (event) => {
         event.preventDefault();
 
         const couponInput = DOM.get("coupon");
-        const applyButton = DOM.get("apply");
-        const couponCode = couponInput ? couponInput.value.trim() : "";
+        const couponCode = couponInput?.value.trim();
 
         if (!couponCode) {
           DOM.setHTML(
@@ -101,22 +84,14 @@ define(["core/ajax"], function (ajax) {
           return;
         }
 
-        // Disable button during processing with visual feedback
-        if (applyButton) {
-          applyButton.disabled = true;
-          applyButton.textContent = "Applying...";
-          applyButton.style.opacity = "0.7";
-          applyButton.style.cursor = "not-allowed";
-        }
+        DOM.setButtonState("apply", true, "Applying...");
+        DOM.setHTML(
+          "new_coupon",
+          '<p style="color:blue;">Applying coupon...</p>'
+        );
 
         try {
-          // Show loading state
-          DOM.setHTML(
-            "new_coupon",
-            '<p style="color:blue;">Applying coupon...</p>'
-          );
-
-          // Call enhanced Moodle web service (now includes UI state calculation)
+          // PHP backend handles all validation, calculation, and auto-enrollment
           const data = await MoodleAjax.call(
             "moodle_stripepayment_couponsettings",
             {
@@ -125,55 +100,36 @@ define(["core/ajax"], function (ajax) {
             }
           );
 
-          // Validate response
-          if (data && typeof data.status !== "undefined") {
-            // Update the couponid variable for payment processing
-            couponid = couponCode;
-
-            // Show success message
+          if (data?.status !== undefined) {
+            couponid = couponCode; // Update for payment processing
             DOM.setHTML(
               "new_coupon",
               '<p style="color:green;"><b>Coupon applied successfully!</b></p>'
             );
 
-            // Hide the coupon input section after successful application (instance-specific)
-            const paymentContainer =
-              DOM.get("coupon").closest(".payment-container");
-            const couponInputGroup = paymentContainer
-              ? paymentContainer.querySelector(".coupon-input-group")
-              : null;
-            if (couponInputGroup) {
-              couponInputGroup.style.display = "none";
-            }
+            // Hide coupon input after successful application
+            const couponInputGroup = DOM.get("coupon")?.closest(
+              ".coupon-input-group"
+            );
+            if (couponInputGroup) couponInputGroup.style.display = "none";
 
-            // Check if auto-enrollment was completed in PHP backend
+            // Handle auto-enrollment (PHP backend completed enrollment)
             if (data.auto_enrolled) {
-              // Show success message and reload page since user is now enrolled
               DOM.setHTML(
                 "new_coupon",
                 '<p style="color:green;"><b>Coupon applied and enrolled successfully! Redirecting...</b></p>'
               );
-              // Reload page after a short delay to show the success message
-              setTimeout(() => {
-                location.reload();
-              }, 1500);
-              return; // Exit early since enrollment is complete
+              setTimeout(() => location.reload(), 1500);
+              return;
             }
 
-            if (data.show_sections && data.show_sections.free_enrollment) {
-              // Free enrollment available but not auto-completed (fallback)
-              freeEnrollHandler();
-            }
-
-            // Update UI based on server response (moved logic from client to server)
+            // Update UI based on PHP calculations
             updateUIFromServerResponse(data);
-
-            // Show the validcoupon section if discount was applied
-            if (data.show_sections && data.show_sections.discount_section) {
+            if (data.show_sections?.discount_section) {
               showValidCouponSection(data);
             }
           } else {
-            throw new Error("Invalid response from server");
+            throw new Error("Invalid server response");
           }
         } catch (error) {
           console.error("Coupon application failed:", error);
@@ -183,66 +139,42 @@ define(["core/ajax"], function (ajax) {
           );
           DOM.focus("coupon");
         } finally {
-          // Re-enable button with visual feedback
-          if (applyButton) {
-            applyButton.disabled = false;
-            applyButton.textContent = "Apply code";
-            applyButton.style.opacity = "1";
-            applyButton.style.cursor = "pointer";
-          }
+          DOM.setButtonState("apply", false, "Apply code");
         }
       };
 
-      // Free enrollment functionality
+      // Simplified free enrollment
       const freeEnrollHandler = async () => {
         const freeButton = DOM.get("card-button-zero");
         if (!freeButton) return;
 
-        try {
-          // Disable button and show loading
-          freeButton.disabled = true;
-          freeButton.textContent = please_wait_string;
+        DOM.setButtonState("card-button-zero", true, please_wait_string);
 
-          // Call free enrollment web service
+        try {
           await MoodleAjax.call("moodle_stripepayment_free_enrolsettings", {
             user_id: user_id,
             couponid: couponid,
             instance_id: instance_id,
           });
-
-          // Reload page on success
           location.reload();
         } catch (error) {
           console.error("Free enrollment failed:", error);
-
-          // Show error message instead of just reloading
-          const errorContainer = DOM.get("paymentResponse");
-          if (errorContainer) {
-            errorContainer.innerHTML = `<p style="color: red; font-weight: bold;">Free enrollment failed: ${error.message}. Please try again or contact admin.</p>`;
-            errorContainer.style.display = "block";
-          }
-
-          // Re-enable button
-          freeButton.disabled = false;
-          freeButton.textContent = "Enroll Now";
+          showError(
+            "paymentResponse",
+            `Free enrollment failed: ${error.message}. Please try again or contact admin.`
+          );
+          DOM.setButtonState("card-button-zero", false, "Enroll Now");
         }
       };
 
-      // Paid enrollment functionality
+      // Simplified paid enrollment
       const paidEnrollHandler = async () => {
         const payButton = DOM.get("payButton");
-        const responseContainer = DOM.get("paymentResponse");
-
         if (!payButton) return;
 
-        try {
-          // Disable button and show loading with visual feedback
-          payButton.disabled = true;
-          payButton.textContent = please_wait_string;
-          payButton.style.opacity = "0.7";
-          payButton.style.cursor = "not-allowed";
+        DOM.setButtonState("payButton", true, please_wait_string);
 
-          // Call Stripe checkout web service
+        try {
           const data = await MoodleAjax.call(
             "moodle_stripepayment_stripe_js_settings",
             {
@@ -252,101 +184,57 @@ define(["core/ajax"], function (ajax) {
             }
           );
 
-          // Check if response contains an error (minimum cost validation)
-          if (data.error && data.error.message) {
-            handlePaymentError(
-              data.error.message,
-              payButton,
-              responseContainer,
-              buy_now_string
-            );
+          if (data.error?.message) {
+            showError("paymentResponse", data.error.message);
+            DOM.setButtonState("payButton", false, buy_now_string);
           } else if (data.status) {
-            // Redirect to Stripe checkout
             const result = await stripe.redirectToCheckout({
               sessionId: data.status,
             });
-
             if (result.error) {
-              handlePaymentError(
-                result.error.message,
-                payButton,
-                responseContainer,
-                buy_now_string
-              );
+              showError("paymentResponse", result.error.message);
+              DOM.setButtonState("payButton", false, buy_now_string);
             }
           } else {
-            handlePaymentError(
-              "Payment session creation failed",
-              payButton,
-              responseContainer,
-              buy_now_string
-            );
+            showError("paymentResponse", "Payment session creation failed");
+            DOM.setButtonState("payButton", false, buy_now_string);
           }
         } catch (error) {
           console.error("Payment processing failed:", error);
-          handlePaymentError(
-            error.message,
-            payButton,
-            responseContainer,
-            buy_now_string
-          );
+          showError("paymentResponse", error.message);
+          DOM.setButtonState("payButton", false, buy_now_string);
         }
       };
 
-      // Helper function to handle payment errors
-      const handlePaymentError = (
-        errorMessage,
-        button,
-        container,
-        buttonText
-      ) => {
-        if (container) {
-          container.innerHTML = `<p>${errorMessage}</p>`;
-          container.style.display = "block";
-        }
-        if (button) {
-          button.disabled = false;
-          button.textContent = buttonText;
-          button.style.opacity = "1";
-          button.style.cursor = "pointer";
-        }
+      // Optimized helper functions
+      const showError = (containerId, message) => {
+        DOM.setHTML(
+          containerId,
+          `<p style="color: red; font-weight: bold;">${message}</p>`
+        );
+        DOM.toggle(containerId, true);
       };
 
-      // Helper function to update UI based on server response (moved logic from client to server)
+      const clearError = (containerId) => {
+        DOM.setHTML(containerId, "");
+        DOM.toggle(containerId, false);
+      };
+
+      // Simplified UI update based on PHP backend response
       const updateUIFromServerResponse = (data) => {
-        // Handle error state
         if (data.ui_state === "error" && data.error_message) {
-          const errorContainer = DOM.get("paymentResponse");
-          if (errorContainer) {
-            errorContainer.innerHTML = `<p style="color: red; font-weight: bold;">${data.error_message}</p>`;
-            errorContainer.style.display = "block";
-          }
+          showError("paymentResponse", data.error_message);
         } else {
-          // Clear any existing error messages
-          const errorContainer = DOM.get("paymentResponse");
-          if (errorContainer) {
-            errorContainer.style.display = "none";
-            errorContainer.innerHTML = "";
-          }
+          clearError("paymentResponse");
         }
 
-        // Update section visibility based on server response
         if (data.show_sections) {
-          // Show/hide paid enrollment button
           DOM.toggle("amountgreaterzero", data.show_sections.paid_enrollment);
-
-          // Show/hide free enrollment button
           DOM.toggle("amountequalzero", data.show_sections.free_enrollment);
-
-          if (data.show_sections.discount_section) {
-            const discountSection = DOM.get("discount-section");
-            if (discountSection) {
-              discountSection.style.display = "block";
-            }
-          }
+          DOM.toggle("discount-section", data.show_sections.discount_section);
         }
 
-        // Update total amount if provided
+        // Update total amount display
         if (data.status && data.currency) {
           const totalAmount = DOM.get("total-amount");
           if (totalAmount) {
@@ -357,75 +245,61 @@ define(["core/ajax"], function (ajax) {
         }
       };
 
-      // Helper function to show valid coupon section (simplified to use server data)
+      // Simplified coupon section display using PHP data
       const showValidCouponSection = (couponData) => {
-        // Show discount section
-        const discountSection = DOM.get("discount-section");
-        if (discountSection) {
-          discountSection.style.display = "block";
+        DOM.toggle("discount-section", true);
 
-          // Update discount tag with coupon name (server provides the name)
-          const discountTag = DOM.get("discount-tag");
-          if (discountTag && couponData.coupon_name) {
-            discountTag.textContent = couponData.coupon_name;
-          }
+        // Update discount information from PHP backend
+        if (couponData.coupon_name) {
+          DOM.setHTML("discount-tag", couponData.coupon_name);
+        }
 
-          // Update discount amount display (server provides formatted amount)
-          const discountAmountDisplay = DOM.get("discount-amount-display");
-          if (
-            discountAmountDisplay &&
-            couponData.discount_amount &&
-            couponData.currency
-          ) {
-            discountAmountDisplay.textContent = `-${
-              couponData.currency
-            } ${parseFloat(couponData.discount_amount).toFixed(2)}`;
-          }
+        if (couponData.discount_amount && couponData.currency) {
+          DOM.setHTML(
+            "discount-amount-display",
+            `-${couponData.currency} ${parseFloat(
+              couponData.discount_amount
+            ).toFixed(2)}`
+          );
+        }
 
-          // Update discount note (server provides the discount value and type)
-          const discountNote = DOM.get("discount-note");
-          if (discountNote) {
-            if (couponData.coupon_type === "percent_off") {
-              discountNote.textContent = `${couponData.discount_value}% off`;
-            } else if (couponData.coupon_type === "amount_off") {
-              discountNote.textContent = `${couponData.currency} ${parseFloat(
-                couponData.discount_value
-              ).toFixed(2)} off`;
-            }
-          }
+        if (couponData.coupon_type && couponData.discount_value) {
+          const noteText =
+            couponData.coupon_type === "percent_off"
+              ? `${couponData.discount_value}% off`
+              : `${couponData.currency} ${parseFloat(
+                  couponData.discount_value
+                ).toFixed(2)} off`;
+          DOM.setHTML("discount-note", noteText);
         }
       };
 
-      // Event listeners setup
+      // Optimized event listeners setup
       const setupEventListeners = () => {
-        // Coupon apply button
-        const applyButton = DOM.get("apply");
-        if (applyButton) {
-          applyButton.addEventListener("click", applyCouponHandler);
-        }
+        const elements = [
+          { id: "apply", event: "click", handler: applyCouponHandler },
+          {
+            id: "card-button-zero",
+            event: "click",
+            handler: freeEnrollHandler,
+          },
+          { id: "payButton", event: "click", handler: paidEnrollHandler },
+        ];
 
-        // Coupon input field - support Enter key
+        elements.forEach(({ id, event, handler }) => {
+          const element = DOM.get(id);
+          if (element) element.addEventListener(event, handler);
+        });
+
+        // Add Enter key support for coupon input
         const couponInput = DOM.get("coupon");
         if (couponInput) {
           couponInput.addEventListener("keypress", (event) => {
-            if (event.key === "Enter") {
-              applyCouponHandler(event);
-            }
+            if (event.key === "Enter") applyCouponHandler(event);
           });
         }
-
-        // Free enrollment button
-        const freeButton = DOM.get("card-button-zero");
-        if (freeButton) {
-          freeButton.addEventListener("click", freeEnrollHandler);
-        }
-
-        // Paid enrollment button
-        const payButton = DOM.get("payButton");
-        if (payButton) {
-          payButton.addEventListener("click", paidEnrollHandler);
-        }
       };
+
       // Initialize the module
       setupEventListeners();
     },
