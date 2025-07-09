@@ -565,9 +565,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                         ],
                         'quantity' => 1,
                     ]],
-                    'discounts' => [[
-                        'coupon' => $couponid,
-                    ]],
+
                     'metadata' => [
                         'course_shortname' => $shortname,
                         'course_id' => $course->id,
