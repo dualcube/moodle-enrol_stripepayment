@@ -67,6 +67,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                     'paid_enrollment' => new external_value(PARAM_BOOL, 'show paid enrollment section'),
                     'discount_section' => new external_value(PARAM_BOOL, 'show discount section'),
                 ], 'sections to show/hide', VALUE_OPTIONAL),
+                'auto_enrolled' => new external_value(PARAM_BOOL, 'whether user was automatically enrolled', VALUE_OPTIONAL),
             ]
         );
     }
@@ -130,6 +131,26 @@ class moodle_enrol_stripepayment_external extends external_api {
         // Add discount section visibility
         $uistate['show_sections']['discount_section'] = ($discountamount > 0);
 
+        // Auto-enroll user if cost is 0 or less (free enrollment)
+        $auto_enrolled = false;
+        if ($uistate['state'] === 'free') {
+            global $USER;
+            try {
+                // Check if user is already enrolled to prevent duplicate enrollments
+                if (!$DB->record_exists('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instanceid])) {
+                    // Call the existing free enrollment method
+                    self::stripepayment_free_enrolsettings($USER->id, $couponid, $instanceid);
+                    $auto_enrolled = true;
+                } else {
+                    // User is already enrolled, just mark as auto-enrolled for UI purposes
+                    $auto_enrolled = true;
+                }
+            } catch (Exception $e) {
+                // If auto-enrollment fails, log the error but don't break the coupon application
+                error_log('Auto free enrollment failed: ' . $e->getMessage());
+            }
+        }
+
         return [
             'status' => $cost,
             'coupon_name' => $couponname,
@@ -141,6 +162,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             'ui_state' => $uistate['state'],
             'error_message' => $uistate['error_message'],
             'show_sections' => $uistate['show_sections'],
+            'auto_enrolled' => $auto_enrolled,
         ];
     }
 
@@ -459,7 +481,33 @@ class moodle_enrol_stripepayment_external extends external_api {
         $course = $validateddata[1];
         $context = $validateddata[2];
         $user = $validateddata[3];
-        $amount = $plugin->get_stripe_amount($plugininstance->cost, $plugininstance->currency, false);
+
+        // Calculate final cost after coupon application
+        $finalcost = $plugininstance->cost;
+        if (!empty($couponid)) {
+            try {
+                $coupondata = self::stripepayment_couponsettings($couponid, $instanceid);
+                $finalcost = $coupondata['status']; // This contains the final cost after discount
+            } catch (Exception $e) {
+                // If coupon validation fails, use original cost
+                $finalcost = $plugininstance->cost;
+            }
+        }
+
+        // Validate minimum cost before processing payment
+        $uistate = self::calculate_ui_state($finalcost, $plugininstance->currency);
+        if ($uistate['state'] === 'error') {
+            // Return error response for minimum cost validation
+            $result = [
+                'status' => 0,
+                'error' => [
+                    'message' => $uistate['error_message'],
+                ],
+            ];
+            return $result;
+        }
+
+        $amount = $plugin->get_stripe_amount($finalcost, $plugininstance->currency, false);
         $courseid = $plugininstance->courseid;
         $currency = $plugininstance->currency;
         $description  = format_string($course->fullname, true, ['context' => $context]);

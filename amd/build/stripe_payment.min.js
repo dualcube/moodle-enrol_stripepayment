@@ -129,10 +129,6 @@ define(["core/ajax"], function (ajax) {
           if (data && typeof data.status !== "undefined") {
             // Update the couponid variable for payment processing
             couponid = couponCode;
-            console.log(
-              "Coupon applied successfully. Updated couponid to:",
-              couponid
-            );
 
             // Show success message
             DOM.setHTML(
@@ -150,8 +146,23 @@ define(["core/ajax"], function (ajax) {
               couponInputGroup.style.display = "none";
             }
 
+            // Check if auto-enrollment was completed in PHP backend
+            if (data.auto_enrolled) {
+              // Show success message and reload page since user is now enrolled
+              DOM.setHTML(
+                "new_coupon",
+                '<p style="color:green;"><b>Coupon applied and enrolled successfully! Redirecting...</b></p>'
+              );
+              // Reload page after a short delay to show the success message
+              setTimeout(() => {
+                location.reload();
+              }, 1500);
+              return; // Exit early since enrollment is complete
+            }
+
             if (data.show_sections && data.show_sections.free_enrollment) {
-              enrolcoupon();
+              // Free enrollment available but not auto-completed (fallback)
+              freeEnrollHandler();
             }
 
             // Update UI based on server response (moved logic from client to server)
@@ -181,25 +192,6 @@ define(["core/ajax"], function (ajax) {
           }
         }
       };
-      const enrolcoupon = async () => {
-        try {
-          // Call free enrollment web service
-          const result = await MoodleAjax.call(
-            "moodle_stripepayment_free_enrolsettings",
-            {
-              user_id: user_id,
-              couponid: couponid,
-              instance_id: instance_id,
-            }
-          );
-          console.log("Free enrollment result:", result);
-
-          // Reload page on success
-          location.reload();
-        } catch (error) {
-          console.error("Free enrollment failed:", error);
-        }
-      }
 
       // Free enrollment functionality
       const freeEnrollHandler = async () => {
@@ -211,19 +203,12 @@ define(["core/ajax"], function (ajax) {
           freeButton.disabled = true;
           freeButton.textContent = please_wait_string;
 
-          console.log("Starting free enrollment with couponid:", couponid);
-
           // Call free enrollment web service
-          const result = await MoodleAjax.call(
-            "moodle_stripepayment_free_enrolsettings",
-            {
-              user_id: user_id,
-              couponid: couponid,
-              instance_id: instance_id,
-            }
-          );
-
-          console.log("Free enrollment result:", result);
+          await MoodleAjax.call("moodle_stripepayment_free_enrolsettings", {
+            user_id: user_id,
+            couponid: couponid,
+            instance_id: instance_id,
+          });
 
           // Reload page on success
           location.reload();
@@ -258,7 +243,6 @@ define(["core/ajax"], function (ajax) {
           payButton.style.cursor = "not-allowed";
 
           // Call Stripe checkout web service
-          console.log("Creating Stripe checkout with coupon:", couponid);
           const data = await MoodleAjax.call(
             "moodle_stripepayment_stripe_js_settings",
             {
@@ -268,7 +252,15 @@ define(["core/ajax"], function (ajax) {
             }
           );
 
-          if (data.status) {
+          // Check if response contains an error (minimum cost validation)
+          if (data.error && data.error.message) {
+            handlePaymentError(
+              data.error.message,
+              payButton,
+              responseContainer,
+              buy_now_string
+            );
+          } else if (data.status) {
             // Redirect to Stripe checkout
             const result = await stripe.redirectToCheckout({
               sessionId: data.status,
@@ -340,7 +332,12 @@ define(["core/ajax"], function (ajax) {
 
         // Update section visibility based on server response
         if (data.show_sections) {
+          // Show/hide paid enrollment button
           DOM.toggle("amountgreaterzero", data.show_sections.paid_enrollment);
+
+          // Show/hide free enrollment button
+          DOM.toggle("amountequalzero", data.show_sections.free_enrollment);
+
           if (data.show_sections.discount_section) {
             const discountSection = DOM.get("discount-section");
             if (discountSection) {
@@ -431,7 +428,6 @@ define(["core/ajax"], function (ajax) {
       };
       // Initialize the module
       setupEventListeners();
-      ;
     },
   };
 });
