@@ -104,10 +104,7 @@ define(["core/ajax"], function (ajax) {
         }
 
         DOM.setButtonState("apply", true, "Applying...");
-        DOM.setHTML(
-          "status",
-          '<p style="color:blue;">Applying coupon...</p>'
-        );
+        DOM.setHTML("status", '<p style="color:blue;">Applying coupon...</p>');
 
         try {
           // PHP backend handles all validation, calculation, and auto-enrollment
@@ -156,59 +153,64 @@ define(["core/ajax"], function (ajax) {
         }
       };
 
-      // Simplified free enrollment
-      const freeEnrollHandler = async () => {
-        const freeButton = DOM.get("card-button-zero");
-        if (!freeButton) return;
+      // Unified enrollment handler that determines whether to process free or paid enrollment
+      const unifiedEnrollHandler = async () => {
+        const enrollButton = DOM.get("enrolButton");
+        if (!enrollButton) return;
 
-        DOM.setButtonState("card-button-zero", true, please_wait_string);
-
-        try {
-          await processFreeEnrollment(user_id, couponid, instance_id);
-          location.reload();
-        } catch (error) {
-          console.error("Free enrollment failed:", error);
-          showError(
-            "paymentResponse",
-            `Free enrollment failed: ${error.message}. Please try again or contact admin.`
-          );
-          DOM.setButtonState("card-button-zero", false, "Enroll Now");
-        }
-      };
-
-      // Simplified paid enrollment
-      const paidEnrollHandler = async () => {
-        const payButton = DOM.get("payButton");
-        if (!payButton) return;
-
-        DOM.setButtonState("payButton", true, please_wait_string);
+        DOM.setButtonState("enrolButton", true, please_wait_string);
 
         try {
-          const data = await createPaymentSession(
-            user_id,
-            couponid,
-            instance_id
-          );
+          // Get the current displayed cost to determine enrollment type
+          const totalAmountElement = DOM.get("total-amount");
+          let currentCost = 0;
 
-          if (data.error?.message) {
-            showError("paymentResponse", data.error.message);
-            DOM.setButtonState("payButton", false, buy_now_string);
-          } else if (data.status) {
-            const result = await stripe.redirectToCheckout({
-              sessionId: data.status,
-            });
-            if (result.error) {
-              showError("paymentResponse", result.error.message);
-              DOM.setButtonState("payButton", false, buy_now_string);
+          if (totalAmountElement) {
+            // Extract numeric value from the displayed total (e.g., "USD 10.00" -> 10.00)
+            const costText = totalAmountElement.textContent.trim();
+            const costMatch = costText.match(/[\d.]+/);
+            if (costMatch) {
+              currentCost = parseFloat(costMatch[0]);
             }
+          }
+
+          // Check if this should be free enrollment (cost is 0 or very small)
+          if (currentCost <= 0.01) {
+            // Process as free enrollment
+            await processFreeEnrollment(user_id, couponid, instance_id);
+            location.reload();
           } else {
-            showError("paymentResponse", "Payment session creation failed");
-            DOM.setButtonState("payButton", false, buy_now_string);
+            // Process as paid enrollment - create payment session
+            const paymentData = await createPaymentSession(
+              user_id,
+              couponid,
+              instance_id
+            );
+
+            if (paymentData.error?.message) {
+              showError("paymentResponse", paymentData.error.message);
+              DOM.setButtonState("enrolButton", false, "Enrol Now");
+            } else if (paymentData.status) {
+              // paymentData.status contains the session ID for Stripe checkout
+              const result = await stripe.redirectToCheckout({
+                sessionId: paymentData.status,
+              });
+              if (result.error) {
+                showError("paymentResponse", result.error.message);
+                DOM.setButtonState("enrolButton", false, "Enrol Now");
+              }
+            } else {
+              showError("paymentResponse", "Payment session creation failed");
+              DOM.setButtonState("enrolButton", false, "Enrol Now");
+            }
           }
         } catch (error) {
-          console.error("Payment processing failed:", error);
-          showError("paymentResponse", error.message);
-          DOM.setButtonState("payButton", false, buy_now_string);
+          console.error("Enrollment failed:", error);
+          showError(
+            "paymentResponse",
+            `Enrollment failed: ${error.message}. Please try again or contact admin.`
+          );
+          DOM.setButtonState("enrolButton", false, "Enrol Now");
         }
       };
 
@@ -234,9 +236,11 @@ define(["core/ajax"], function (ajax) {
           clearError("paymentResponse");
         }
 
-        if (data.show_sections) {
-          DOM.toggle("amountgreaterzero", data.show_sections.paid_enrollment);
-          DOM.toggle("amountequalzero", data.show_sections.free_enrollment);
+        // Show/hide discount section if needed
+        if (
+          data.show_sections &&
+          data.show_sections.discount_section !== undefined
+        ) {
           DOM.toggle("discount-section", data.show_sections.discount_section);
         }
 
@@ -284,12 +288,7 @@ define(["core/ajax"], function (ajax) {
       const setupEventListeners = () => {
         const elements = [
           { id: "apply", event: "click", handler: applyCouponHandler },
-          {
-            id: "card-button-zero",
-            event: "click",
-            handler: freeEnrollHandler,
-          },
-          { id: "payButton", event: "click", handler: paidEnrollHandler },
+          { id: "enrolButton", event: "click", handler: unifiedEnrollHandler },
         ];
 
         elements.forEach(({ id, event, handler }) => {

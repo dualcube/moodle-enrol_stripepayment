@@ -299,81 +299,49 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 
         $name = $this->get_instance_name($instance);
 
-        if (abs($cost) < 0.01) {
-            // Use free enrol button.
-            $hascost = false;
-            $localisedcost = format_float($cost, 2, true);
-            $templatedata = [
-                'hascost' => $hascost,
-                'currency' => $instance->currency,
-                'cost' => $localisedcost,
-                'coursename' => format_string($course->fullname, true, ['context' => $context]),
-                'instanceid' => $instance->id,
-                'wwwroot' => $CFG->wwwroot,
-                'enrolbtncolor' => $this->get_config('enrolbtncolor'),
-            ];
-            $body = $OUTPUT->render_from_template('enrol_stripepayment/enrol_page', $templatedata);
-            $plugin = enrol_get_plugin('stripepayment');
-            $publishablekey = $plugin->get_config('publishablekey');
-            $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment',
-                [
-                    $USER->id,
-                    $publishablekey,
-                    null,
-                    $instance->id,
-                    get_string("please_wait", "enrol_stripepayment"),
-                    get_string("enrol_now", "enrol_stripepayment"),
-                    get_string("invalidcouponcode", "enrol_stripepayment"),
-                ]
-            );
+        // Calculate localised and "." cost, make sure we send Stripe the same value,
+        // please note Stripe expects amount with 2 decimal places and "." separator.
+        $localisedcost = format_float($cost, 2, true);
+        $cost = format_float($cost, 2, false);
 
-            $enrolpage = new enrol_page(
-                instance: $instance,
-                header: $name,
-                body: $body);
-            return $OUTPUT->render($enrolpage);
-        } else {
-            // Calculate localised and "." cost, make sure we send Stripe the same value,
-            // please note Stripe expects amount with 2 decimal places and "." separator.
-            $localisedcost = format_float($cost, 2, true);
-            $cost = format_float($cost, 2, false);
-            $hascost = true;
+        // Always show cost information and coupon section for consistency
+        $hascost = true;
 
-            // Prepare data for the template.
-            $templatedata = [
-                'hascost' => $hascost,
-                'currency' => $instance->currency,
-                'cost' => $localisedcost,
-                'coursename' => format_string($course->fullname, true, ['context' => $context]),
-                'instanceid' => $instance->id,
-                'wwwroot' => $CFG->wwwroot,
-                'enrolbtncolor' => $this->get_config('enrolbtncolor'),
-            ];
-            // Render the payment form using the template.
-            $body = $OUTPUT->render_from_template('enrol_stripepayment/enrol_page', $templatedata);
-            // Set up the required JavaScript for Stripe integration.
-            $plugin = enrol_get_plugin('stripepayment');
-            $publishablekey = $plugin->get_config('publishablekey');
-            $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment',
-                [
-                    $USER->id,
-                    $publishablekey,
-                    null, // Couponid starts as null.
-                    $instance->id,
-                    get_string("please_wait", "enrol_stripepayment"),
-                    get_string("buy_now", "enrol_stripepayment"),
-                    get_string("invalidcouponcode", "enrol_stripepayment"),
-                ]
-            );
+        // Prepare data for the template - always use the same template regardless of cost
+        $templatedata = [
+            'hascost' => $hascost,
+            'currency' => $instance->currency,
+            'cost' => $localisedcost,
+            'coursename' => format_string($course->fullname, true, ['context' => $context]),
+            'instanceid' => $instance->id,
+            'wwwroot' => $CFG->wwwroot,
+            'enrolbtncolor' => $this->get_config('enrolbtncolor'),
+        ];
 
-            // No need for a separate button as the payment form includes its own buttons.
-            $enrolpage = new enrol_page(
-                instance: $instance,
-                header: $name,
-                body: $body
-            );
-            return $OUTPUT->render($enrolpage);
-        }
+        // Render the payment form using the template.
+        $body = $OUTPUT->render_from_template('enrol_stripepayment/enrol_page', $templatedata);
+
+        // Set up the required JavaScript for Stripe integration.
+        $plugin = enrol_get_plugin('stripepayment');
+        $publishablekey = $plugin->get_config('publishablekey');
+        $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment',
+            [
+                $USER->id,
+                $publishablekey,
+                null, // Couponid starts as null.
+                $instance->id,
+                get_string("please_wait", "enrol_stripepayment"),
+                get_string("enrol_now", "enrol_stripepayment"),
+                get_string("invalidcouponcode", "enrol_stripepayment"),
+            ]
+        );
+
+        $enrolpage = new enrol_page(
+            instance: $instance,
+            header: $name,
+            body: $body
+        );
+        return $OUTPUT->render($enrolpage);
     }
     /**
      * Creates can stripepayament enrol.
