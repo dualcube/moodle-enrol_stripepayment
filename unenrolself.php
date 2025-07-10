@@ -24,6 +24,7 @@
  */
 
 require('../../config.php');
+defined('MOODLE_INTERNAL') || die();
 
 $enrolid = required_param('enrolid', PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_BOOL);

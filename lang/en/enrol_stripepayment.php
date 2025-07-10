@@ -22,7 +22,7 @@
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+defined('MOODLE_INTERNAL') || die();
 // $string['applycode'] = 'Apply code';
 $string['assignrole'] = 'Assign role';
 $string['buy_now'] = 'Buy now';
