@@ -96,7 +96,7 @@ define(["core/ajax"], function (ajax) {
 
         if (!couponCode) {
           DOM.setHTML(
-            "new_coupon",
+            "status",
             '<p style="color:red;"><b>Please enter a coupon code</b></p>'
           );
           DOM.focus("coupon");
@@ -105,7 +105,7 @@ define(["core/ajax"], function (ajax) {
 
         DOM.setButtonState("apply", true, "Applying...");
         DOM.setHTML(
-          "new_coupon",
+          "status",
           '<p style="color:blue;">Applying coupon...</p>'
         );
 
@@ -116,7 +116,7 @@ define(["core/ajax"], function (ajax) {
           if (data?.status !== undefined) {
             couponid = couponCode; // Update for payment processing
             DOM.setHTML(
-              "new_coupon",
+              "status",
               '<p style="color:green;"><b>Coupon applied successfully!</b></p>'
             );
 
@@ -129,7 +129,7 @@ define(["core/ajax"], function (ajax) {
             // Handle auto-enrollment (PHP backend completed enrollment)
             if (data.auto_enrolled) {
               DOM.setHTML(
-                "new_coupon",
+                "status",
                 '<p style="color:green;"><b>Coupon applied and enrolled successfully! Redirecting...</b></p>'
               );
               setTimeout(() => location.reload(), 1500);
@@ -147,7 +147,7 @@ define(["core/ajax"], function (ajax) {
         } catch (error) {
           console.error("Coupon application failed:", error);
           DOM.setHTML(
-            "new_coupon",
+            "status",
             `<p style="color:red;"><b>${invalid_code_string}</b></p>`
           );
           DOM.focus("coupon");
