@@ -38,7 +38,7 @@ class moodle_enrol_stripepayment_external extends external_api {
     /**
      * Parameter for couponsettings function
      */
-    public static function stripepayment_couponsettings_parameters() {
+    public static function stripepayment_applycoupon_parameters() {
         return new external_function_parameters(
             [
                 'couponid' => new external_value(PARAM_RAW, 'The coupon id to operate on'),
@@ -50,7 +50,7 @@ class moodle_enrol_stripepayment_external extends external_api {
     /**
      * return type of couponsettings functioin
      */
-    public static function stripepayment_couponsettings_returns() {
+    public static function stripepayment_applycoupon_returns() {
         return new external_single_structure(
             [
                 'status' => new external_value(PARAM_RAW, 'status: true if success'),
@@ -63,7 +63,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'ui_state' => new external_value(PARAM_RAW, 'UI state: free|paid|error', VALUE_OPTIONAL),
                 'error_message' => new external_value(PARAM_RAW, 'error message if any', VALUE_OPTIONAL),
                 'show_sections' => new external_single_structure([
-                    'free_enrollment' => new external_value(PARAM_BOOL, 'show free enrollment section'),
+                    'free_enrollment' => new external_value(PARAM_BOOL, 'redirct to free enrollment section'),
                     'paid_enrollment' => new external_value(PARAM_BOOL, 'show paid enrollment section'),
                     'discount_section' => new external_value(PARAM_BOOL, 'show discount section'),
                 ], 'sections to show/hide', VALUE_OPTIONAL),
@@ -78,7 +78,7 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @param int $instanceid
      * @return array
      */
-    public static function stripepayment_couponsettings($couponid, $instanceid) {
+    public static function stripepayment_applycoupon($couponid, $instanceid) {
         global $DB;
 
         // Enhanced input validation
@@ -180,7 +180,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 // Check if user is already enrolled to prevent duplicate enrollments
                 if (!$DB->record_exists('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instanceid])) {
                     // Call the existing free enrollment method
-                    self::stripepayment_free_enrolsettings($USER->id, $couponid, $instanceid);
+                    self::stripepayment_free_enrol($USER->id, $couponid, $instanceid);
                     $auto_enrolled = true;
                 } else {
                     // User is already enrolled, just mark as auto-enrolled for UI purposes
@@ -208,9 +208,9 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
 
     /**
-     * declare parameters type for stripepayment_free_enrolsettings
+     * declare parameters type for stripepayment_free_enrol
      */
-    public static function stripepayment_free_enrolsettings_parameters() {
+    public static function stripepayment_free_enrol_parameters() {
         return new external_function_parameters(
             [
                 'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
@@ -221,9 +221,9 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
 
     /**
-     * declare return type for stripepayment_free_enrolsettings
+     * declare return type for stripepayment_free_enrol
      */
-    public static function stripepayment_free_enrolsettings_returns() {
+    public static function stripepayment_free_enrol_returns() {
         return new external_single_structure(
             [
                 'status' => new external_value(PARAM_RAW, 'status: true if success'),
@@ -237,7 +237,7 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @param number $userid
      * @param number $instanceid
      */
-    public static function stripepayment_free_enrolsettings($userid, $couponid, $instanceid) {
+    public static function stripepayment_free_enrol($userid, $couponid, $instanceid) {
         global $DB, $CFG;
 
         $validateddata = self::validate_data( $userid, $instanceid);
@@ -481,9 +481,9 @@ class moodle_enrol_stripepayment_external extends external_api {
     }
 
     /**
-     * define parameter type of stripe_js_method
+     * define parameter type of stripepayment_paid_enrol
      */
-    public static function stripe_js_method_parameters() {
+    public static function stripepayment_paid_enrol_parameters() {
         return new external_function_parameters(
             [
                 'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
@@ -496,7 +496,7 @@ class moodle_enrol_stripepayment_external extends external_api {
     /**
      * return type of stripe js method
      */
-    public static function stripe_js_method_returns() {
+    public static function stripepayment_paid_enrol_returns() {
         return new external_single_structure(
             [
                 'status' => new external_value(PARAM_RAW, 'status: true if success'),
@@ -511,7 +511,7 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @param int $instanceid
      * @return array
      */
-    public static function stripe_js_method($userid, $couponid, $instanceid ) {
+    public static function stripepayment_paid_enrol($userid, $couponid, $instanceid ) {
         global $CFG, $DB;
 
         // Enhanced input validation
@@ -559,7 +559,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         $finalcost = $plugininstance->cost;
         if (!empty($couponid)) {
             try {
-                $coupondata = self::stripepayment_couponsettings($couponid, $instanceid);
+                $coupondata = self::stripepayment_applycoupon($couponid, $instanceid);
                 $finalcost = $coupondata['status']; // This contains the final cost after discount
             } catch (Exception $e) {
                 // If coupon validation fails, use original cost

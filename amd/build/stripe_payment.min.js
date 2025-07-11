@@ -5,7 +5,7 @@ define(["core/ajax"], function (ajax) {
   const applyCoupon = (couponid, instance_id) =>
     fetchMany([
       {
-        methodname: "moodle_stripepayment_couponsettings",
+        methodname: "moodle_stripepayment_applycoupon",
         args: { couponid, instance_id },
       },
     ])[0];
@@ -13,7 +13,7 @@ define(["core/ajax"], function (ajax) {
   const processFreeEnrollment = (user_id, couponid, instance_id) =>
     fetchMany([
       {
-        methodname: "moodle_stripepayment_free_enrolsettings",
+        methodname: "moodle_stripepayment_free_enrol",
         args: { user_id, couponid, instance_id },
       },
     ])[0];
@@ -21,7 +21,7 @@ define(["core/ajax"], function (ajax) {
   const createPaymentSession = (user_id, couponid, instance_id) =>
     fetchMany([
       {
-        methodname: "moodle_stripepayment_stripe_js_settings",
+        methodname: "moodle_stripepayment_paid_enrol",
         args: { user_id, couponid, instance_id },
       },
     ])[0];

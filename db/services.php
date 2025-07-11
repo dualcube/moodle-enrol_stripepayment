@@ -26,8 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $services = ['moodle_enrol_stripepayment' => ['functions' => [
-            'moodle_stripepayment_couponsettings',
-            'moodle_stripepayment_free_enrolsettings',
+            'moodle_stripepayment_applycoupon',
+            'moodle_stripepayment_free_enrol',
             'moodle_stripepayment_stripe_js_settings', 'moodle_stripepayment_success_stripe_url',
             'moodle_stripepayment_validate_cost',
         ],
@@ -37,27 +37,27 @@ $services = ['moodle_enrol_stripepayment' => ['functions' => [
         'shortname' => 'enrolstripepayment', ],
 ];
 $functions = [
-    'moodle_stripepayment_couponsettings' => [
+    'moodle_stripepayment_applycoupon' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_couponsettings',
+        'methodname' => 'stripepayment_applycoupon',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Load coupon settings data',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_free_enrolsettings' => [
+    'moodle_stripepayment_free_enrol' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_free_enrolsettings',
+        'methodname' => 'stripepayment_free_enrol',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Update information after Successful Free Enrol',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_stripe_js_settings' => [
+    'moodle_stripepayment_paid_enrol' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripe_js_method',
+        'methodname' => 'stripepayment_paid_enrol',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Update information after Stripe Successful Connect',
         'type' => 'write',
