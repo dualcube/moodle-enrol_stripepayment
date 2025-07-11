@@ -72,7 +72,6 @@ define(["core/ajax"], function (ajax) {
       couponid,
       instance_id,
       please_wait_string,
-      buy_now_string,
       invalid_code_string
     ) {
       // Create instance-specific DOM utility
@@ -96,7 +95,7 @@ define(["core/ajax"], function (ajax) {
 
         if (!couponCode) {
           DOM.setHTML(
-            "status",
+            "show_message",
             '<p style="color:red;"><b>Please enter a coupon code</b></p>'
           );
           DOM.focus("coupon");
@@ -104,7 +103,7 @@ define(["core/ajax"], function (ajax) {
         }
 
         DOM.setButtonState("apply", true, "Applying...");
-        DOM.setHTML("status", '<p style="color:blue;">Applying coupon...</p>');
+        DOM.setHTML("show_message", '<p style="color:blue;">Applying coupon...</p>');
 
         try {
           // PHP backend handles all validation, calculation, and auto-enrollment
@@ -113,7 +112,7 @@ define(["core/ajax"], function (ajax) {
           if (data?.status !== undefined) {
             couponid = couponCode; // Update for payment processing
             DOM.setHTML(
-              "status",
+              "show_message",
               '<p style="color:green;"><b>Coupon applied successfully!</b></p>'
             );
 
@@ -126,7 +125,7 @@ define(["core/ajax"], function (ajax) {
             // Handle auto-enrollment (PHP backend completed enrollment)
             if (data.auto_enrolled) {
               DOM.setHTML(
-                "status",
+                "show_message",
                 '<p style="color:green;"><b>Coupon applied and enrolled successfully! Redirecting...</b></p>'
               );
               setTimeout(() => location.reload(), 1500);
@@ -144,7 +143,7 @@ define(["core/ajax"], function (ajax) {
         } catch (error) {
           console.error("Coupon application failed:", error);
           DOM.setHTML(
-            "status",
+            "show_message",
             `<p style="color:red;"><b>${invalid_code_string}</b></p>`
           );
           DOM.focus("coupon");
@@ -175,7 +174,7 @@ define(["core/ajax"], function (ajax) {
           }
 
           // Check if this should be free enrollment (cost is 0 or very small)
-          if (currentCost <= 0.01) {
+          if (currentCost <= 0.00) {
             // Process as free enrollment
             await processFreeEnrollment(user_id, couponid, instance_id);
             location.reload();
@@ -295,14 +294,6 @@ define(["core/ajax"], function (ajax) {
           const element = DOM.get(id);
           if (element) element.addEventListener(event, handler);
         });
-
-        // Add Enter key support for coupon input
-        const couponInput = DOM.get("coupon");
-        if (couponInput) {
-          couponInput.addEventListener("keypress", (event) => {
-            if (event.key === "Enter") applyCouponHandler(event);
-          });
-        }
       };
 
       // Initialize the module
