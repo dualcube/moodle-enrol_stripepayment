@@ -72,6 +72,7 @@ define(["core/ajax"], function (ajax) {
       couponid,
       instance_id,
       please_wait_string,
+      buy_now_string,
       invalid_code_string
     ) {
       // Create instance-specific DOM utility

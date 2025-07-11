@@ -1,5 +1,11 @@
 {
+    "name": "moodle/enrol/stripepayment",
+    "description": "Moodle - the world's open source learning platform",
+    "type": "project",
+    "homepage": "https://moodle.org",
     "require": {
         "stripe/stripe-php": "^17.3"
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
