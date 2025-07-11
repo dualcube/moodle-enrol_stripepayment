@@ -576,9 +576,66 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             $errors['enrolenddate'] = get_string('enrolenddaterror', 'enrol_stripepayment');
         }
 
-        $cost = str_replace(get_string('decsep', 'langconfig'), '.', $data['cost']);
-        if (!is_numeric($cost)) {
-            $errors['cost'] = get_string('costerror', 'enrol_stripepayment');
+        // Handle cost field - it might be in a group called 'costar'
+        $costvalue = null;
+        $costfieldexists = false;
+
+        // Debug: Log the data structure
+        error_log("Stripepayment validation data: " . print_r($data, true));
+
+        if (isset($data['costar']['cost'])) {
+            $costvalue = $data['costar']['cost'];
+            $costfieldexists = true;
+        } elseif (isset($data['cost'])) {
+            $costvalue = $data['cost'];
+            $costfieldexists = true;
+        } elseif (isset($data['costar']) && is_array($data['costar'])) {
+            // Check if costar is an array with numeric index
+            if (isset($data['costar'][0])) {
+                $costvalue = $data['costar'][0];
+                $costfieldexists = true;
+            }
+        }
+
+        if ($costfieldexists) {
+            // Handle empty cost value (treat as 0)
+            if ($costvalue === '' || $costvalue === null) {
+                $cost = 0.0;
+            } else {
+                $cost = str_replace(get_string('decsep', 'langconfig'), '.', $costvalue);
+                if (!is_numeric($cost)) {
+                    $errors['costar'] = get_string('costerror', 'enrol_stripepayment');
+                    return $errors; // Return early if not numeric
+                }
+                $cost = (float)$cost;
+            }
+
+            // Debug: Log the cost value for troubleshooting
+            error_log("Stripepayment validation: cost = " . $cost . ", costvalue = " . var_export($costvalue, true));
+
+            // Now validate the cost value
+            $currency = isset($data['currency']) ? $data['currency'] : 'USD';
+
+            // Minimum amounts for different currencies
+            $minamount = [
+                'USD' => 0.5, 'AED' => 2.0, 'AUD' => 0.5, 'BGN' => 1.0, 'BRL' => 0.5,
+                'CAD' => 0.5, 'CHF' => 0.5, 'CZK' => 15.0, 'DKK' => 2.5, 'EUR' => 0.5,
+                'GBP' => 0.3, 'HKD' => 4.0, 'HUF' => 175.0, 'INR' => 0.5, 'JPY' => 50,
+                'MXN' => 10, 'MYR' => 2, 'NOK' => 3.0, 'NZD' => 0.5, 'PLN' => 2.0,
+                'RON' => 2.0, 'SEK' => 3.0, 'SGD' => 0.5, 'THB' => 10,
+            ];
+
+            $minamount = isset($minamount[$currency]) ? $minamount[$currency] : 0.5;
+
+            // Check if cost is 0 or less (not allowed)
+            if ($cost <= 0) {
+                $errors['costar'] = get_string('costzeroerror', 'enrol_stripepayment');
+            }
+            // Check if cost is below minimum threshold
+            else if ($cost < $minamount) {
+                $errors['costar'] = get_string('costminimumerror', 'enrol_stripepayment',
+                    $currency . ' ' . number_format($minamount, 2));
+            }
         }
 
         return $errors;

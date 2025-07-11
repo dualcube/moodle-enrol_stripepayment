@@ -104,7 +104,10 @@ define(["core/ajax"], function (ajax) {
         }
 
         DOM.setButtonState("apply", true, "Applying...");
-        DOM.setHTML("show_message", '<p style="color:blue;">Applying coupon...</p>');
+        DOM.setHTML(
+          "show_message",
+          '<p style="color:blue;">Applying coupon...</p>'
+        );
 
         try {
           // PHP backend handles all validation, calculation, and auto-enrollment
@@ -174,13 +177,14 @@ define(["core/ajax"], function (ajax) {
             }
           }
 
-          // Check if this should be free enrollment (cost is 0 or very small)
-          if (currentCost <= 0.00) {
-            // Process as free enrollment
+          // Check if this should be free enrollment (cost is 0 - only through coupon application)
+          if (currentCost <= 0.0) {
+            // Process as free enrollment (only available through coupon application)
             await processFreeEnrollment(user_id, couponid, instance_id);
             location.reload();
           } else {
             // Process as paid enrollment - create payment session
+            // No minimum cost validation here - it's handled at instance creation
             const paymentData = await createPaymentSession(
               user_id,
               couponid,

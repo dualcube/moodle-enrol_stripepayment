@@ -28,8 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 $services = ['moodle_enrol_stripepayment' => ['functions' => [
             'moodle_stripepayment_applycoupon',
             'moodle_stripepayment_free_enrol',
+            'moodle_stripepayment_paid_enrol',
             'moodle_stripepayment_stripe_js_settings', 'moodle_stripepayment_success_stripe_url',
-            'moodle_stripepayment_validate_cost',
         ],
         'requiredcapability' => '',
         'restrictedusers' => 0,
@@ -73,13 +73,5 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_validate_cost' => [
-        'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_validate_cost',
-        'classpath' => 'enrol/stripepayment/externallib.php',
-        'description' => 'Validate cost and determine UI state',
-        'type' => 'read',
-        'ajax' => true,
-        'loginrequired' => true,
-    ],
+
 ];
