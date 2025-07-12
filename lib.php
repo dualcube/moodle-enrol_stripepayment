@@ -304,12 +304,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $localisedcost = format_float($cost, 2, true);
         $cost = format_float($cost, 2, false);
 
-        // Always show cost information and coupon section for consistency
-        $hascost = true;
-
         // Prepare data for the template - always use the same template regardless of cost
         $templatedata = [
-            'hascost' => $hascost,
             'currency' => $instance->currency,
             'cost' => $localisedcost,
             'coursename' => format_string($course->fullname, true, ['context' => $context]),
