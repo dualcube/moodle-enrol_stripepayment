@@ -166,7 +166,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception($e->getMessage());
         }
 
-        // Calculate UI state for display purposes only (no minimum cost validation)
+        // Calculate UI state for display purposes only
         $uistate = [
             'state' => $cost <= 0 ? 'free' : 'paid',
             'error_message' => '',
@@ -534,8 +534,6 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $usestripecouppndiscount = false;
             }
         }
-
-        // No minimum cost validation here - it's now handled at instance creation
 
         $amount = $plugin->get_stripe_amount($finalcost, $plugininstance->currency, false);
         $courseid = $plugininstance->courseid;

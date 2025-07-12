@@ -10,14 +10,6 @@ define(["core/ajax"], function (ajax) {
       },
     ])[0];
 
-  const processFreeEnrollment = (user_id, couponid, instance_id) =>
-    fetchMany([
-      {
-        methodname: "moodle_stripepayment_free_enrol",
-        args: { user_id, couponid, instance_id },
-      },
-    ])[0];
-
   const createPaymentSession = (user_id, couponid, instance_id) =>
     fetchMany([
       {
@@ -157,34 +149,13 @@ define(["core/ajax"], function (ajax) {
       };
 
       // Unified enrollment handler that determines whether to process free or paid enrollment
-      const unifiedEnrollHandler = async () => {
+      const EnrollHandler = async () => {
         const enrollButton = DOM.get("enrolButton");
         if (!enrollButton) return;
 
         DOM.setButtonState("enrolButton", true, please_wait_string);
 
         try {
-          // Get the current displayed cost to determine enrollment type
-          const totalAmountElement = DOM.get("total-amount");
-          let currentCost = 0;
-
-          if (totalAmountElement) {
-            // Extract numeric value from the displayed total (e.g., "USD 10.00" -> 10.00)
-            const costText = totalAmountElement.textContent.trim();
-            const costMatch = costText.match(/[\d.]+/);
-            if (costMatch) {
-              currentCost = parseFloat(costMatch[0]);
-            }
-          }
-
-          // Check if this should be free enrollment (cost is 0 - only through coupon application)
-          if (currentCost <= 0.0) {
-            // Process as free enrollment (only available through coupon application)
-            await processFreeEnrollment(user_id, couponid, instance_id);
-            location.reload();
-          } else {
-            // Process as paid enrollment - create payment session
-            // No minimum cost validation here - it's handled at instance creation
             const paymentData = await createPaymentSession(
               user_id,
               couponid,
@@ -206,8 +177,7 @@ define(["core/ajax"], function (ajax) {
             } else {
               showError("paymentResponse", "Payment session creation failed");
               DOM.setButtonState("enrolButton", false, "Enrol Now");
-            }
-          }
+            }          
         } catch (error) {
           console.error("Enrollment failed:", error);
           showError(
@@ -292,7 +262,7 @@ define(["core/ajax"], function (ajax) {
       const setupEventListeners = () => {
         const elements = [
           { id: "apply", event: "click", handler: applyCouponHandler },
-          { id: "enrolButton", event: "click", handler: unifiedEnrollHandler },
+          { id: "enrolButton", event: "click", handler: EnrollHandler },
         ];
 
         elements.forEach(({ id, event, handler }) => {
