@@ -303,7 +303,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         // please note Stripe expects amount with 2 decimal places and "." separator.
         $localisedcost = format_float($cost, 2, true);
         $cost = format_float($cost, 2, false);
-
         // Prepare data for the template - always use the same template regardless of cost
         $templatedata = [
             'currency' => $instance->currency,
@@ -312,6 +311,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             'instanceid' => $instance->id,
             'wwwroot' => $CFG->wwwroot,
             'enrolbtncolor' => $this->get_config('enrolbtncolor'),
+            'enable_coupon_section' => $this->get_config('enable_coupon_section'),
         ];
 
         // Render the payment form using the template.

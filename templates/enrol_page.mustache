@@ -27,6 +27,7 @@
         "coursename": "Course Name",
         "instanceid": "1",
         "wwwroot": "https://example.com"
+        "enable_coupon_section": true
     }
 }}
 <div class="payment-container">
@@ -50,6 +51,7 @@
     </div>
 
     <!-- Coupon input section -->
+    {{#enable_coupon_section}}
     <div class="coupon-section">
         <div class="coupon-input-group">
             <input type="text" id="coupon-{{instanceid}}" placeholder="Enter coupon code" />
@@ -57,6 +59,7 @@
         </div>
         <div id="show_message-{{instanceid}}" class="coupon-message"></div>
     </div>
+    {{/enable_coupon_section}}
 
     <!-- Discount section (hidden by default, shown when coupon is applied) -->
     <div id="discount-section-{{instanceid}}" style="display: none;">
