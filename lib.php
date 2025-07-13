@@ -280,12 +280,35 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             return '';
         }
 
+        // Check enrollment date restrictions and show appropriate messages
         if ($instance->enrolstartdate != 0 && $instance->enrolstartdate > time()) {
-            return '';
+            $notification = new \core\output\notification(
+                get_string('canntenrolearly', 'enrol_stripepayment', userdate($instance->enrolstartdate)),
+                'info',
+                false
+            );
+            $notification->set_extra_classes(['mb-0']);
+            $enrolpage = new enrol_page(
+                instance: $instance,
+                header: $this->get_instance_name($instance),
+                body: $OUTPUT->render($notification)
+            );
+            return $OUTPUT->render($enrolpage);
         }
 
         if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
-            return '';
+            $notification = new \core\output\notification(
+                get_string('canntenrollate', 'enrol_stripepayment', userdate($instance->enrolenddate)),
+                'error',
+                false
+            );
+            $notification->set_extra_classes(['mb-0']);
+            $enrolpage = new enrol_page(
+                instance: $instance,
+                header: $this->get_instance_name($instance),
+                body: $OUTPUT->render($notification)
+            );
+            return $OUTPUT->render($enrolpage);
         }
 
         $course = $DB->get_record('course', ['id' => $instance->courseid]);
