@@ -166,16 +166,41 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception($e->getMessage());
         }
 
+        // Add minimum cost validation after coupon application
+        $minamount = [
+            'USD' => 0.5, 'AED' => 2.0, 'AUD' => 0.5, 'BGN' => 1.0, 'BRL' => 0.5,
+            'CAD' => 0.5, 'CHF' => 0.5, 'CZK' => 15.0, 'DKK' => 2.5, 'EUR' => 0.5,
+            'GBP' => 0.3, 'HKD' => 4.0, 'HUF' => 175.0, 'INR' => 0.5, 'JPY' => 50,
+            'MXN' => 10, 'MYR' => 2, 'NOK' => 3.0, 'NZD' => 0.5, 'PLN' => 2.0,
+            'RON' => 2.0, 'SEK' => 3.0, 'SGD' => 0.5, 'THB' => 10,
+        ];
+        $minamount = isset($minamount[$currency]) ? $minamount[$currency] : 0.5;
+
         // Calculate UI state for display purposes only
         $uistate = [
-            'state' => $cost <= 0 ? 'free' : 'paid',
+            'state' => 'paid',
             'error_message' => '',
             'show_sections' => [
-                'free_enrollment' => $cost <= 0,
-                'paid_enrollment' => $cost > 0,
+                'free_enrollment' => false,
+                'paid_enrollment' => true,
                 'discount_section' => ($discountamount > 0)
             ]
         ];
+
+        // Determine the final state based on cost and minimum validation
+        if ($cost <= 0) {
+            $uistate['state'] = 'free';
+            $uistate['show_sections']['free_enrollment'] = true;
+            $uistate['show_sections']['paid_enrollment'] = false;
+        } else if ($cost > 0 && $cost < $minamount) {
+            // Cost is above 0 but below minimum threshold - show error
+            $uistate['state'] = 'error';
+            $uistate['error_message'] = get_string('couponminimumerror', 'enrol_stripepayment', [
+                'amount' => $currency . ' ' . number_format($cost, 2),
+                'minimum' => $currency . ' ' . number_format($minamount, 2)
+            ]);
+            $uistate['show_sections']['paid_enrollment'] = false;
+        }
 
         // Auto-enroll user if cost is 0 or less (free enrollment)
         $auto_enrolled = false;

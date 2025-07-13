@@ -34,6 +34,7 @@ $string['cost'] = 'Enrol cost';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costzeroerror'] = 'Cost cannot be 0 or negative. Free enrollment is only available through coupon application that reduces cost to 0.';
 $string['costminimumerror'] = 'Amount is less than supported minimum ({$a}). Please set a higher amount.';
+$string['couponminimumerror'] = 'After applying the coupon, the amount ({$a->amount}) is less than the supported minimum ({$a->minimum}). Please contact admin for assistance.';
 // $string['costorkey'] = 'Please choose one of the following methods of enrolment.';
 // $string['couponapplied'] = 'Coupon Applied';
 $string['couponcode'] = 'Coupon Code';

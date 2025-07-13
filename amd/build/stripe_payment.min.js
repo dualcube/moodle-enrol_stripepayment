@@ -148,7 +148,6 @@ define(["core/ajax"], function (ajax) {
         }
       };
 
-      // Unified enrollment handler that determines whether to process free or paid enrollment
       const EnrollHandler = async () => {
         const enrollButton = DOM.get("enrolButton");
         if (!enrollButton) return;
@@ -156,28 +155,28 @@ define(["core/ajax"], function (ajax) {
         DOM.setButtonState("enrolButton", true, please_wait_string);
 
         try {
-            const paymentData = await createPaymentSession(
-              user_id,
-              couponid,
-              instance_id
-            );
+          const paymentData = await createPaymentSession(
+            user_id,
+            couponid,
+            instance_id
+          );
 
-            if (paymentData.error?.message) {
-              showError("paymentResponse", paymentData.error.message);
+          if (paymentData.error?.message) {
+            showError("paymentResponse", paymentData.error.message);
+            DOM.setButtonState("enrolButton", false, "Enrol Now");
+          } else if (paymentData.status) {
+            // paymentData.status contains the session ID for Stripe checkout
+            const result = await stripe.redirectToCheckout({
+              sessionId: paymentData.status,
+            });
+            if (result.error) {
+              showError("paymentResponse", result.error.message);
               DOM.setButtonState("enrolButton", false, "Enrol Now");
-            } else if (paymentData.status) {
-              // paymentData.status contains the session ID for Stripe checkout
-              const result = await stripe.redirectToCheckout({
-                sessionId: paymentData.status,
-              });
-              if (result.error) {
-                showError("paymentResponse", result.error.message);
-                DOM.setButtonState("enrolButton", false, "Enrol Now");
-              }
-            } else {
-              showError("paymentResponse", "Payment session creation failed");
-              DOM.setButtonState("enrolButton", false, "Enrol Now");
-            }          
+            }
+          } else {
+            showError("paymentResponse", "Payment session creation failed");
+            DOM.setButtonState("enrolButton", false, "Enrol Now");
+          }
         } catch (error) {
           console.error("Enrollment failed:", error);
           showError(
@@ -206,8 +205,14 @@ define(["core/ajax"], function (ajax) {
       const updateUIFromServerResponse = (data) => {
         if (data.ui_state === "error" && data.error_message) {
           showError("paymentResponse", data.error_message);
+          // Hide the pay button when there's a minimum cost error
+          DOM.toggle("enrolButton", false);
         } else {
           clearError("paymentResponse");
+          // Show the pay button for valid states
+          if (data.ui_state === "paid") {
+            DOM.toggle("enrolButton", true);
+          }
         }
 
         // Show/hide discount section if needed
