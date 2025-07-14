@@ -400,7 +400,6 @@ class moodle_enrol_stripepayment_external extends external_api {
         if (!empty($mailteachers) && !empty($teacher)) {
             $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
             $fullmessagehtml = '<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>';
-
             $message = new \core\message\message();
             $message->courseid = $course->id;
             $message->component = 'enrol_stripepayment';
@@ -415,7 +414,6 @@ class moodle_enrol_stripepayment_external extends external_api {
             $message->notification = 1;
             $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
             $message->contexturlname = $orderdetails->coursename;
-
             $messageid = message_send($message);
             if (!$messageid) {
                 debugging('Failed to send stripepayment enrolment notification to teacher: ' . $teacher->id, DEBUG_DEVELOPER);
@@ -451,10 +449,6 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
         }
     }
-
-
-
-
 
     /**
      * define parameter type of stripepayment_enrol

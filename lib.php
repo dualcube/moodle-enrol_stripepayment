@@ -321,9 +321,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         }
 
         $name = $this->get_instance_name($instance);
-
-        // Calculate localised and "." cost, make sure we send Stripe the same value,
-        // please note Stripe expects amount with 2 decimal places and "." separator.
         $localisedcost = format_float($cost, 2, true);
         $cost = format_float($cost, 2, false);
         // Prepare data for the template - always use the same template regardless of cost
@@ -656,7 +653,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                     $currency . ' ' . number_format($minamount, 2));
             }
         }
-
         return $errors;
     }
 
@@ -725,7 +721,6 @@ class admin_enrol_stripepayment_configtext extends admin_setting_configtext {
         if ($cleaned === '') {
             return get_string('required');
         }
-
         return parent::validate($data);
     }
 }
