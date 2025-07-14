@@ -534,35 +534,6 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         // Calculate final cost after coupon application and retrieve coupon details
         $finalcost = $plugininstance->cost;
-        $couponobject = null;
-        $usestripecouppndiscount = false; // Flag to determine if we should let Stripe handle the discount
-
-        if (!empty($couponid)) {
-            try {
-                // Retrieve the actual coupon object from Stripe first
-                Stripe::setApiKey($secretkey);
-                $couponobject = Coupon::retrieve($couponid);
-
-                // For repeating/forever coupons, let Stripe handle the discount
-                // For once coupons, we calculate the discount ourselves
-                if ($couponobject && $couponobject->valid &&
-                    ($couponobject->duration === 'repeating' || $couponobject->duration === 'forever')) {
-                    $usestripecouppndiscount = true;
-                    // Don't apply discount here, let Stripe handle it
-                    $finalcost = $plugininstance->cost;
-                } else {
-                    // For 'once' coupons, calculate discount ourselves
-                    $coupondata = self::stripepayment_applycoupon($couponid, $instanceid);
-                    $finalcost = $coupondata['status']; // This contains the final cost after discount
-                }
-            } catch (Exception $e) {
-                // If coupon validation fails, use original cost
-                $finalcost = $plugininstance->cost;
-                $couponobject = null;
-                $usestripecouppndiscount = false;
-            }
-        }
-
         $amount = $plugin->get_stripe_amount($finalcost, $plugininstance->currency, false);
         $courseid = $plugininstance->courseid;
         $currency = $plugininstance->currency;
@@ -622,11 +593,12 @@ class moodle_enrol_stripepayment_external extends external_api {
                         'quantity' => 1,
                     ]],
 
+                    'discounts' => [['coupon' => $couponid]],
+
                     'metadata' => [
                         'course_shortname' => $shortname,
                         'course_id' => $course->id,
                         'couponid' => $couponid,
-                        'coupon_name' => $couponobject && isset($couponobject->name) ? $couponobject->name : '',
                     ],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot . '/webservice/rest/server.php?wstoken=' . $usertoken .
@@ -638,12 +610,6 @@ class moodle_enrol_stripepayment_external extends external_api {
                     '&instance_id=' . $instanceid,
                     'cancel_url' => $CFG->wwwroot . '/course/view.php?id=' . $courseid,
                 ];
-
-                // Add coupon discount information to the session only for repeating/forever coupons
-                // For 'once' coupons, we already calculated the discount in the amount
-                if (!empty($couponid) && $couponobject && $couponobject->valid && $usestripecouppndiscount) {
-                    $sessionparams['discounts'] = [['coupon' => $couponid]];
-                }
 
                 $session = Session::create($sessionparams);
             } catch (Exception $e) {
