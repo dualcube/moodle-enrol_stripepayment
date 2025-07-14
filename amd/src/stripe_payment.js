@@ -10,10 +10,10 @@ define(["core/ajax"], function (ajax) {
       },
     ])[0];
 
-  const createPaymentSession = (user_id, couponid, instance_id) =>
+  const stripeenrol = (user_id, couponid, instance_id) =>
     fetchMany([
       {
-        methodname: "moodle_stripepayment_paid_enrol",
+        methodname: "moodle_stripepayment_enrol",
         args: { user_id, couponid, instance_id },
       },
     ])[0];
@@ -87,61 +87,36 @@ define(["core/ajax"], function (ajax) {
         const couponCode = couponInput?.value.trim();
 
         if (!couponCode) {
-          DOM.setHTML(
-            "show_message",
-            '<p style="color:red;"><b>Please enter a coupon code</b></p>'
-          );
+          displayMessage("show-message", "Please enter a coupon code", "error");
           DOM.focus("coupon");
           return;
         }
 
         DOM.setButtonState("apply", true, "Applying...");
-        DOM.setHTML(
-          "show_message",
-          '<p style="color:blue;">Applying coupon...</p>'
-        );
 
         try {
-          // PHP backend handles all validation, calculation, and auto-enrollment
           const data = await applyCoupon(couponCode, instance_id);
 
           if (data?.status !== undefined) {
-            couponid = couponCode; // Update for payment processing
-            DOM.setHTML(
-              "show_message",
-              '<p style="color:green;"><b>Coupon applied successfully!</b></p>'
-            );
+            couponid = couponCode;
 
-            // Hide coupon input after successful application
-            const couponInputGroup = DOM.get("coupon")?.closest(
-              ".coupon-input-group"
-            );
-            if (couponInputGroup) couponInputGroup.style.display = "none";
+            // Hide input group after success
+            DOM.get("coupon")?.closest(".coupon-input-group")?.style.setProperty("display", "none");
 
-            // Handle auto-enrollment (PHP backend completed enrollment)
+            // Handle free auto-enrollment
             if (data.auto_enrolled) {
-              DOM.setHTML(
-                "show_message",
-                '<p style="color:green;"><b>Coupon applied and enrolled successfully! Redirecting...</b></p>'
-              );
+              displayMessage("show-message", data.message || "Enrolled successfully!", "success");
               setTimeout(() => location.reload(), 1500);
               return;
             }
 
-            // Update UI based on PHP calculations
-            updateUIFromServerResponse(data);
-            if (data.show_sections?.discount_section) {
-              showValidCouponSection(data);
-            }
+            updateUIFromServerResponse(data); // Handles rest of the update
           } else {
             throw new Error("Invalid server response");
           }
         } catch (error) {
           console.error("Coupon application failed:", error);
-          DOM.setHTML(
-            "show_message",
-            `<p style="color:red;"><b>${invalid_code_string}</b></p>`
-          );
+          displayMessage("show-message", error.message || "Coupon validation failed", "error");
           DOM.focus("coupon");
         } finally {
           DOM.setButtonState("apply", false, "Apply code");
@@ -152,47 +127,30 @@ define(["core/ajax"], function (ajax) {
         const enrollButton = DOM.get("enrolButton");
         if (!enrollButton) return;
 
+        clearError("paymentResponse");
         DOM.setButtonState("enrolButton", true, please_wait_string);
 
         try {
-          const paymentData = await createPaymentSession(
-            user_id,
-            couponid,
-            instance_id
-          );
+          const paymentData = await stripeenrol(user_id, couponid, instance_id);
 
           if (paymentData.error?.message) {
-            showError("paymentResponse", paymentData.error.message);
-            DOM.setButtonState("enrolButton", false, "Enrol Now");
-          } else if (paymentData.status) {
-            // paymentData.status contains the session ID for Stripe checkout
-            const result = await stripe.redirectToCheckout({
-              sessionId: paymentData.status,
-            });
-            if (result.error) {
-              showError("paymentResponse", result.error.message);
-              DOM.setButtonState("enrolButton", false, "Enrol Now");
-            }
+            displayMessage("paymentResponse", paymentData.error.message, "error");
+          } else if (paymentData.status === "success" && paymentData.redirect_url) {
+            window.location.href = paymentData.redirect_url; // Redirect browser to Stripe Checkout
           } else {
-            showError("paymentResponse", "Payment session creation failed");
-            DOM.setButtonState("enrolButton", false, "Enrol Now");
+            displayMessage("paymentResponse", "Payment session creation failed.", "error");
           }
-        } catch (error) {
-          console.error("Enrollment failed:", error);
-          showError(
-            "paymentResponse",
-            `Enrollment failed: ${error.message}. Please try again or contact admin.`
-          );
-          DOM.setButtonState("enrolButton", false, "Enrol Now");
+        } catch (err) {
+          console.error("Enrollment failed:", err);
+          displayMessage("paymentResponse", `Enrollment failed: ${err.message}`, "error");
+        } finally {
+          DOM.toggle("enrolButton", false);
         }
       };
 
-      // Optimized helper functions
-      const showError = (containerId, message) => {
-        DOM.setHTML(
-          containerId,
-          `<p style="color: red; font-weight: bold;">${message}</p>`
-        );
+      const displayMessage = (containerId, message, type = "info") => {
+        const color = type === "error" ? "red" : type === "success" ? "green" : "blue";
+        DOM.setHTML(containerId, `<p style="color: ${color}; font-weight: bold;">${message}</p>`);
         DOM.toggle(containerId, true);
       };
 
@@ -201,65 +159,46 @@ define(["core/ajax"], function (ajax) {
         DOM.toggle(containerId, false);
       };
 
-      // Simplified UI update based on PHP backend response
       const updateUIFromServerResponse = (data) => {
-        if (data.ui_state === "error" && data.error_message) {
-          showError("paymentResponse", data.error_message);
-          // Hide the pay button when there's a minimum cost error
-          DOM.toggle("enrolButton", false);
-        } else {
-          clearError("paymentResponse");
-          // Show the pay button for valid states
-          if (data.ui_state === "paid") {
-            DOM.toggle("enrolButton", true);
+        if (data.message) {
+            displayMessage("show-message", data.message, data.ui_state === "error" ? "error" : "success");
+          } else {
+            clearError("show-message");
           }
-        }
 
-        // Show/hide discount section if needed
-        if (
-          data.show_sections &&
-          data.show_sections.discount_section !== undefined
-        ) {
-          DOM.toggle("discount-section", data.show_sections.discount_section);
-        }
+          // Enrol button
+          DOM.toggle("enrolButton", data.ui_state === "paid");
+          DOM.toggle("total", data.ui_state === "paid")
+          if(data.ui_state!= "error"){
+          // Discount section
+          DOM.toggle("discount-section", !!data.show_sections?.discount_section);
 
-        // Update total amount display
-        if (data.status && data.currency) {
-          const totalAmount = DOM.get("total-amount");
-          if (totalAmount) {
-            totalAmount.textContent = `${data.currency} ${parseFloat(
-              data.status
-            ).toFixed(2)}`;
+          // Fill discount data
+          if (data.show_sections?.discount_section) {
+            if (data.coupon_name) DOM.setHTML("discount-tag", data.coupon_name);
+            if (data.discount_amount && data.currency) {
+              DOM.setHTML(
+                "discount-amount-display",
+                `-${data.currency} ${parseFloat(data.discount_amount).toFixed(2)}`
+              );
+            }
+
+            if (data.coupon_type && data.discount_value) {
+              const note =
+                data.coupon_type === "percent_off"
+                  ? `${data.discount_value}% off`
+                  : `${data.currency} ${parseFloat(data.discount_value).toFixed(2)} off`;
+              DOM.setHTML("discount-note", note);
+            }
           }
-        }
-      };
 
-      // Simplified coupon section display using PHP data
-      const showValidCouponSection = (couponData) => {
-        DOM.toggle("discount-section", true);
-
-        // Update discount information from PHP backend
-        if (couponData.coupon_name) {
-          DOM.setHTML("discount-tag", couponData.coupon_name);
-        }
-
-        if (couponData.discount_amount && couponData.currency) {
-          DOM.setHTML(
-            "discount-amount-display",
-            `-${couponData.currency} ${parseFloat(
-              couponData.discount_amount
-            ).toFixed(2)}`
-          );
-        }
-
-        if (couponData.coupon_type && couponData.discount_value) {
-          const noteText =
-            couponData.coupon_type === "percent_off"
-              ? `${couponData.discount_value}% off`
-              : `${couponData.currency} ${parseFloat(
-                  couponData.discount_value
-                ).toFixed(2)} off`;
-          DOM.setHTML("discount-note", noteText);
+          // Update total amount
+          if (data.status && data.currency) {
+            const totalAmount = DOM.get("total-amount");
+            if (totalAmount) {
+              totalAmount.textContent = `${data.currency} ${parseFloat(data.status).toFixed(2)}`;
+            }
+          }
         }
       };
 

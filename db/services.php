@@ -27,9 +27,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $services = ['moodle_enrol_stripepayment' => ['functions' => [
             'moodle_stripepayment_applycoupon',
-            'moodle_stripepayment_free_enrol',
-            'moodle_stripepayment_paid_enrol',
-            'moodle_stripepayment_stripe_js_settings', 'moodle_stripepayment_success_stripe_url',
+            'moodle_stripepayment_enrol', 
+            'moodle_stripepayment_success_stripe_url',
         ],
         'requiredcapability' => '',
         'restrictedusers' => 0,
@@ -46,18 +45,9 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_free_enrol' => [
+    'moodle_stripepayment_enrol' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_free_enrol',
-        'classpath' => 'enrol/stripepayment/externallib.php',
-        'description' => 'Update information after Successful Free Enrol',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true,
-    ],
-    'moodle_stripepayment_paid_enrol' => [
-        'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_paid_enrol',
+        'methodname' => 'stripepayment_enrol',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Update information after Stripe Successful Connect',
         'type' => 'write',

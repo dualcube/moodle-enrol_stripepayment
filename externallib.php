@@ -61,7 +61,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'currency' => new external_value(PARAM_RAW, 'currency code', VALUE_OPTIONAL),
                 'discount_amount' => new external_value(PARAM_RAW, 'discount amount', VALUE_OPTIONAL),
                 'ui_state' => new external_value(PARAM_RAW, 'UI state: free|paid|error', VALUE_OPTIONAL),
-                'error_message' => new external_value(PARAM_RAW, 'error message if any', VALUE_OPTIONAL),
+                'message' => new external_value(PARAM_RAW, 'provides message', VALUE_OPTIONAL),
                 'show_sections' => new external_single_structure([
                     'free_enrollment' => new external_value(PARAM_BOOL, 'redirct to free enrollment section'),
                     'paid_enrollment' => new external_value(PARAM_BOOL, 'show paid enrollment section'),
@@ -231,7 +231,9 @@ class moodle_enrol_stripepayment_external extends external_api {
             'currency' => $currency,
             'discount_amount' => $discountamount,
             'ui_state' => $uistate['state'],
-            'error_message' => $uistate['error_message'],
+            'message' => $uistate['state'] === 'error' ? $uistate['error_message'] :
+                 ($auto_enrolled ? 'Coupon applied and enroling!' :
+                 'Coupon applied successfully.'),
             'show_sections' => $uistate['show_sections'],
             'auto_enrolled' => $auto_enrolled,
         ];
@@ -455,9 +457,9 @@ class moodle_enrol_stripepayment_external extends external_api {
 
 
     /**
-     * define parameter type of stripepayment_paid_enrol
+     * define parameter type of stripepayment_enrol
      */
-    public static function stripepayment_paid_enrol_parameters() {
+    public static function stripepayment_enrol_parameters() {
         return new external_function_parameters(
             [
                 'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
@@ -470,10 +472,11 @@ class moodle_enrol_stripepayment_external extends external_api {
     /**
      * return type of stripe js method
      */
-    public static function stripepayment_paid_enrol_returns() {
+    public static function stripepayment_enrol_returns() {
         return new external_single_structure(
             [
-                'status' => new external_value(PARAM_RAW, 'status: true if success'),
+                'status' => new external_value(PARAM_RAW, 'status: true if success or 0 if failure'),
+                'redirect_url' => new external_value(PARAM_URL, 'Stripe Checkout URL', VALUE_OPTIONAL),
             ]
         );
     }
@@ -485,7 +488,7 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @param int $instanceid
      * @return array
      */
-    public static function stripepayment_paid_enrol($userid, $couponid, $instanceid ) {
+    public static function stripepayment_enrol($userid, $couponid, $instanceid ) {
         global $CFG, $DB;
 
         // Enhanced input validation
@@ -648,10 +651,10 @@ class moodle_enrol_stripepayment_external extends external_api {
             }
             if (empty($apierror) && $session) {
                 $response = [
-                    'status' => 1,
-                    'message' => get_string('sessioncreated', 'enrol_stripepayment'),
-                    'sessionId' => $session['id'],
-                ];
+                    'status' => 'success',
+                    'redirect_url' => $session->url, // Stripe Checkout URL
+                    ];
+
             } else {
                 $response = [
                     'status' => 0,
@@ -660,12 +663,10 @@ class moodle_enrol_stripepayment_external extends external_api {
                     ],
                 ];
             }
-            // Return response.
-            $passsessionid = isset($response['sessionId']) && !empty($response['sessionId']) ? $response['sessionId'] : '';
-            $result = [];
-            $result['status'] = $passsessionid;
-            return $result;
-            die;
+            // // Return response.
+            // $passsessionid = isset($response['sessionId']) && !empty($response['sessionId']) ? $response['sessionId'] : '';
+            return $response;
+            // die;
         }
     }
     /**

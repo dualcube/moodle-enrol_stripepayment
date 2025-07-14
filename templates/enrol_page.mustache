@@ -57,7 +57,7 @@
             <input type="text" id="coupon-{{instanceid}}" placeholder="Enter coupon code" />
             <button id="apply-{{instanceid}}" class="apply-btn">Apply</button>
         </div>
-        <div id="show_message-{{instanceid}}" class="coupon-message"></div>
+        <div id="show-message-{{instanceid}}" class="coupon-message"></div>
     </div>
     {{/enable_coupon_section}}
 
@@ -70,7 +70,7 @@
         <p class="discount-note" id="discount-note-{{instanceid}}">Discount applied</p>
     </div>
 
-    <div class="total">
+    <div class="total" id="total-{{instanceid}}">
         <strong>Total due</strong>
         <strong id="total-amount-{{instanceid}}">{{currency}} {{cost}}</strong>
     </div>
@@ -78,7 +78,7 @@
     <!-- Container for displaying payment response/errors -->
     <div id="paymentResponse-{{instanceid}}" class="error-message" style="display: none;"></div>
 
-    <!-- Single enrollment button that handles both free and paid enrollment -->
+    <!-- Single enrollment button that handles paid enrollment -->
     <div id="enrollmentbutton-{{instanceid}}">
         <button id="enrolButton-{{instanceid}}" class="pay-btn">
             {{# str }} enrol_now, enrol_stripepayment {{/ str }}
