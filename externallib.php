@@ -140,6 +140,7 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         $validateddata = self::validate_data( $userid, $instanceid);
         $plugininstance = $validateddata[0];
+        $course = $validateddata[1];
         $user = $validateddata[3];
 
         $plugin = enrol_get_plugin('stripepayment');
@@ -147,7 +148,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         Stripe::setApiKey($secretkey);
 
         $data = new stdClass();
-        $data->couponid = $couponid;
+        $data->coupon_id = $couponid;
         $data->userid = $userid;
         $data->instanceid = $instanceid;
         $data->stripeEmail = $user->email;
@@ -170,7 +171,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $customer = Customer::create([
                     "email" => $data->stripeEmail,
                     "name" => fullname($user),
-                    "coupon" => $data->couponid,
+                    "coupon" => $data->coupon_id,
                     "description" => get_string('charge_description1', 'enrol_stripepayment')
                 ]);
                 $data->receiver_id = $customer->id;
@@ -182,6 +183,7 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         $data->receiver_email = $user->email;
         $data->payment_status = 'succeeded';
+        $data->item_name = $course->fullname;
         $DB->insert_record("enrol_stripepayment", $data);
 
         // Enrol user
@@ -369,7 +371,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         Stripe::setApiKey($secretkey);
         $checkoutsession = Session::retrieve($sessionid);
         $charge = PaymentIntent::retrieve($checkoutsession->payment_intent);
-        $data->couponid = $couponid;
+        $data->coupon_id = $couponid;
         $data->stripeEmail = $charge->receipt_email;
         $data->receiver_id = $charge->customer;
 
