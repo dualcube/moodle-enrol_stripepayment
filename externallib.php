@@ -60,14 +60,12 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'original_cost' => new external_value(PARAM_RAW, 'original cost before discount', VALUE_OPTIONAL),
                 'currency' => new external_value(PARAM_RAW, 'currency code', VALUE_OPTIONAL),
                 'discount_amount' => new external_value(PARAM_RAW, 'discount amount', VALUE_OPTIONAL),
-                'ui_state' => new external_value(PARAM_RAW, 'UI state: free|paid|error', VALUE_OPTIONAL),
+                'ui_state' => new external_value(PARAM_RAW, 'UI state: paid|error', VALUE_OPTIONAL),
                 'message' => new external_value(PARAM_RAW, 'provides message', VALUE_OPTIONAL),
                 'show_sections' => new external_single_structure([
-                    'free_enrollment' => new external_value(PARAM_BOOL, 'redirct to free enrollment section'),
-                    'paid_enrollment' => new external_value(PARAM_BOOL, 'show paid enrollment section'),
+                    'paid_enrollment' => new external_value(PARAM_BOOL, 'show payment button'),
                     'discount_section' => new external_value(PARAM_BOOL, 'show discount section'),
                 ], 'sections to show/hide', VALUE_OPTIONAL),
-                'auto_enrolled' => new external_value(PARAM_BOOL, 'whether user was automatically enrolled', VALUE_OPTIONAL),
             ]
         );
     }
@@ -181,18 +179,12 @@ class moodle_enrol_stripepayment_external extends external_api {
             'state' => 'paid',
             'error_message' => '',
             'show_sections' => [
-                'free_enrollment' => false,
                 'paid_enrollment' => true,
-                'discount_section' => ($discountamount > 0)
+                'discount_section' => ($discountamount > 0),
             ]
         ];
 
-        // Determine the final state based on cost and minimum validation
-        if ($cost <= 0) {
-            $uistate['state'] = 'free';
-            $uistate['show_sections']['free_enrollment'] = true;
-            $uistate['show_sections']['paid_enrollment'] = false;
-        } else if ($cost > 0 && $cost < $minamount) {
+        if ($cost > 0 && $cost < $minamount) {
             // Cost is above 0 but below minimum threshold - show error
             $uistate['state'] = 'error';
             $uistate['error_message'] = get_string('couponminimumerror', 'enrol_stripepayment', [
@@ -200,26 +192,6 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'minimum' => $currency . ' ' . number_format($minamount, 2)
             ]);
             $uistate['show_sections']['paid_enrollment'] = false;
-        }
-
-        // Auto-enroll user if cost is 0 or less (free enrollment)
-        $auto_enrolled = false;
-        if ($uistate['state'] === 'free') {
-            global $USER;
-            try {
-                // Check if user is already enrolled to prevent duplicate enrollments
-                if (!$DB->record_exists('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instanceid])) {
-                    // Call the existing free enrollment method
-                    self::stripepayment_free_enrol($USER->id, $couponid, $instanceid);
-                    $auto_enrolled = true;
-                } else {
-                    // User is already enrolled, just mark as auto-enrolled for UI purposes
-                    $auto_enrolled = true;
-                }
-            } catch (Exception $e) {
-                // If auto-enrollment fails, log the error but don't break the coupon application
-                error_log('Auto free enrollment failed: ' . $e->getMessage());
-            }
         }
 
         return [
@@ -231,70 +203,9 @@ class moodle_enrol_stripepayment_external extends external_api {
             'currency' => $currency,
             'discount_amount' => $discountamount,
             'ui_state' => $uistate['state'],
-            'message' => $uistate['state'] === 'error' ? $uistate['error_message'] :
-                 ($auto_enrolled ? 'Coupon applied and enroling!' :
-                 'Coupon applied successfully.'),
+            'message' => $uistate['state'] === 'error' ? $uistate['error_message'] : 'Coupon applied successfully.',
             'show_sections' => $uistate['show_sections'],
-            'auto_enrolled' => $auto_enrolled,
         ];
-    }
-
-    /**
-     * declare parameters type for stripepayment_free_enrol
-     */
-    public static function stripepayment_free_enrol_parameters() {
-        return new external_function_parameters(
-            [
-                'user_id' => new external_value(PARAM_RAW, 'Update data user id'),
-                'couponid' => new external_value(PARAM_RAW, 'Update data coupon id'),
-                'instance_id' => new external_value(PARAM_RAW, 'Update data instance id'),
-            ],
-        );
-    }
-
-    /**
-     * declare return type for stripepayment_free_enrol
-     */
-    public static function stripepayment_free_enrol_returns() {
-        return new external_single_structure(
-            [
-                'status' => new external_value(PARAM_RAW, 'status: true if success'),
-            ]
-        );
-    }
-
-    /**
-     * for free enrolsetting
-     * @param number $userid
-     * @param number $userid
-     * @param number $instanceid
-     */
-    public static function stripepayment_free_enrol($userid, $couponid, $instanceid) {
-        global $DB, $CFG;
-
-        $validateddata = self::validate_data( $userid, $instanceid);
-        $plugininstance = $validateddata[0];
-        $course = $validateddata[1];
-        $context = $validateddata[2];
-        $user = $validateddata[3];
-
-        // Prepare enrollment data for free enrollment
-        $data = new stdClass();
-        $data->couponid = $couponid;
-        $data->userid = $userid;
-        $data->instanceid = $instanceid;
-        $data->stripeEmail = $user->email;
-        $data->courseid = $plugininstance->courseid;
-        $data->timeupdated = time();
-        $data->receiver_email = $user->email;
-        $data->payment_status = 'succeeded';
-        $data->receiver_id = 'free_enrollment_' . time(); // Use a placeholder ID for free enrollments.
-
-        // Use consolidated enrollment and notification function
-        self::enroll_user_and_send_notifications($plugininstance, $course, $context, $user, $data);
-
-        $result = ['status' => 'working'];
-        return $result;
     }
 
     /**
@@ -471,6 +382,11 @@ class moodle_enrol_stripepayment_external extends external_api {
             [
                 'status' => new external_value(PARAM_RAW, 'status: true if success or 0 if failure'),
                 'redirect_url' => new external_value(PARAM_URL, 'Stripe Checkout URL', VALUE_OPTIONAL),
+                'error' => new external_single_structure(
+                [
+                    'message' => new external_value(PARAM_TEXT, 'Error message', VALUE_OPTIONAL),
+                ], VALUE_OPTIONAL
+            )
             ]
         );
     }
@@ -559,6 +475,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 if ( empty($customers->data) ) {
                     $customer = Customer::create([
                         "email" => $user->email,
+                        "name" => fullname($user),
                         "description" => get_string('charge_description1', 'enrol_stripepayment'),
                     ]);
                 } else {
@@ -569,6 +486,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             // Create new Checkout Session for the order.
             try {
                 $sessionparams = [
+                    'customer' => $receiverid,
                     'customer_email' => $receiveremail,
                     'payment_intent_data' => ['description' => $description ],
                     'payment_method_types' => ['card'],
@@ -613,20 +531,18 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $response = [
                     'status' => 'success',
                     'redirect_url' => $session->url, // Stripe Checkout URL
-                    ];
-
+                    'error' => []
+                ];
             } else {
                 $response = [
                     'status' => 0,
+                    'redirect_url' => null,
                     'error' => [
-                        'message' => get_string('sessioncreatefail', 'enrol_stripepayment') .$apierror,
+                        'message' => $apierror,
                     ],
                 ];
             }
-            // // Return response.
-            // $passsessionid = isset($response['sessionId']) && !empty($response['sessionId']) ? $response['sessionId'] : '';
             return $response;
-            // die;
         }
     }
     /**
@@ -667,11 +583,24 @@ class moodle_enrol_stripepayment_external extends external_api {
         $secretkey = $plugin->get_config('secretkey');
         Stripe::setApiKey($secretkey);
         $checkoutsession = Session::retrieve($sessionid);
-        $charge = PaymentIntent::retrieve($checkoutsession->payment_intent);
-        $data->couponid = $couponid;
-        $data->stripeEmail = $charge->receipt_email;
-        $data->receiver_id = $charge->customer;
 
+        // For 100% discount, no payment_intent is created.
+        if (!empty($checkoutsession->payment_intent)) {
+            $charge = PaymentIntent::retrieve($checkoutsession->payment_intent);
+            $email = $charge->receipt_email;
+            $payment_status = $charge->status;
+            $txn_id = $charge->id;
+        } else {
+            // Free checkout session (0 amount, no PaymentIntent)
+            $charge = null;
+            $email = $checkoutsession->customer_details->email;
+            $payment_status = $checkoutsession->payment_status;
+            $txn_id = 'FREE-' . $checkoutsession->id;
+        }
+
+        $data->coupon_id = $couponid;
+        $data->stripeEmail = $email;
+        
         // Validate users, course, conntext, plugininstance.
         $validateddata = self::validate_data( $userid, $instanceid);
         $plugininstance = $validateddata[0];
@@ -691,19 +620,17 @@ class moodle_enrol_stripepayment_external extends external_api {
         $PAGE->set_context($context);
         try {
             // Send the file, this line will be reached if no error was thrown above.
-            if (!isset($charge->failure_message) || is_null($charge->failure_message)) {
-                $charge->failure_message = 'NA';
-            }
-            if (!isset($charge->failure_code) || is_null($charge->failure_code)) {
-                $charge->failure_code = 'NA';
-            }
-            $data->receiver_email = $checkoutsession->customer_details->email;
-            $data->txn_id = $charge->id;
-            $data->tax = $charge->amount / 100;
-            $data->memo = $charge->payment_method;
-            $data->payment_status = $charge->status;
-            $data->pending_reason = $charge->failure_message;
-            $data->reason_code = $charge->failure_code;
+            $failure_message = $charge ? ($charge->failure_message ?? 'NA') : 'NA';
+            $failure_code = $charge ? ($charge->failure_code ?? 'NA') : 'NA';
+            $data->coupon_id = $couponid;
+            $data->receiver_email = $email;
+            $data->receiver_id = $checkoutsession->receiver_id;
+            $data->txn_id = $txn_id;
+            $data->tax = $charge ? $charge->amount / 100 : 0;
+            $data->memo = $charge ? $charge->payment_method : 'none';
+            $data->payment_status = $payment_status;
+            $data->pending_reason = $failure_message;
+            $data->reason_code = $failure_code;
             $data->item_name = $course->fullname;
 
             // Use consolidated enrollment and notification function
