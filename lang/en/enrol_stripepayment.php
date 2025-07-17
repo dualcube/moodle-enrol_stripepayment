@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Strings for component 'enrol_stripepayment', language 'en'.
  *
@@ -23,15 +22,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-// $string['applycode'] = 'Apply code';
 $string['assignrole'] = 'Assign role';
-$string['buy_now'] = 'Buy now';
 $string['canntenrol'] = 'Enrolment is disabled or inactive';
 $string['canntenrolearly'] = 'You cannot enrol yet. Enrolment starts on {$a}.';
 $string['canntenrollate'] = 'You cannot enrol anymore. Enrolment ended on {$a}.';
 $string['charge_description1'] = "create customer for email receipt";
-// $string['charge_description2'] = 'Charge for Course Enrolment Cost.';
-// $string['connectionfailed'] = 'Network communication with Stripe failed';
 $string['cost'] = 'Enrol cost';
 $string['costerror'] = 'The enrolment cost is not numeric';
 $string['costzeroerror'] = 'Cost cannot be 0 or negative. Free enrollment is only available through coupon application that reduces cost to 0.';
@@ -45,27 +40,27 @@ $string['create_user_token'] = 'Then enable Moodle REST protocol on your site';
 $string['currency'] = 'Currency';
 $string['defaultrole'] = 'Default role assignment';
 $string['defaultrole_desc'] = 'Select role which should be assigned to users during Stripe enrolments';
-$string['enable_coupon_section'] = 'Enable coupon section';
-$string['enable_webservices_first'] = 'REQUIRED: First enable web services globally';
-$string['enabled_rest_protocol'] = ' You must also create a token of moodle_enrol_stripepayment service with Administrator privilege ';
+$string['enablecouponsection'] = 'Enable coupon section';
+$string['enablewebservicesfirst'] = 'REQUIRED: First enable web services globally';
+$string['enabledrestprotocol'] = ' You must also create a token of moodle_enrol_stripepayment service with Administrator privilege ';
 $string['enrol'] = 'Enrol';
-$string['enrol_btn_color'] = 'Choose Enroll button Color';
-$string['enrol_btn_color_des'] = 'Choose your own custom Color scheme for the Enroll Button.';
-$string['enrol_now'] = 'Enrol Now';
+$string['enrolbtncolor'] = 'Choose Enroll button Color';
+$string['enrolbtncolordes'] = 'Choose your own custom Color scheme for the Enroll Button.';
+$string['enrolnow'] = 'Enrol Now';
 $string['enrolenddate'] = 'End date';
 $string['enrolenddate_help'] = 'If enabled, users can be enrolled until this date only.';
 $string['enrolenddaterror'] = 'Enrolment end date cannot be earlier than start date';
 // $string['enrollsuccess'] = 'Thankyou! Now you are enrolled into the course ';
 $string['enrolperiod'] = 'Enrolment duration';
-$string['enrolperiod_desc'] = 'Default length of time that the enrolment is valid. If set to zero, the enrolment duration will be unlimited by default.';
+$string['enrolperioddesc'] = 'Default length of time that the enrolment is valid. If set to zero, the enrolment duration will be unlimited by default.';
 $string['enrolperiod_help'] = 'Length of time that the enrolment is valid, starting with the moment the user is enrolled. If disabled, the enrolment duration will be unlimited.';
 $string['enrolstartdate'] = 'Start date';
 $string['enrolstartdate_help'] = 'If enabled, users can be enrolled from this date onward only.';
 $string['error'] = 'Error! ';
 $string['expiredaction'] = 'Enrolment expiration action';
-$string['expiredaction_help'] = 'Select action to carry out when user enrolment expires. Please note that some user data and settings are purged from course during course unenrolment.';
-// $string['final_cost'] = 'Final Cost';
-$string['from_here'] = 'from here';
+$string['expiredactionhelp'] = 'Select action to carry out when user enrolment expires. Please note that some user data and settings are purged from course during course unenrolment.';
+//$string['final_cost'] = 'Final Cost';
+$string['fromhere'] = 'from here';
 $string['invalidcontextid'] = 'Not a valid context id! ';
 $string['invalidcoupon'] = 'Invalid coupon!';
 $string['invalidcouponcode'] = 'Invalid Coupon Code';
@@ -81,19 +76,19 @@ $string['mailteachers'] = 'Notify teachers';
 $string['maxenrolled'] = 'Max enrolled users';
 $string['maxenrolled_help'] = 'Specifies the maximum number of users that can stripepayment enrol. 0 means no limit.';
 $string['maxenrolledreached'] = 'Maximum number of users allowed to stripepayment-enrol was already reached.';
-$string['messageprovider:stripe_enrolment'] = 'Stripe enrolment messages';
+$string['maxenrolledhelp'] = 'Stripe enrolment messages';
 $string['messageprovider:stripepayment_enrolment'] = 'Stripe payment enrolment notifications';
 // $string['newcost'] = 'New Cost';
 // $string['nocost'] = 'There is no cost associated with enrolling in this course!';
 // $string['notstripeerror'] = 'Something else happened, completely unrelated to Stripe';
-$string['please_wait'] = 'Please wait...';
+$string['pleasewait'] = 'Please wait...';
 // $string['plugin_slug'] = 'stripepayment';
 $string['pluginname'] = 'Stripe Payment';
-$string['pluginname_desc'] = 'The Stripe module allows you to set up paid courses.  If the cost for any course is zero, then students are not asked to pay for entry.  There is a site-wide cost that you set here as a default for the whole site and then a course setting that you can set for each course individually. The course cost overrides the site cost.';
+$string['pluginnamedesc'] = 'The Stripe module allows you to set up paid courses.  If the cost for any course is zero, then students are not asked to pay for entry.  There is a site-wide cost that you set here as a default for the whole site and then a course setting that you can set for each course individually. The course cost overrides the site cost.';
 $string['publishablekey'] = 'Stripe Publishable Key';
-$string['publishablekey_desc'] = 'The API Publishable Key of Stripe account';
+$string['publishablekeydesc'] = 'The API Publishable Key of Stripe account';
 $string['secretkey'] = 'Stripe Secret Key';
-$string['secretkey_desc'] = 'The API Secret Key of Stripe account';
+$string['secretkeydesc'] = 'The API Secret Key of Stripe account';
 // $string['sendpaymentbutton'] = 'Send payment via Stripe';
 $string['sessioncreated'] = 'Checkout Session created successfully!';
 $string['sessioncreatefail'] = 'Checkout Session creation failed! ';
@@ -111,7 +106,7 @@ $string['stripeerror'] = 'Stripe Error ';
 $string['stripepayment:manage'] = 'Manage stripepayment';
 $string['stripepayment:unenrol'] = 'Unenrol stripepayment';
 $string['stripepayment:unenrolself'] = 'Unenrolself stripepayment';
-$string['token_empty_error'] = 'Web service token could not be empty';
+$string['tokenemptyerror'] = 'Web service token could not be empty';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['unmatchedcourse'] = 'Course Id does not match to the course settings, received: ';
-$string['webservice_token_string'] = 'User Token';
+$string['webservicetokenstring'] = 'User Token';

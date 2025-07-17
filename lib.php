@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Stripe enrolment plugin.
  *
@@ -24,16 +23,15 @@
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use core\output\local\properties\button;
 defined('MOODLE_INTERNAL') || die();
 
-use core\output\single_button;
 use core_enrol\output\enrol_page;
 
 global $CFG;
 require_once($CFG->dirroot.'/lib/adminlib.php');
 
 /**
+ * Stripe enrolment plugin implementation.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
@@ -331,7 +329,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             'instanceid' => $instance->id,
             'wwwroot' => $CFG->wwwroot,
             'enrolbtncolor' => $this->get_config('enrolbtncolor'),
-            'enable_coupon_section' => $this->get_config('enable_coupon_section'),
+            'enablecouponsection' => $this->get_config('enablecouponsection'),
         ];
 
         // Render the payment form using the template.
@@ -346,9 +344,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $publishablekey,
                 null, // Couponid starts as null.
                 $instance->id,
-                get_string("please_wait", "enrol_stripepayment"),
-                get_string("enrol_now", "enrol_stripepayment"),
-                get_string("invalidcouponcode", "enrol_stripepayment"),
+                get_string("pleasewait", "enrol_stripepayment"),
             ]
         );
 
@@ -698,7 +694,7 @@ class admin_enrol_stripepayment_configtext extends admin_setting_configtext {
      */
     public function write_setting($data) {
         if ($this->name == 'webservice_token' && $data == '') {
-            return get_string('token_empty_error', 'enrol_stripepayment');
+            return get_string('tokenemptyerror', 'enrol_stripepayment');
         }
         if ($this->paramtype === PARAM_INT && $data === '') {
             // Don't complain if '' used instead of 0.

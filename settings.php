@@ -32,19 +32,19 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
         'enrol_stripepayment_settings',
         '',
-        get_string('pluginname_desc', 'enrol_stripepayment')
+        get_string('pluginnamedesc', 'enrol_stripepayment')
     ));
     $settings->add(new admin_setting_configtext(
         'enrol_stripepayment/publishablekey',
         get_string('publishablekey', 'enrol_stripepayment'),
-        get_string('publishablekey_desc', 'enrol_stripepayment'),
+        get_string('publishablekeydesc', 'enrol_stripepayment'),
         '',
         PARAM_TEXT
     ));
     $settings->add(new admin_setting_configtext(
         'enrol_stripepayment/secretkey',
         get_string('secretkey', 'enrol_stripepayment'),
-        get_string('secretkey_desc', 'enrol_stripepayment'),
+        get_string('secretkeydesc', 'enrol_stripepayment'),
         '',
         PARAM_TEXT
     ));
@@ -67,8 +67,8 @@ if ($ADMIN->fulltree) {
         0
     ));
     $settings->add(new admin_setting_configcheckbox(
-        'enrol_stripepayment/enable_coupon_section',
-        get_string('enable_coupon_section', 'enrol_stripepayment'),
+        'enrol_stripepayment/enablecouponsection',
+        get_string('enablecouponsection', 'enrol_stripepayment'),
         '',
         0,
     ));
@@ -76,8 +76,8 @@ if ($ADMIN->fulltree) {
     // Variable $enroll button color.
     $settings->add( new admin_setting_configcolourpicker(
         'enrol_stripepayment/enrolbtncolor',
-        get_string('enrol_btn_color', 'enrol_stripepayment'),
-        get_string('enrol_btn_color_des', 'enrol_stripepayment'),
+        get_string('enrolbtncolor', 'enrol_stripepayment'),
+        get_string('enrolbtncolordes', 'enrol_stripepayment'),
         '#1177d1'
     ));
     // Note: let's reuse the ext sync constants and strings here, internally it is very similar,
@@ -90,7 +90,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/expiredaction',
         get_string('expiredaction', 'enrol_stripepayment'),
-        get_string('expiredaction_help', 'enrol_stripepayment'),
+        get_string('expiredactionhelp', 'enrol_stripepayment'),
         ENROL_EXT_REMOVED_SUSPENDNOROLES,
         $options
     ));
@@ -101,13 +101,13 @@ if ($ADMIN->fulltree) {
     $createtoken = $CFG->wwwroot . '/admin/webservice/tokens.php';
     $settings->add(new admin_enrol_stripepayment_configtext(
         'enrol_stripepayment/webservice_token',
-        get_string('webservice_token_string', 'enrol_stripepayment'),
-        get_string('enable_webservices_first', 'enrol_stripepayment') . '<a href="' . $webservicesoverview . '" target="_blank"> '
-        . get_string('from_here', 'enrol_stripepayment') . '</a> . '
+        get_string('webservicetokenstring', 'enrol_stripepayment'),
+        get_string('enablewebservicesfirst', 'enrol_stripepayment') . '<a href="' . $webservicesoverview . '" target="_blank"> '
+        . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
         . get_string('create_user_token', 'enrol_stripepayment') . '<a href="' . $restweblink . '" target="_blank"> '
-        . get_string('from_here', 'enrol_stripepayment') . '</a> . '
-        . get_string('enabled_rest_protocol', 'enrol_stripepayment') . '<a href="' . $createtoken . '" target="_blank"> '
-        . get_string('from_here', 'enrol_stripepayment') . '</a>
+        . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
+        . get_string('enabledrestprotocol', 'enrol_stripepayment') . '<a href="' . $createtoken . '" target="_blank"> '
+        . get_string('fromhere', 'enrol_stripepayment') . '</a>
         ',
         ''
     ));
@@ -147,7 +147,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext(
         'enrol_stripepayment/maxenrolled',
         get_string('maxenrolled', 'enrol_stripepayment'),
-        get_string('maxenrolled_help', 'enrol_stripepayment'),
+        get_string('maxenrolledhelp', 'enrol_stripepayment'),
         0,
         PARAM_INT
     ));
@@ -166,7 +166,7 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configduration(
         'enrol_stripepayment/enrolperiod',
         get_string('enrolperiod', 'enrol_stripepayment'),
-        get_string('enrolperiod_desc', 'enrol_stripepayment'),
+        get_string('enrolperioddesc', 'enrol_stripepayment'),
         0
     ));
 }

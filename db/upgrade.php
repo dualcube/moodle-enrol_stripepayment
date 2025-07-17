@@ -36,7 +36,7 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2025071107) {
-        // Remove PayPal legacy fields that are not used by Stripe payment processing.
+        // Remove legacy fields that are not used by Stripe payment processing.
         $table = new xmldb_table('enrol_stripepayment');
 
         // Remove option_name1 field.

@@ -27,61 +27,61 @@
         "coursename": "Course Name",
         "instanceid": "1",
         "wwwroot": "https://example.com"
-        "enable_coupon_section": true
+        "enablecouponsection": true
     }
 }}
-<div class="payment-container">
-    <div class="currency-box">
-        <span class="currency-selected">
+<div class="paymentcontainer">
+    <div class="currencybox">
+        <span class="currencyselected">
             {{currency}} {{cost}}
         </span>
     </div>
 
     <div class="item">
-        <div class="item-title">{{coursename}}</div>
-        <div class="item-price">{{currency}} {{cost}}</div>
+        <div class="itemtitle">{{coursename}}</div>
+        <div class="itemprice">{{currency}} {{cost}}</div>
     </div>
-    <p class="item-subtitle">{{coursename}}</p>
+    <p class="itemsubtitle">{{coursename}}</p>
 
     <div class="line"></div>
 
     <div class="subtotal">
         <span>Subtotal</span>
-        <span id="subtotal-amount-{{instanceid}}">{{currency}} {{cost}}</span>
+        <span id="subtotalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
     <!-- Coupon input section -->
-    {{#enable_coupon_section}}
-    <div class="coupon-section">
+    {{#enablecouponsection}}
+    <div class="couponsection">
         <div class="coupon-input-group">
             <input type="text" id="coupon-{{instanceid}}" placeholder="Enter coupon code" />
-            <button id="apply-{{instanceid}}" class="apply-btn">Apply</button>
+            <button id="apply-{{instanceid}}" class="applybtn">Apply</button>
         </div>
-        <div id="show-message-{{instanceid}}" class="coupon-message"></div>
+        <div id="showmessage-{{instanceid}}" class="couponmessage"></div>
     </div>
-    {{/enable_coupon_section}}
+    {{/enablecouponsection}}
 
     <!-- Discount section (hidden by default, shown when coupon is applied) -->
-    <div id="discount-section-{{instanceid}}" style="display: none;">
+    <div id="discountsection-{{instanceid}}" style="display: none;">
         <div class="discount">
-            <span class="tag" id="discount-tag-{{instanceid}}">Discount</span>
-            <span class="discount-amount" id="discount-amount-display-{{instanceid}}">-{{currency}} 0.00</span>
+            <span class="tag" id="discounttag-{{instanceid}}">Discount</span>
+            <span class="discountamount" id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
         </div>
-        <p class="discount-note" id="discount-note-{{instanceid}}">Discount applied</p>
+        <p class="discountnote" id="discountnote-{{instanceid}}">Discount applied</p>
     </div>
 
     <div class="total" id="total-{{instanceid}}">
         <strong>Total due</strong>
-        <strong id="total-amount-{{instanceid}}">{{currency}} {{cost}}</strong>
+        <strong id="totalamount-{{instanceid}}">{{currency}} {{cost}}</strong>
     </div>
 
     <!-- Container for displaying payment response/errors -->
-    <div id="paymentResponse-{{instanceid}}" class="error-message" style="display: none;"></div>
+    <div id="paymentresponse-{{instanceid}}" class="error-message" style="display: none;"></div>
 
     <!-- Single enrollment button that handles paid enrollment -->
     <div id="enrollmentbutton-{{instanceid}}">
-        <button id="enrolButton-{{instanceid}}" class="pay-btn">
-            {{# str }} enrol_now, enrol_stripepayment {{/ str }}
+        <button id="enrolbutton-{{instanceid}}" class="pay-btn">
+            {{# str }} enrolnow, enrol_stripepayment {{/ str }}
         </button>
     </div>
 </div>
@@ -89,7 +89,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 
 <style>
-    .payment-container {
+    .paymentcontainer {
         background: transparent;
         padding: 20px 0;
         width: 100%;
@@ -103,11 +103,11 @@
         color: #333;
     }
 
-    .currency-box {
+    .currencybox {
         margin-bottom: 8px;
     }
 
-    .currency-selected {
+    .currencyselected {
         display: inline-flex;
         align-items: center;
         border: 2px solid #ccc;
@@ -117,7 +117,7 @@
         font-weight: bold;
     }
 
-    .currency-selected img {
+    .currencyselected img {
         width: 20px;
         height: 14px;
         margin-right: 6px;
@@ -135,11 +135,11 @@
         margin-bottom: 6px;
     }
 
-    .item-title {
+    .itemtitle {
         font-weight: bold;
     }
 
-    .item-subtitle, .discount-note {
+    .itemsubtitle, .discountnote {
         font-size: 13px;
         color: gray;
         margin-bottom: 12px;
@@ -158,11 +158,11 @@
         font-size: 14px;
     }
 
-    .discount-amount {
+    .discountamount {
         color:rgb(167, 167, 167);
     }
 
-    .coupon-section {
+    .couponsection {
         margin: 18px 0 12px 0;
         padding: 15px 0 12px 0;
         border-top: 1px solid #eee;
@@ -170,7 +170,7 @@
 
     /* Uncomment the code below to hide the coupon input section */
     /*
-    .coupon-section {
+    .couponsection {
         display: none !important;
     }
     */
@@ -187,7 +187,7 @@
         margin-bottom: 8px;
     }
 
-    .coupon-section input {
+    .couponsection input {
         flex: 1;
         padding: 8px 12px;
         border: 1px solid #ccc;
@@ -196,7 +196,7 @@
         box-sizing: border-box;
     }
 
-    .apply-btn {
+    .applybtn {
         background-color: #6c757d;
         color: white;
         border: none;
@@ -208,11 +208,11 @@
         min-width: 80px;
     }
 
-    .apply-btn:hover {
+    .applybtn:hover {
         background-color: #5a6268;
     }
 
-    .coupon-message {
+    .couponmessage {
         font-size: 12px;
         margin-top: 5px;
     }
@@ -251,18 +251,18 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
-        .payment-container {
+        .paymentcontainer {
             width: 100%;
             max-width: 100%;
             padding: 15px 10px;
         }
 
-        .currency-selected {
+        .currencyselected {
             font-size: 14px;
             padding: 8px 12px;
         }
 
-        .currency-selected img {
+        .currencyselected img {
             width: 18px;
             height: 12px;
         }
@@ -271,7 +271,7 @@
             font-size: 15px;
         }
 
-        .item-title {
+        .itemtitle {
             font-size: 14px;
         }
 
@@ -279,12 +279,12 @@
             gap: 6px;
         }
 
-        .coupon-section input {
+        .couponsection input {
             padding: 10px 12px;
             font-size: 16px; /* Prevents zoom on iOS */
         }
 
-        .apply-btn {
+        .applybtn {
             padding: 10px 12px;
             font-size: 16px;
             min-width: 70px;
@@ -297,11 +297,11 @@
     }
 
     @media (max-width: 480px) {
-        .payment-container {
+        .paymentcontainer {
             padding: 10px 5px;
         }
 
-        .currency-selected {
+        .currencyselected {
             font-size: 13px;
             padding: 6px 10px;
         }
@@ -315,19 +315,19 @@
             gap: 8px;
         }
 
-        .apply-btn {
+        .applybtn {
             width: 100%;
             min-width: auto;
         }
 
-        .coupon-section {
+        .couponsection {
             margin: 15px 0 10px 0;
             padding: 12px 0 10px 0;
         }
     }
 
     /* Interactive Elements */
-    .apply-btn:active {
+    .applybtn:active {
         transform: translateY(1px);
         background-color: #495057;
     }
@@ -338,18 +338,18 @@
         filter: brightness(0.8);
     }
 
-    .coupon-section input:focus {
+    .couponsection input:focus {
         outline: none;
         border-color: #0070f3;
         box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
     }
 
     /* Smooth transitions */
-    .apply-btn, .pay-btn {
+    .applybtn, .pay-btn {
         transition: all 0.2s ease;
     }
 
-    .coupon-section input {
+    .couponsection input {
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 </style>
