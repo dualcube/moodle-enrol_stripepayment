@@ -25,7 +25,6 @@
 
 namespace enrol_stripepayment\privacy;
 
-defined('MOODLE_INTERNAL') || die();
 /**
  * privacy api
  *
