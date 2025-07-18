@@ -29,7 +29,7 @@ $services = ['moodle_enrol_stripepayment' => [
     'functions' => [
             'moodle_stripepayment_applycoupon',
             'moodle_stripepayment_enrol',
-            'moodle_stripepayment_success_stripe_url',
+            'moodle_stripepayment_process_payment_data',
         ],
         'requiredcapability' => '',
         'restrictedusers' => 0,
@@ -55,9 +55,9 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_success_stripe_url' => [
+    'moodle_stripepayment_process_payment_data' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'success_stripe_url',
+        'methodname' => 'process_payment_data',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Update information after Stripe Successful Payment',
         'type' => 'write',

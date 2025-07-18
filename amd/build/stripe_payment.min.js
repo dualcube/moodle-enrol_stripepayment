@@ -12,25 +12,25 @@ define(["core/ajax"], function (ajax) {
   const createDOM = (instanceid) => {
     const cache = new Map();
     return {
-      get(id) {
+      getelement(id) {
         const fullid = `${id}-${instanceid}`;
         if (!cache.has(fullid)) cache.set(fullid, document.getElementById(fullid));
         return cache.get(fullid);
       },
-      setHTML(id, html) {
-        const element = this.get(id);
+      setelement(id, html) {
+        const element = this.getelement(id);
         if (element) element.innerHTML = html;
       },
-      toggle(id, show) {
-        const element = this.get(id);
+      toggleelement(id, show) {
+        const element = this.getelement(id);
         if (element) element.style.display = show ? "block" : "none";
       },
-      focus(id) {
-        const element = this.get(id);
+      focuselement(id) {
+        const element = this.getelement(id);
         if (element) element.focus();
       },
-      setButtonState(id, disabled, text, opacity = disabled ? "0.7" : "1") {
-        const button = this.get(id);
+      setbutton(id, disabled, text, opacity = disabled ? "0.7" : "1") {
+        const button = this.getelement(id);
         if (button) {
           button.disabled = disabled;
           button.textContent = text;
@@ -41,7 +41,7 @@ define(["core/ajax"], function (ajax) {
     };
   };
   return {
-    stripe_payment: function (userid, publishablekey, couponid, instanceid, pleasewaitstring) {
+    stripe_payment: function (userid, publishablekey, couponid, instanceid, pleasewaitstring, entercoupon, couponappling) {
       // Create instance-specific DOM utility
       const DOM = createDOM(instanceid);
       // Initialize Stripe (global object loaded from external script)
@@ -53,20 +53,21 @@ define(["core/ajax"], function (ajax) {
       // Simplified coupon application - PHP backend handles all logic
       const applyCouponHandler = async (event) => {
         event.preventDefault();
-        const couponinput = DOM.get("coupon");
+        const couponinput = DOM.getelement("coupon");
         const couponcode = couponinput?.value.trim();
         if (!couponcode) {
-          displayMessage("showmessage", "Please enter a coupon code", "error");
-          DOM.focus("coupon");
+          displayMessage("showmessage", entercoupon, "error");
+          DOM.focuselement("coupon");
           return;
         }
-        DOM.setButtonState("apply", true, "Applying...");
+        DOM.setbutton("apply", true, couponappling);
         try {
           const data = await applyCoupon(couponcode, instanceid);
           if (data?.status !== undefined) {
             couponid = couponcode;
             // Hide input group after success
-            DOM.get("coupon")?.closest(".coupon-input-group")?.style.setProperty("display", "none");
+            DOM.toggleelement("coupon", false);
+            DOM.toggleelement("apply", false);
             updateUIFromServerResponse(data);// Handles rest of the update
           } else {
             throw new Error("Invalid server response");
@@ -75,16 +76,14 @@ define(["core/ajax"], function (ajax) {
           console.error("Coupon application failed:", error);
           displayMessage("showmessage", error.message || "Coupon validation failed", "error");
           DOM.focus("coupon");
-        } finally {
-          DOM.setButtonState("apply", false, "Apply code");
         }
       };
 
       const EnrollHandler = async () => {
-        const enrollbutton = DOM.get("enrolbutton");
+        const enrollbutton = DOM.getelement("enrolbutton");
         if (!enrollbutton) return;
         clearError("paymentresponse");
-        DOM.setButtonState("enrolbutton", true, pleasewaitstring);
+        DOM.setbutton("enrolbutton", true, pleasewaitstring);
         try {
           const paymentdata = await stripeenrol(userid, couponid, instanceid);
           if (paymentdata.error?.message) {
@@ -92,13 +91,13 @@ define(["core/ajax"], function (ajax) {
           } else if (paymentdata.status === "success" && paymentdata.redirecturl) {
             window.location.href = paymentdata.redirecturl;// Redirect browser to Stripe Checkout
           } else {
-            displayMessage("paymentresponse", "Payment session creation failed.", "error");
+            displayMessage("paymentresponse", paymenterror, "error");
           }
         } catch (err) {
           console.error("Enrollment failed:", err);
-          displayMessage("paymentresponse", `Enrollment failed: ${err.message}`, "error");
+          displayMessage("paymentresponse", err.message, "error");
         } finally {
-          DOM.toggle("enrolbutton", false);
+          DOM.toggleelement("enrolbutton", false);
         }
       };
 
@@ -115,13 +114,13 @@ define(["core/ajax"], function (ajax) {
             color = "blue";
             break;
         }
-        DOM.setHTML(containerid, `<p style="color: ${color}; font-weight: bold;">${message}</p>`);
-        DOM.toggle(containerid, true);
+        DOM.setelement(containerid, `<p style="color: ${color}; font-weight: bold;">${message}</p>`);
+        DOM.toggleelement(containerid, true);
       };
 
       const clearError = (containerid) => {
-        DOM.setHTML(containerid, "");
-        DOM.toggle(containerid, false);
+        DOM.setelement(containerid, "");
+        DOM.toggleelement(containerid, false);
       };
 
       const updateUIFromServerResponse = (data) => {
@@ -130,29 +129,29 @@ define(["core/ajax"], function (ajax) {
         } else {
           clearError("showmessage");
         }
-        DOM.toggle("enrolbutton", data.uistate === "paid");
-        DOM.toggle("total", data.uistate === "paid");
+        DOM.toggleelement("enrolbutton", data.uistate === "paid");
+        DOM.toggleelement("total", data.uistate === "paid");
         if (data.uistate !== "error") {
-          DOM.toggle("discountsection", data.showsections.discountsection);
+          DOM.toggleelement("discountsection", data.showsections.discountsection);
           // Fill discount data
           if (data.showsections.discountsection) {
-            if (data.couponname) DOM.setHTML("discounttag", data.couponname);
+            if (data.couponname) DOM.setelement("discounttag", data.couponname);
             if (data.discountamount && data.currency) {
-              DOM.setHTML("discountamountdisplay", `-${data.currency} ${parseFloat(data.discountamount).toFixed(2)}`);
+              DOM.setelement("discountamountdisplay", `-${data.currency} ${parseFloat(data.discountamount).toFixed(2)}`);
             }
             if (data.discountamount && data.discountvalue) {
               const note = data.discountamount === "percentoff"
                 ? `${data.discountvalue}% off`
                 : `${data.currency} ${parseFloat(data.discountvalue).toFixed(2)} off`;
-              DOM.setHTML("discountnote", note);
+              DOM.setelement("discountnote", note);
             }
           }
           if (data.status && data.currency) {
-            const totalamount = DOM.get("totalamount");
+            const totalamount = DOM.getelement("totalamount");
             if (totalamount) totalamount.textContent = `${data.currency} ${parseFloat(data.status).toFixed(2)}`;
           }
         }
-      };
+      }
 
       const setupEventListeners = () => {
         const elements = [
@@ -160,7 +159,7 @@ define(["core/ajax"], function (ajax) {
           { id: "enrolbutton", event: "click", handler: EnrollHandler },
         ];
         elements.forEach(({ id, event, handler }) => {
-          const element = DOM.get(id);
+          const element = DOM.getelement(id);
           if (element) element.addEventListener(event, handler);
         });
       };

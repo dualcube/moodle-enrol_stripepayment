@@ -345,6 +345,9 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 null, // Couponid starts as null.
                 $instance->id,
                 get_string("pleasewait", "enrol_stripepayment"),
+                get_string("entercoupon", "enrol_stripepayment"),
+                get_string("couponappling", "enrol_stripepayment"),
+                get_string("paymenterror", "enrol_stripepayment"),
             ]
         );
 

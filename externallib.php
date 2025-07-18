@@ -227,7 +227,7 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @return bool Success status
      */
     private static function enroll_user_and_send_notifications($plugininstance, $course, $context, $user, $enrollmentdata) {
-        global $DB, $CFG;
+        global $DB;
 
         $plugin = enrol_get_plugin('stripepayment');
 
@@ -517,7 +517,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                     ],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot . '/webservice/rest/server.php?wstoken=' . $usertoken .
-                    '&wsfunction=moodle_stripepayment_success_stripe_url' .
+                    '&wsfunction=moodle_stripepayment_process_payment_data' .
                     '&moodlewsrestformat=json' .
                     '&sessionid={CHECKOUT_SESSION_ID}' .
                     '&userid=' . $userid .
@@ -549,9 +549,9 @@ class moodle_enrol_stripepayment_external extends external_api {
         }
     }
     /**
-     * function for define parameter type for success_stripe_url
+     * function for define parameter type for process_payment_data
      */
-    public static function success_stripe_url_parameters() {
+    public static function process_payment_data_parameters() {
         return new external_function_parameters(
             [
                 'sessionid' => new external_value(PARAM_RAW, 'The item id to operate on'),
@@ -562,9 +562,9 @@ class moodle_enrol_stripepayment_external extends external_api {
         );
     }
     /**
-     * function for define return type for success_stripe_url
+     * function for define return type for process_payment_data
      */
-    public static function success_stripe_url_returns() {
+    public static function process_payment_data_returns() {
         return new external_single_structure(
             [
                 'status' => new external_value(PARAM_RAW, 'status: true if success'),
@@ -579,7 +579,7 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @param number $couponid
      * @param number $instanceid
      */
-    public static function success_stripe_url($sessionid, $userid, $couponid, $instanceid) {
+    public static function process_payment_data($sessionid, $userid, $couponid, $instanceid) {
         global $DB, $CFG, $PAGE, $OUTPUT;
         $data = new stdClass();
         $plugin = enrol_get_plugin('stripepayment');
@@ -598,7 +598,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             $charge = null;
             $email = $checkoutsession->customer_details->email;
             $paymentstatus = $checkoutsession->payment_status;
-            $txnid = 'FREE-' . $checkoutsession->id;
+            $txnid = $checkoutsession->id;
         }
 
         $data->coupon_id = $couponid;
