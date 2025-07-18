@@ -67,12 +67,6 @@ define(["core/ajax"], function (ajax) {
             couponid = couponcode;
             // Hide input group after success
             DOM.get("coupon")?.closest(".coupon-input-group")?.style.setProperty("display", "none");
-            // Handle free auto-enrollment
-            if (data.auto_enrolled) {
-              displayMessage("showmessage", data.message || "Enrolled successfully!", "success");
-              setTimeout(() => location.reload(), 1500);
-              return;
-            }
             updateUIFromServerResponse(data);// Handles rest of the update
           } else {
             throw new Error("Invalid server response");
@@ -108,8 +102,19 @@ define(["core/ajax"], function (ajax) {
         }
       };
 
-      const displayMessage = (containerid, message, type = "info") => {
-        const color = type === "error" ? "red" : type === "success" ? "green" : "blue";
+      const displayMessage = (containerid, message, type) => {
+        let color;
+        switch (type) {
+          case "error":
+            color = "red";
+            break;
+          case "success":
+            color = "green";
+            break;
+          default:
+            color = "blue";
+            break;
+        }
         DOM.setHTML(containerid, `<p style="color: ${color}; font-weight: bold;">${message}</p>`);
         DOM.toggle(containerid, true);
       };
@@ -128,9 +133,9 @@ define(["core/ajax"], function (ajax) {
         DOM.toggle("enrolbutton", data.uistate === "paid");
         DOM.toggle("total", data.uistate === "paid");
         if (data.uistate !== "error") {
-          DOM.toggle("discountsection", !!data.showsections?.discountsection);
+          DOM.toggle("discountsection", data.showsections.discountsection);
           // Fill discount data
-          if (data.showsections?.discountsection) {
+          if (data.showsections.discountsection) {
             if (data.couponname) DOM.setHTML("discounttag", data.couponname);
             if (data.discountamount && data.currency) {
               DOM.setHTML("discountamountdisplay", `-${data.currency} ${parseFloat(data.discountamount).toFixed(2)}`);
@@ -159,7 +164,6 @@ define(["core/ajax"], function (ajax) {
           if (element) element.addEventListener(event, handler);
         });
       };
-
       setupEventListeners();
     },
   };
