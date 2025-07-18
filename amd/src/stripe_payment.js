@@ -1,3 +1,18 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 define(["core/ajax"], function (ajax) {
   const { call: fetchMany } = ajax;
 
@@ -14,20 +29,28 @@ define(["core/ajax"], function (ajax) {
     return {
       getelement(id) {
         const fullid = `${id}-${instanceid}`;
-        if (!cache.has(fullid)) cache.set(fullid, document.getElementById(fullid));
+        if (!cache.has(fullid)) {
+          cache.set(fullid, document.getElementById(fullid));
+        }
         return cache.get(fullid);
       },
       setelement(id, html) {
         const element = this.getelement(id);
-        if (element) element.innerHTML = html;
+        if (element) {
+          element.innerHTML = html;
+        }
       },
       toggleelement(id, show) {
         const element = this.getelement(id);
-        if (element) element.style.display = show ? "block" : "none";
+        if (element) {
+          element.style.display = show ? "block" : "none";
+        }
       },
       focuselement(id) {
         const element = this.getelement(id);
-        if (element) element.focus();
+        if (element) {
+          element.focus();
+        }
       },
       setbutton(id, disabled, text, opacity = disabled ? "0.7" : "1") {
         const button = this.getelement(id);
@@ -42,15 +65,10 @@ define(["core/ajax"], function (ajax) {
   };
   return {
     stripe_payment: function (userid, publishablekey, couponid, instanceid, pleasewaitstring, entercoupon, couponappling) {
-      // Create instance-specific DOM utility
       const DOM = createDOM(instanceid);
-      // Initialize Stripe (global object loaded from external script)
       if (typeof window.Stripe === "undefined") {
-        console.error("Stripe.js not loaded.");
         return;
       }
-      const stripe = window.Stripe(publishablekey);
-      // Simplified coupon application - PHP backend handles all logic
       const applyCouponHandler = async (event) => {
         event.preventDefault();
         const couponinput = DOM.getelement("coupon");
@@ -65,23 +83,23 @@ define(["core/ajax"], function (ajax) {
           const data = await applyCoupon(couponcode, instanceid);
           if (data?.status !== undefined) {
             couponid = couponcode;
-            // Hide input group after success
             DOM.toggleelement("coupon", false);
             DOM.toggleelement("apply", false);
-            updateUIFromServerResponse(data);// Handles rest of the update
+            updateUIFromServerResponse(data);
           } else {
             throw new Error("Invalid server response");
           }
         } catch (error) {
-          console.error("Coupon application failed:", error);
           displayMessage("showmessage", error.message || "Coupon validation failed", "error");
-          DOM.focus("coupon");
+          DOM.focuselement("coupon");
         }
       };
 
       const EnrollHandler = async () => {
         const enrollbutton = DOM.getelement("enrolbutton");
-        if (!enrollbutton) return;
+        if (!enrollbutton) {
+          return;
+        }
         clearError("paymentresponse");
         DOM.setbutton("enrolbutton", true, pleasewaitstring);
         try {
@@ -89,12 +107,11 @@ define(["core/ajax"], function (ajax) {
           if (paymentdata.error?.message) {
             displayMessage("paymentresponse", paymentdata.error.message, "error");
           } else if (paymentdata.status === "success" && paymentdata.redirecturl) {
-            window.location.href = paymentdata.redirecturl;// Redirect browser to Stripe Checkout
+            window.location.href = paymentdata.redirecturl;
           } else {
-            displayMessage("paymentresponse", paymenterror, "error");
+            displayMessage("paymentresponse", "Unknown error occurred during payment.", "error");
           }
         } catch (err) {
-          console.error("Enrollment failed:", err);
           displayMessage("paymentresponse", err.message, "error");
         } finally {
           DOM.toggleelement("enrolbutton", false);
@@ -133,9 +150,10 @@ define(["core/ajax"], function (ajax) {
         DOM.toggleelement("total", data.uistate === "paid");
         if (data.uistate !== "error") {
           DOM.toggleelement("discountsection", data.showsections.discountsection);
-          // Fill discount data
           if (data.showsections.discountsection) {
-            if (data.couponname) DOM.setelement("discounttag", data.couponname);
+            if (data.couponname) {
+              DOM.setelement("discounttag", data.couponname);
+            }
             if (data.discountamount && data.currency) {
               DOM.setelement("discountamountdisplay", `-${data.currency} ${parseFloat(data.discountamount).toFixed(2)}`);
             }
@@ -148,10 +166,12 @@ define(["core/ajax"], function (ajax) {
           }
           if (data.status && data.currency) {
             const totalamount = DOM.getelement("totalamount");
-            if (totalamount) totalamount.textContent = `${data.currency} ${parseFloat(data.status).toFixed(2)}`;
+            if (totalamount) {
+              totalamount.textContent = `${data.currency} ${parseFloat(data.status).toFixed(2)}`;
+            }
           }
         }
-      }
+      };
 
       const setupEventListeners = () => {
         const elements = [
@@ -160,7 +180,9 @@ define(["core/ajax"], function (ajax) {
         ];
         elements.forEach(({ id, event, handler }) => {
           const element = DOM.getelement(id);
-          if (element) element.addEventListener(event, handler);
+          if (element) {
+            element.addEventListener(event, handler);
+          }
         });
       };
       setupEventListeners();
