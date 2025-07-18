@@ -629,14 +629,13 @@ class moodle_enrol_stripepayment_external extends external_api {
             $data->receiver_email = $user->email; // Use user email from database instead of Stripe response.
             $data->receiver_id = $checkoutsession->customer;
             $data->txn_id = $txnid;
-            $data->tax = $charge ? $charge->amount / 100 : 0;
+            $data->price = $charge ? $charge->amount / 100 : 0;
             $data->memo = $charge ? $charge->payment_method : 'none';
             $data->payment_status = $paymentstatus;
             $data->pending_reason = $failuremessage;
             $data->reason_code = $failurecode;
             $data->item_name = $course->fullname;
             $data->payment_type = $charge ? 'stripe' : 'free';
-            $data->business = 'stripe_payment';
 
             // Use consolidated enrollment and notification function.
             self::enroll_user_and_send_notifications($plugininstance, $course, $context, $user, $data);

@@ -33,10 +33,22 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2025071107) {
+    if ($oldversion < 2025071111) {
         // Remove legacy fields that are not used by Stripe payment processing.
         $table = new xmldb_table('enrol_stripepayment');
 
+        // Remove business field.
+        $field = new xmldb_field('business');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        //rename tax field to price. 
+        $field = new xmldb_field('tax');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'price');
+        }
+        
         // Remove option_name1 field.
         $field = new xmldb_field('option_name1');
         if ($dbman->field_exists($table, $field)) {
@@ -66,9 +78,9 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
         }
-
+    
         // Stripe savepoint reached.
-        upgrade_plugin_savepoint(true, 2025071107, 'enrol', 'stripepayment');
+        upgrade_plugin_savepoint(true, 2025071111, 'enrol', 'stripepayment');
     }
 
     return true;

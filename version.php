@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2025071108;
+$plugin->version   = 2025071801;
 $plugin->requires  = 2025041400;
 $plugin->component = 'enrol_stripepayment';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.5.1 (Build: 2025052900)';
+$plugin->release   = '3.5.1.1 (Build: 2025071800)';
