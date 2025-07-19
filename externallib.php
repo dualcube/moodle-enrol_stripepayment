@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once("$CFG->libdir/externallib.php"); // Support for previous version of moodle 4.2.
+require_once("$CFG->libdir/externallib.php");
 require_once("$CFG->libdir/enrollib.php");
 require_once('vendor/stripe/stripe-php/init.php');
 use Stripe\Stripe as Stripe;

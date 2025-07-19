@@ -450,15 +450,15 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $instance = $ue->enrolmentinstance;
         $params = $manager->get_moodlepage()->url->params();
         $params['ue'] = $ue->id;
-        if ($this->allow_unenrol($instance) && has_capability("enrol/stripepayment:unenrol", $context)) {
-            $url = new moodle_url('/enrol/unenroluser.php', $params);
-            $actions[] = new user_enrolment_action(new pix_icon('t/delete', ''),
-            get_string('unenrol', 'enrol'), $url, ['class' => 'unenrollink', 'rel' => $ue->id]);
-        }
         if ($this->allow_manage($instance) && has_capability("enrol/stripepayment:manage", $context)) {
             $url = new moodle_url('/enrol/editenrolment.php', $params);
             $actions[] = new user_enrolment_action(new pix_icon('t/edit', ''),
             get_string('edit'), $url, ['class' => 'editenrollink', 'rel' => $ue->id]);
+        }
+        if ($this->allow_unenrol($instance) && has_capability("enrol/stripepayment:unenrol", $context)) {
+            $url = new moodle_url('/enrol/unenroluser.php', $params);
+            $actions[] = new user_enrolment_action(new pix_icon('t/delete', ''),
+            get_string('unenrol', 'enrol'), $url, ['class' => 'unenrollink', 'rel' => $ue->id]);
         }
         return $actions;
     }
