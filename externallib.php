@@ -517,7 +517,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                     ],
                     'mode' => 'payment',
                     'success_url' => $CFG->wwwroot . '/webservice/rest/server.php?wstoken=' . $usertoken .
-                    '&wsfunction=moodle_stripepayment_process_payment_data' .
+                    '&wsfunction=moodle_stripepayment_process_payment' .
                     '&moodlewsrestformat=json' .
                     '&sessionid={CHECKOUT_SESSION_ID}' .
                     '&userid=' . $userid .
@@ -549,9 +549,9 @@ class moodle_enrol_stripepayment_external extends external_api {
         }
     }
     /**
-     * function for define parameter type for process_payment_data
+     * function for define parameter type for process_payment
      */
-    public static function process_payment_data_parameters() {
+    public static function process_payment_parameters() {
         return new external_function_parameters(
             [
                 'sessionid' => new external_value(PARAM_RAW, 'The item id to operate on'),
@@ -562,9 +562,9 @@ class moodle_enrol_stripepayment_external extends external_api {
         );
     }
     /**
-     * function for define return type for process_payment_data
+     * function for define return type for process_payment
      */
-    public static function process_payment_data_returns() {
+    public static function process_payment_returns() {
         return new external_single_structure(
             [
                 'status' => new external_value(PARAM_RAW, 'status: true if success'),
@@ -579,7 +579,7 @@ class moodle_enrol_stripepayment_external extends external_api {
      * @param number $couponid
      * @param number $instanceid
      */
-    public static function process_payment_data($sessionid, $userid, $couponid, $instanceid) {
+    public static function process_payment($sessionid, $userid, $couponid, $instanceid) {
         global $DB, $CFG, $PAGE, $OUTPUT;
         $data = new stdClass();
         $plugin = enrol_get_plugin('stripepayment');
