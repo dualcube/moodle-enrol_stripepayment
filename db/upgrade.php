@@ -43,8 +43,8 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
             $dbman->drop_field($table, $field);
         }
 
-        //rename tax field to price. 
-        $field = new xmldb_field('tax');
+        //rename tax field to price.
+        $field = new xmldb_field('tax', XMLDB_TYPE_CHAR, '255', null, false, false);
         if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'price');
         }
