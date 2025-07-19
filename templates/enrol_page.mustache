@@ -30,57 +30,57 @@
         "enablecouponsection": true
     }
 }}
-<div class="paymentcontainer">
-    <div class="currencybox">
+<div class="stripepayment-paymentcontainer">
+    <div class="stripepayment-currencybox">
         <span class="currencyselected">
             {{currency}} {{cost}}
         </span>
     </div>
 
-    <div class="item">
-        <div class="itemtitle">{{coursename}}</div>
-        <div class="itemprice">{{currency}} {{cost}}</div>
+    <div class="stripepayment-item">
+        <div class="stripepayment-itemtitle">{{coursename}}</div>
+        <div class="stripepayment-itemprice">{{currency}} {{cost}}</div>
     </div>
-    <p class="itemsubtitle">{{coursename}}</p>
+    <p class="stripepayment-itemsubtitle">{{coursename}}</p>
 
-    <div class="line"></div>
+    <div class="stripepayment-line"></div>
 
-    <div class="subtotal">
+    <div class="stripepayment-subtotal">
         <span>Subtotal</span>
         <span id="subtotalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
     <!-- Coupon input section -->
     {{#enablecouponsection}}
-    <div class="couponsection">
-        <div class="coupon-input-group" id="couponinputgroup">
+    <div class="stripepayment-couponsection">
+        <div class="stripepayment-coupon-input-group" id="couponinputgroup">
             <input type="text" id="coupon-{{instanceid}}" placeholder="Enter coupon code" />
-            <button id="apply-{{instanceid}}" class="applybtn">Apply</button>
+            <button id="apply-{{instanceid}}" class="stripepayment-applybtn">Apply</button>
         </div>
-        <div id="showmessage-{{instanceid}}" class="couponmessage"></div>
+        <div id="showmessage-{{instanceid}}" class="stripepayment-couponmessage"></div>
     </div>
     {{/enablecouponsection}}
 
     <!-- Discount section (hidden by default, shown when coupon is applied) -->
     <div id="discountsection-{{instanceid}}" style="display: none;">
-        <div class="discount">
-            <span class="tag" id="discounttag-{{instanceid}}">Discount</span>
-            <span class="discountamount" id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
+        <div class="stripepayment-discount">
+            <span class="stripepayment-tag" id="discounttag-{{instanceid}}">Discount</span>
+            <span class="stripepayment-discountamount" id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
         </div>
-        <p class="discountnote" id="discountnote-{{instanceid}}">Discount applied</p>
+        <p class="stripepayment-discountnote" id="discountnote-{{instanceid}}">Discount applied</p>
     </div>
 
-    <div class="total" id="total-{{instanceid}}">
+    <div class="stripepayment-total" id="total-{{instanceid}}">
         <strong>Total due</strong>
         <strong id="totalamount-{{instanceid}}">{{currency}} {{cost}}</strong>
     </div>
 
     <!-- Container for displaying payment response/errors -->
-    <div id="paymentresponse-{{instanceid}}" class="error-message" style="display: none;"></div>
+    <div id="paymentresponse-{{instanceid}}" class="stripepayment-error-message" style="display: none;"></div>
 
     <!-- Single enrollment button that handles paid enrollment -->
     <div id="enrollmentbutton-{{instanceid}}">
-        <button id="enrolbutton-{{instanceid}}" class="pay-btn">
+        <button id="enrolbutton-{{instanceid}}" class="stripepayment-pay-btn">
             {{# str }} enrolnow, enrol_stripepayment {{/ str }}
         </button>
     </div>
@@ -89,7 +89,7 @@
 <script src="https://js.stripe.com/v3/"></script>
 
 <style>
-    .pay-btn {
+    .stripepayment-pay-btn {
         margin-top: 18px;
         width: 100%;
         background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#0070f3{{/enrolbtncolor}};
@@ -102,12 +102,12 @@
         cursor: pointer;
     }
 
-    .pay-btn:hover {
+    .stripepayment-pay-btn:hover {
         background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#005fd1{{/enrolbtncolor}};
         filter: brightness(0.9);
     }
 
-    .pay-btn:active {
+    .stripepayment-pay-btn:active {
         transform: translateY(1px);
         background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#004bb5{{/enrolbtncolor}};
         filter: brightness(0.8);

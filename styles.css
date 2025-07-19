@@ -1,4 +1,4 @@
-.paymentcontainer {
+    .stripepayment-paymentcontainer {
         background: transparent;
         padding: 20px 0;
         width: 100%;
@@ -6,11 +6,11 @@
         margin: 0 auto;
     }
 
-    .currencybox {
+    .stripepayment-currencybox {
         margin-bottom: 8px;
     }
 
-    .currencyselected {
+    .stripepayment-currencyselected {
         display: inline-flex;
         align-items: center;
         border: 2px solid #ccc;
@@ -20,70 +20,70 @@
         font-weight: bold;
     }
 
-    .currencyselected img {
+    .stripepayment-currencyselected img {
         width: 20px;
         height: 14px;
         margin-right: 6px;
     }
 
-    .note {
+    .stripepayment-note {
         font-size: 12px;
         color: gray;
         margin-bottom: 20px;
     }
 
-    .item, .subtotal, .discount, .total {
+    .stripepayment-item, .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
         display: flex;
         justify-content: space-between;
         margin-bottom: 6px;
     }
 
-    .itemtitle {
+    .stripepayment-itemtitle {
         font-weight: bold;
     }
 
-    .itemsubtitle, .discountnote {
+    .stripepayment-itemsubtitle, .stripepayment-discountnote {
         font-size: 13px;
         color: gray;
         margin-bottom: 12px;
     }
 
-    .line {
+    .stripepayment-line {
         height: 1px;
         background: #eee;
         margin: 12px 0;
     }
 
-    .tag {
+    .stripepayment-tag {
         background: #f1f1f1;
         padding: 3px 8px;
         border-radius: 6px;
         font-size: 14px;
     }
 
-    .discountamount {
+    .stripepayment-discountamount {
         color:rgb(167, 167, 167);
     }
 
-    .couponsection {
+    .stripepayment-couponsection {
         margin: 18px 0 12px 0;
         padding: 15px 0 12px 0;
         border-top: 1px solid #eee;
     }
 
-    .total {
+    .stripepayment-total {
         margin-top: 12px;
         padding-top: 12px;
         border-top: 1px solid #eee;
     }
 
-    .coupon-input-group {
+    .stripepayment-coupon-input-group {
         display: flex;
         gap: 8px;
         margin-bottom: 8px;
     }
 
-    .couponsection input {
+    .stripepayment-couponsection input {
         flex: 1;
         padding: 8px 12px;
         border: 1px solid #ccc;
@@ -92,7 +92,7 @@
         box-sizing: border-box;
     }
 
-    .applybtn {
+    .stripepayment-applybtn {
         background-color: #6c757d;
         color: white;
         border: none;
@@ -104,16 +104,16 @@
         min-width: 80px;
     }
 
-    .applybtn:hover {
+    .stripepayment-applybtn:hover {
         background-color: #5a6268;
     }
 
-    .couponmessage {
+    .stripepayment-couponmessage {
         font-size: 12px;
         margin-top: 5px;
     }
 
-    .error-message {
+    .stripepayment-error-message {
         background-color: #f8d7da;
         color: #721c24;
         padding: 8px 12px;
@@ -122,101 +122,101 @@
         font-size: 14px;
     }
 
-    .pay-btn:disabled {
+    .stripepayment-pay-btn:disabled {
         background-color: #ccc;
         cursor: not-allowed;
     }
 
     /* Responsive Design */
     @media (max-width: 768px) {
-        .paymentcontainer {
+        .stripepayment-paymentcontainer {
             width: 100%;
             max-width: 100%;
             padding: 15px 10px;
         }
 
-        .currencyselected {
+        .stripepayment-currencyselected {
             font-size: 14px;
             padding: 8px 12px;
         }
 
-        .currencyselected img {
+        .stripepayment-currencyselected img {
             width: 18px;
             height: 12px;
         }
 
-        .itemtitle {
+        .stripepayment-itemtitle {
             font-size: 14px;
         }
 
-        .coupon-input-group {
+        .stripepayment-coupon-input-group {
             gap: 6px;
         }
 
-        .couponsection input {
+        .stripepayment-couponsection input {
             padding: 10px 12px;
             font-size: 16px; /* Prevents zoom on iOS */
         }
 
-        .applybtn {
+        .stripepayment-applybtn {
             padding: 10px 12px;
             font-size: 16px;
             min-width: 70px;
         }
 
-        .pay-btn {
+        .stripepayment-pay-btn {
             padding: 14px 0;
             font-size: 18px;
         }
     }
 
     @media (max-width: 480px) {
-        .paymentcontainer {
+        .stripepayment-paymentcontainer {
             padding: 10px 5px;
         }
 
-        .currencyselected {
+        .stripepayment-currencyselected {
             font-size: 13px;
             padding: 6px 10px;
         }
 
-        .item, .subtotal, .discount, .total {
+        .stripepayment-item, .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
             font-size: 14px;
         }
 
-        .coupon-input-group {
+        .stripepayment-coupon-input-group {
             flex-direction: column;
             gap: 8px;
         }
 
-        .applybtn {
+        .stripepayment-applybtn {
             width: 100%;
             min-width: auto;
         }
 
-        .couponsection {
+        .stripepayment-couponsection {
             margin: 15px 0 10px 0;
             padding: 12px 0 10px 0;
         }
     }
 
     /* Interactive Elements */
-    .applybtn:active {
+    .stripepayment-applybtn:active {
         transform: translateY(1px);
         background-color: #495057;
     }
 
-    .couponsection input:focus {
+    .stripepayment-couponsection input:focus {
         outline: none;
         border-color: #0070f3;
         box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
     }
 
     /* Smooth transitions */
-    .applybtn, .pay-btn {
+    .stripepayment-applybtn, .stripepayment-pay-btn {
         transition: all 0.2s ease;
     }
 
-    .couponsection input {
+    .stripepayment-couponsection input {
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
