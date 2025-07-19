@@ -2,3 +2,4 @@ MODERNIZATION_SUMMARY.md
 vendor/
 PAYPAL_LEGACY_CLEANUP.md
 log.txt
+composer.lock
