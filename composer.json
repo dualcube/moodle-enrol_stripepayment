@@ -35,7 +35,6 @@
     "scripts": {
     "build": "grunt amd --root=enrol/stripepayment",
     "zip": [
-        "@build",
         "zip -r stripepayment.zip . --exclude @.zipignore"
     ],
     "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
