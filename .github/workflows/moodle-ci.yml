@@ -64,7 +64,7 @@ jobs:
         working-directory: plugin
 
       - name: Move Zip to release/
-        run: mv plugin/stripepayment.zip /release/
+        run: mv plugin/stripepayment.zip ${{ github.workspace }}/release/
 
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4
