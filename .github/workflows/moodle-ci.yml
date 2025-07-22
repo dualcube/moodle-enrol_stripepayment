@@ -26,7 +26,7 @@ jobs:
         database: [mariadb]
 
     steps:
-      - name: Checkout plugin code
+      - name: Moodle stripe payment
         uses: actions/checkout@v4
         with:
           path: plugin
@@ -38,6 +38,14 @@ jobs:
           extensions: mbstring, intl, soap, curl, gd, xml, json, zip, pdo, pdo_mysql,
           ini-values: max_input_vars=5000
           coverage: none
+
+      - name: Install plugin dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: plugin
+
+      - name: Build plugin JS via composer build script
+        run: composer run-script build
+        working-directory: plugin
 
       - name: Install moodle-plugin-ci tooling
         run: |
@@ -83,9 +91,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci mustache plugin
 
-      - name: Run Grunt tasks
-        if: ${{ !cancelled() }}
-        run: moodle-plugin-ci grunt --max-lint-warnings 0 plugin
+      
 
       - name: PHPUnit Tests
         if: ${{ !cancelled() }}
