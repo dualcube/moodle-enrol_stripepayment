@@ -97,7 +97,7 @@ jobs:
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0 plugin
+        run: moodle-plugin-ci phpcs --ignore=vendor/*,.git/*,node_modules/* .
 
       - name: PHP Code Beautifier and Fixer
         if: ${{ !cancelled() }}

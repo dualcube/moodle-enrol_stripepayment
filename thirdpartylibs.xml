@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <libraries>
     <library>
-        <location>vendor/stripe/stripe-php</location>
+        <location>vendor/stripe/stripe-php/</location>
         <name>stripe-php</name>
         <version>17.4.0</version>
         <repository>https://github.com/stripe/stripe-php</repository>
