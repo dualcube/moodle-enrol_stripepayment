@@ -55,8 +55,13 @@ jobs:
           mkdir -p moodle/enrol/stripepayment
           cp -r plugin/* moodle/enrol/stripepayment/
 
-      - name: Run Grunt (Moodle Root)
-        run: grunt amd --root=enrol/stripepayment
+      - name: Setup Node.js (for Grunt)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Moodle Node dependencies
+        run: npm install
         working-directory: moodle
 
       - name: Install Plugin Composer Dependencies
