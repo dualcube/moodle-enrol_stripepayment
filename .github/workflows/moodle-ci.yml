@@ -57,14 +57,14 @@ jobs:
         working-directory: plugin
 
       - name: Prepare Zip Output Folder
-        run: mkdir relies
+        run: mkdir release
 
       - name: Build Zip & Clean Plugin Directory
         run: composer run-script zip
         working-directory: plugin
 
-      - name: Move Zip to relese/
-        run: mv plugin/stripepayment.zip ${{ github.workspace }}/relese/
+      - name: Move Zip to release/
+        run: mv plugin/stripepayment.zip ${{ github.workspace }}/release/
 
       - name: Clean Extra Files from Plugin
         run: |
