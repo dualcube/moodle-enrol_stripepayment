@@ -31,13 +31,6 @@ jobs:
         with:
           path: plugin
 
-      - name: Checkout Moodle Core
-        uses: actions/checkout@v4
-        with:
-          repository: moodle/moodle
-          ref: ${{ matrix.moodle-branch }}
-          path: moodle
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -46,15 +39,6 @@ jobs:
           ini-values: max_input_vars=5000
           coverage: none
 
-      - name: Install Moodle Dependencies
-        run: composer install --no-dev --prefer-dist --no-progress
-        working-directory: moodle
-
-      - name: Copy plugin into Moodle
-        run: |
-          mkdir -p moodle/enrol/stripepayment
-          cp -r plugin/* moodle/enrol/stripepayment/
-
       - name: Setup Node.js (for Grunt)
         uses: actions/setup-node@v3
         with:
@@ -62,7 +46,11 @@ jobs:
 
       - name: Install Moodle Node dependencies
         run: npm install
-        working-directory: moodle
+        working-directory: plugin
+
+      - name: Build grunt
+        run: npm run build
+        working-directory: plugin
 
       - name: Install Plugin Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress

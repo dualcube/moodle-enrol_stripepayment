@@ -10,5 +10,8 @@
     "grunt-rollup": "^11.9.0",
     "grunt-sass": "3.1.0",
     "grunt-stylelint": "^0.19.0"
+  },
+  "scripts": {
+    "build": "npx grunt amd"
   }
 }
