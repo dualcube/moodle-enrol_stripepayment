@@ -46,7 +46,7 @@
     <div class="stripepayment-line"></div>
 
     <div class="stripepayment-subtotal">
-        <span>Subtotal</span>
+        <span>{{# str }} enrolnow, enrol_stripepayment {{/ str }}</span>
         <span id="subtotalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
@@ -54,8 +54,8 @@
     {{#enablecouponsection}}
     <div class="stripepayment-couponsection">
         <div class="stripepayment-coupon-input-group" id="couponinputgroup">
-            <input type="text" id="coupon-{{instanceid}}" placeholder="Enter coupon code" />
-            <button id="apply-{{instanceid}}" class="stripepayment-applybtn">Apply</button>
+            <input type="text" id="coupon-{{instanceid}}" placeholder="{{# str }} entercoupon, enrol_stripepayment {{/ str }}" />
+            <button id="apply-{{instanceid}}" class="stripepayment-applybtn">{{# str }} apply, enrol_stripepayment {{/ str }}</button>
         </div>
         <div id="showmessage-{{instanceid}}" class="stripepayment-couponmessage"></div>
     </div>
@@ -64,14 +64,14 @@
     <!-- Discount section (hidden by default, shown when coupon is applied) -->
     <div id="discountsection-{{instanceid}}" style="display: none;">
         <div class="stripepayment-discount">
-            <span class="stripepayment-tag" id="discounttag-{{instanceid}}">Discount</span>
+            <span class="stripepayment-tag" id="discounttag-{{instanceid}}">{{# str }} discount, enrol_stripepayment {{/ str }}</span>
             <span class="stripepayment-discountamount" id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
         </div>
-        <p class="stripepayment-discountnote" id="discountnote-{{instanceid}}">Discount applied</p>
+        <p class="stripepayment-discountnote" id="discountnote-{{instanceid}}">{{# str }} discountapplied, enrol_stripepayment {{/ str }}</p>
     </div>
 
     <div class="stripepayment-total" id="total-{{instanceid}}">
-        <strong>Total due</strong>
+        <strong>{{# str }} totaldue, enrol_stripepayment {{/ str }}</strong>
         <strong id="totalamount-{{instanceid}}">{{currency}} {{cost}}</strong>
     </div>
 

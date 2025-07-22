@@ -66,7 +66,6 @@ class moodle_enrol_stripepayment_external extends external_api {
                 'couponname' => new external_value(PARAM_RAW, 'coupon name', VALUE_OPTIONAL),
                 'coupon_type' => new external_value(PARAM_RAW, 'coupon type: percent_off or amount_off', VALUE_OPTIONAL),
                 'discountvalue' => new external_value(PARAM_RAW, 'discount value', VALUE_OPTIONAL),
-                'originalcost' => new external_value(PARAM_RAW, 'original cost before discount', VALUE_OPTIONAL),
                 'currency' => new external_value(PARAM_RAW, 'currency code', VALUE_OPTIONAL),
                 'discountamount' => new external_value(PARAM_RAW, 'discount amount', VALUE_OPTIONAL),
                 'uistate' => new external_value(PARAM_RAW, 'UI state: paid|error', VALUE_OPTIONAL),
@@ -109,12 +108,9 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception('Stripe configuration incomplete');
         }
 
-        $originalcost = (float)$plugininstance->cost > 0 ? (float)$plugininstance->cost : (float)$plugin->get_config('cost');
-        $cost = $originalcost;
+        $cost = (float)$plugininstance->cost > 0 ? (float)$plugininstance->cost : (float)$plugin->get_config('cost');;
         $currency = $plugininstance->currency ? $plugininstance->currency : 'USD';
-
         $cost = format_float($cost, 2, false);
-        $originalcost = format_float($originalcost, 2, false);
 
         Stripe::setApiKey($secretkey);
 
@@ -206,9 +202,8 @@ class moodle_enrol_stripepayment_external extends external_api {
         return [
             'status' => $cost,
             'couponname' => $couponname,
-            'discountamount' => $coupontype,
+            'coupontype'=> $coupontype,
             'discountvalue' => $discountvalue,
-            'originalcost' => $originalcost,
             'currency' => $currency,
             'discountamount' => $discountamount,
             'uistate' => $uistate['state'],
@@ -507,9 +502,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                         ],
                         'quantity' => 1,
                     ]],
-
                     'discounts' => [['coupon' => $couponid]],
-
                     'metadata' => [
                         'course_shortname' => $shortname,
                         'course_id' => $course->id,

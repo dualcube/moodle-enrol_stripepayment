@@ -155,12 +155,12 @@ define(["core/ajax"], function (ajax) {
               DOM.setelement("discounttag", data.couponname);
             }
             if (data.discountamount && data.currency) {
-              DOM.setelement("discountamountdisplay", `-${data.currency} ${parseFloat(data.discountamount).toFixed(2)}`);
+              DOM.setelement("discountamountdisplay", `-${data.currency} ${data.discountamount}`);
             }
             if (data.discountamount && data.discountvalue) {
-              const note = data.discountamount === "percentoff"
+              const note = data.coupontype === "percentoff"
                 ? `${data.discountvalue}% off`
-                : `${data.currency} ${parseFloat(data.discountvalue).toFixed(2)} off`;
+                : `${data.currency} ${data.discountvalue} off`;
               DOM.setelement("discountnote", note);
             }
           }
