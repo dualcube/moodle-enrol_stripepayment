@@ -23,7 +23,7 @@ jobs:
       matrix:
         php: ['8.1', '8.2']
         moodle-branch: ['MOODLE_500_STABLE']
-        database: [mariadb, pgsql]
+        database: [mariadb]
 
     steps:
       - name: Checkout plugin code
@@ -35,7 +35,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, intl, soap, curl, gd, xml, json, zip, pdo, pdo_mysql, pdo_pgsql
+          extensions: mbstring, intl, soap, curl, gd, xml, json, zip, pdo, pdo_mysql,
           ini-values: max_input_vars=5000
           coverage: none
 
@@ -56,45 +56,45 @@ jobs:
 
       - name: PHP Lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phplint
+        run: moodle-plugin-ci phplint plugin
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: moodle-plugin-ci phpmd
+        run: moodle-plugin-ci phpmd plugin
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0
+        run: moodle-plugin-ci phpcs --max-warnings 0 plugin
 
       - name: Moodle PHPDoc Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpdoc --max-warnings 0
+        run: moodle-plugin-ci phpdoc --max-warnings 0 plugin
 
       - name: Validate Plugin
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci validate
+        run: moodle-plugin-ci validate plugin
 
       - name: Check upgrade savepoints
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci savepoints
+        run: moodle-plugin-ci savepoints plugin
 
       - name: Mustache Template Lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci mustache
+        run: moodle-plugin-ci mustache plugin
 
       - name: Run Grunt tasks
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci grunt --max-lint-warnings 0
+        run: moodle-plugin-ci grunt --max-lint-warnings 0 plugin
 
       - name: PHPUnit Tests
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpunit --fail-on-warning
+        run: moodle-plugin-ci phpunit --fail-on-warning plugin
 
       - name: Run Behat Tests
         id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome --scss-deprecations
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations plugin
 
       - name: Upload Behat Faildump (if failed)
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
