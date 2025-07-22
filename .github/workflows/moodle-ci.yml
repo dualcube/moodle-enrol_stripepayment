@@ -66,9 +66,6 @@ jobs:
       - name: Move Zip to relies/
         run: mv plugin/stripepayment.zip relies/
 
-      - name: Remove Vendor Directory Before Static Analysis
-        run: rm -rf plugin/vendor
-
       - name: Clean Extra Files from Plugin
         run: |
           rm -rf plugin/.git plugin/.github plugin/node_modules plugin/vendor plugin/tests plugin/phpunit.xml plugin/relies
