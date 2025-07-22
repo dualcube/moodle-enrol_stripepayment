@@ -70,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: stripepayment.zip
-          path: /release/stripepayment.zip
+          path: ${{ github.workspace }}/release/stripepayment.zip
 
 
       - name: Clean Extra Files from Plugin
