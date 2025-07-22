@@ -33,7 +33,7 @@
         "squizlabs/php_codesniffer": "^3.13"
     },
     "scripts": {
-    "build": "./node_modules/.bin/grunt amd --root=enrol/stripepayment",
+    "build": "grunt amd --root=enrol/stripepayment",
     "zip": [
         "@build",
         "zip -r stripepayment.zip . --exclude @.zipignore"

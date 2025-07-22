@@ -38,22 +38,9 @@ jobs:
           extensions: mbstring, intl, soap, curl, gd, xml, json, zip, pdo, pdo_mysql,
           ini-values: max_input_vars=5000
           coverage: none
-          
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          
-      - name: Install NPM deps
-        run: npm install
-        working-directory: plugin
 
       - name: Install Composer dependencies
         run: composer install --no-dev --prefer-dist --no-progress
-        working-directory: plugin
-
-      - name: Build plugin JS via composer build script
-        run: composer run-script build
         working-directory: plugin
 
       - name: Install moodle-plugin-ci tooling
@@ -84,6 +71,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpcs --max-warnings 0 plugin
 
+      - name: PHP Code Beautifier and Fixer
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpcbf plugin
+
       - name: Moodle PHPDoc Checker
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpdoc --max-warnings 0 plugin
@@ -99,8 +90,6 @@ jobs:
       - name: Mustache Template Lint
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci mustache plugin
-
-      
 
       - name: PHPUnit Tests
         if: ${{ !cancelled() }}
