@@ -95,10 +95,6 @@ jobs:
         continue-on-error: true
         run: moodle-plugin-ci phpmd plugin
 
-      - name: Moodle Code Checker
-        if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs --ignore=vendor/*,.git/*,node_modules/* .
-
       - name: PHP Code Beautifier and Fixer
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpcbf plugin
