@@ -69,7 +69,7 @@ jobs:
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4
         with:
-          name: stripepayment-plugin-${{ matrix.php }}-${{ matrix.database }}
+          name: stripepayment.zip
           path: ${{ github.workspace }}/release/stripepayment.zip
 
 
