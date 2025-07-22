@@ -57,20 +57,20 @@ jobs:
         working-directory: plugin
 
       - name: Prepare Zip Output Folder
-        run: mkdir release
+        run: mkdir dist
 
       - name: Build Zip & Clean Plugin Directory
         run: composer run-script zip
         working-directory: plugin
 
-      - name: Move Zip to release/
-        run: mv plugin/stripepayment.zip ${{ github.workspace }}/release/
+      - name: Move Zip to dist/
+        run: mv plugin/stripepayment.zip ${{ github.workspace }}/dist/
 
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4
         with:
           name: stripepayment.zip
-          path: ${{ github.workspace }}/release/stripepayment.zip
+          path: dist/stripepayment.zip
 
 
       - name: Clean Extra Files from Plugin
