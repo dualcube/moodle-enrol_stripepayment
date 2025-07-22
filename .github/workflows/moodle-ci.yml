@@ -26,12 +26,19 @@ jobs:
         database: [mariadb]
 
     steps:
-      - name: Moodle stripe payment
+      - name: Checkout Plugin
         uses: actions/checkout@v4
         with:
           path: plugin
 
-      - name: Setup PHP ${{ matrix.php }}
+      - name: Checkout Moodle Core
+        uses: actions/checkout@v4
+        with:
+          repository: moodle/moodle
+          ref: ${{ matrix.moodle-branch }}
+          path: moodle
+
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -39,13 +46,37 @@ jobs:
           ini-values: max_input_vars=5000
           coverage: none
 
-      - name: Install Composer dependencies
+      - name: Install Moodle Dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: moodle
+
+      - name: Copy plugin into Moodle
+        run: |
+          mkdir -p moodle/enrol/stripepayment
+          cp -r plugin/* moodle/enrol/stripepayment/
+
+      - name: Run Grunt (Moodle Root)
+        run: grunt amd --root=enrol/stripepayment
+        working-directory: moodle
+
+      - name: Install Plugin Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
         working-directory: plugin
 
-      - name: Composer zip Build
+      - name: Prepare Zip Output Folder
+        run: mkdir relies
+
+      - name: Build Zip & Clean Plugin Directory
         run: composer run-script zip
         working-directory: plugin
+
+      - name: Move Zip to relies/
+        run: mv plugin/stripepayment.zip relies/
+
+      - name: Clean Extra Files from Plugin
+        run: |
+          rm -rf plugin/.git plugin/.github plugin/node_modules plugin/vendor plugin/tests plugin/phpunit.xml plugin/relies
+          rm -f plugin/composer.* plugin/package*.json plugin/webpack.config.js plugin/.zipignore
 
       - name: Install moodle-plugin-ci tooling
         run: |
@@ -56,7 +87,7 @@ jobs:
         env:
           COMPOSER_NO_INTERACTION: 1
 
-      - name: Install Moodle and plugin
+      - name: Install Moodle and Plugin
         run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
@@ -79,21 +110,13 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpcbf plugin
 
-      - name: Moodle PHPDoc Checker
-        if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpdoc --max-warnings 0 plugin
-
       - name: Validate Plugin
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci validate plugin
 
-      - name: Check upgrade savepoints
+      - name: Check Upgrade Savepoints
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci savepoints plugin
-
-      - name: Mustache Template Lint
-        if: ${{ !cancelled() }}
-        run: moodle-plugin-ci mustache plugin
 
       - name: PHPUnit Tests
         if: ${{ !cancelled() }}

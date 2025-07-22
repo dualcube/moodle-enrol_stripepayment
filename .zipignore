@@ -15,3 +15,7 @@ vendor/dealerdirect/*
 vendor/moodlehq/*
 vendor/composer/*
 vendor/autoload.php
+node_modules/*
+phpunit.xml
+tests/*
+relies/*

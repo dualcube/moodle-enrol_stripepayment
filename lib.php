@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Stripe enrolment plugin.
  *
@@ -64,6 +65,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     }
     /**
      * Get stripe amount
+     * @param integer $cost $currency $reverse 
      * @return $Stripe ammount
      */
     public function get_stripe_amount($cost, $currency, $reverse) {
@@ -645,7 +647,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             // Check if cost is 0 or less (not allowed).
             if ($cost <= 0) {
                 $errors['costar'] = get_string('costzeroerror', 'enrol_stripepayment');
-            }else if ($cost < $minamount) {
+            } else if ($cost < $minamount) {
                 $errors['costar'] = get_string('costminimumerror', 'enrol_stripepayment',
                     $currency . ' ' . number_format($minamount, 2));
             }

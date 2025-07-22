@@ -186,7 +186,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             'showsections' => [
                 'paidenrollment' => true,
                 'discountsection' => ($discountamount > 0),
-            ]
+            ],
         ];
 
         if ($cost > 0 && $cost < $minamount) {
@@ -194,7 +194,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             $uistate['state'] = 'error';
             $uistate['errormessage'] = get_string('couponminimumerror', 'enrol_stripepayment', [
                 'amount' => $currency . ' ' . number_format($cost, 2),
-                'minimum' => $currency . ' ' . number_format($minamount, 2)
+                'minimum' => $currency . ' ' . number_format($minamount, 2),
             ]);
             $uistate['showsections']['paidenrollment'] = false;
         }
@@ -202,7 +202,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         return [
             'status' => $cost,
             'couponname' => $couponname,
-            'coupontype'=> $coupontype,
+            'coupontype' => $coupontype,
             'discountvalue' => $discountvalue,
             'currency' => $currency,
             'discountamount' => $discountamount,
@@ -387,7 +387,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 [
                     'message' => new external_value(PARAM_TEXT, 'Error message', VALUE_OPTIONAL),
                 ], VALUE_OPTIONAL
-            )
+            ),
             ]
         );
     }
@@ -527,7 +527,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                 $response = [
                     'status' => 'success',
                     'redirecturl' => $session->url, // Stripe Checkout URL.
-                    'error' => []
+                    'error' => [],
                 ];
             } else {
                 $response = [
