@@ -66,6 +66,13 @@ jobs:
       - name: Move Zip to release/
         run: mv plugin/stripepayment.zip ${{ github.workspace }}/release/
 
+      - name: Upload plugin zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: stripepayment-plugin-${{ matrix.php }}-${{ matrix.database }}
+          path: relies/stripepayment.zip
+
+
       - name: Clean Extra Files from Plugin
         run: |
           rm -rf plugin/.git plugin/.github plugin/node_modules plugin/tests plugin/phpunit.xml
