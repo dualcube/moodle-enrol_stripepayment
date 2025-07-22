@@ -8,7 +8,7 @@ jobs:
 
     services:
       mariadb:
-        image: mariadb:11.8.2
+        image: mariadb:10.11.7
         env:
           MYSQL_ROOT_PASSWORD: ''
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
