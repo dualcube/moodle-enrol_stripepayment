@@ -95,6 +95,10 @@ jobs:
         continue-on-error: true
         run: moodle-plugin-ci phpmd plugin
 
+      - name: Final Cleanup - Remove Vendor
+        if: ${{ always() }}
+        run: rm -rf plugin/vendor
+
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpcs --max-warnings 0 plugin
@@ -119,10 +123,6 @@ jobs:
         id: behat
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci behat --profile chrome --scss-deprecations plugin
-
-      - name: Final Cleanup - Remove Vendor
-        if: ${{ always() }}
-        run: rm -rf plugin/vendor
 
 
       - name: Upload Behat Faildump (if failed)
