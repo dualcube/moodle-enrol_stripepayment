@@ -63,12 +63,12 @@ jobs:
         run: composer run-script zip
         working-directory: plugin
 
-      - name: Move Zip to relies/
-        run: mv plugin/stripepayment.zip relies/
+      - name: Move Zip to relese/
+        run: mv plugin/stripepayment.zip ${{ github.workspace }}/relese/
 
       - name: Clean Extra Files from Plugin
         run: |
-          rm -rf plugin/.git plugin/.github plugin/node_modules plugin/tests plugin/phpunit.xml plugin/relies
+          rm -rf plugin/.git plugin/.github plugin/node_modules plugin/tests plugin/phpunit.xml
           rm -f plugin/composer.* plugin/package*.json plugin/webpack.config.js plugin/.zipignore
 
       - name: Install moodle-plugin-ci tooling
