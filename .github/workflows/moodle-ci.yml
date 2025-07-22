@@ -88,7 +88,7 @@ jobs:
 
       - name: PHP Lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phplint plugin
+        run: moodle-plugin-ci phplint plugin --ignore vendor/
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
