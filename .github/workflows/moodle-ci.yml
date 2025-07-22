@@ -68,7 +68,7 @@ jobs:
 
       - name: Clean Extra Files from Plugin
         run: |
-          rm -rf plugin/.git plugin/.github plugin/node_modules plugin/vendor plugin/tests plugin/phpunit.xml plugin/relies
+          rm -rf plugin/.git plugin/.github plugin/node_modules plugin/tests plugin/phpunit.xml plugin/relies
           rm -f plugin/composer.* plugin/package*.json plugin/webpack.config.js plugin/.zipignore
 
       - name: Install moodle-plugin-ci tooling
@@ -119,6 +119,11 @@ jobs:
         id: behat
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci behat --profile chrome --scss-deprecations plugin
+
+      - name: Final Cleanup - Remove Vendor
+        if: ${{ always() }}
+        run: rm -rf plugin/vendor
+
 
       - name: Upload Behat Faildump (if failed)
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
