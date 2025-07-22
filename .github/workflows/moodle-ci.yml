@@ -38,11 +38,7 @@ jobs:
           extensions: mbstring, intl, soap, curl, gd, xml, json, zip, pdo, pdo_mysql,
           ini-values: max_input_vars=5000
           coverage: none
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --prefer-dist --no-progress
-        working-directory: plugin
-
+          
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -50,6 +46,10 @@ jobs:
           
       - name: Install NPM deps
         run: npm install
+        working-directory: plugin
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
         working-directory: plugin
 
       - name: Build plugin JS via composer build script

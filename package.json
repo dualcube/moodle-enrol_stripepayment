@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "devDependencies": {
     "grunt": "^1.6.1",
-    "grunt-contrib-uglify": "^5.2.2",
-    "grunt-contrib-watch": "^1.1.0"
+    "grunt-contrib-watch": "1.1.0",
+    "grunt-eslint": "24.0.0",
+    "grunt-rollup": "^11.9.0",
+    "grunt-sass": "3.1.0",
+    "grunt-stylelint": "^0.19.0"
   }
 }
