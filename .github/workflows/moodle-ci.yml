@@ -71,6 +71,7 @@ jobs:
         with:
           name: stripepayment.zip
           path: dist/stripepayment.zip
+          retention-days: 14
 
 
       - name: Clean Extra Files from Plugin
