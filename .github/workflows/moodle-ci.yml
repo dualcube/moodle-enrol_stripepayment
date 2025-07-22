@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: stripepayment
-          path: dist/stripepayment.zip
+          path: dist/
           retention-days: 14
 
 
