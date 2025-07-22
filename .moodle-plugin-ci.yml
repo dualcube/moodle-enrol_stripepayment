@@ -1,3 +1,0 @@
-phplint:
-  exclude:
-    - vendor/
