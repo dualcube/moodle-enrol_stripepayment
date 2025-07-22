@@ -43,6 +43,10 @@ jobs:
         run: composer install --no-dev --prefer-dist --no-progress
         working-directory: plugin
 
+      - name: Composer zip Build
+        run: composer run-script zip
+        working-directory: plugin
+
       - name: Install moodle-plugin-ci tooling
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4

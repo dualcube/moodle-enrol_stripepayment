@@ -8,4 +8,28 @@
         <license>The MIT License</license>
         <licenseversion>1</licenseversion>
     </library>
+    <library>
+        <location>vendor/autoload.php</location>
+        <name>composer</name>
+        <version>2.x</version>
+        <repository>https://getcomposer.org/</repository>
+        <license>MIT</license>
+        <licenseversion>1</licenseversion>
+    </library>
+    <library>
+        <location>vendor/autoload.php</location>
+        <name>composer</name>
+        <version>2.x</version>
+        <repository>https://getcomposer.org/</repository>
+        <license>MIT</license>
+        <licenseversion>1</licenseversion>
+    </library>
+    <library>
+        <location>vendor/composer</location>
+        <name>composer</name>
+        <version>2.x</version>
+        <repository>https://getcomposer.org/</repository>
+        <license>MIT</license>
+        <licenseversion>1</licenseversion>
+    </library>
 </libraries>
