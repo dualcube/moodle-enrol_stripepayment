@@ -80,7 +80,7 @@ jobs:
         env:
           COMPOSER_NO_INTERACTION: 1
 
-      - name: Install Moodle and Plugin
+      - name: Install moodle-plugin-ci
         run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
