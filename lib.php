@@ -343,7 +343,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment',
             [
                 $USER->id,
-                $publishablekey,
                 null, // Couponid starts as null.
                 $instance->id,
                 get_string("pleasewait", "enrol_stripepayment"),
