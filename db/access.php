@@ -24,6 +24,13 @@
  */
 defined('MOODLE_INTERNAL') || die();
 $capabilities = [
+    'enrol/stripepaymentpro:config' => array(
+    'captype' => 'write',
+    'contextlevel' => CONTEXT_COURSE,
+    'archetypes' => array(
+        'manager' => CAP_ALLOW,
+        )
+    ),
     'enrol/stripepayment:enrol' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
