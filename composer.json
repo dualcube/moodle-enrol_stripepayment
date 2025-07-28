@@ -34,9 +34,12 @@
     },
     "scripts": {
     "build": "./node_modules/.bin/grunt amd --root=enrol/stripepayment",
-    "zip": [
-        "@build",
-        "zip -r stripepayment.zip . --exclude @.zipignore"
+    "zip-unix": [
+    "@build",
+    "mkdir -p release/stripepayment",
+    "sh -c 'for f in * .*; do if [ \"$f\" != \"release\" ] && [ \"$f\" != \".\" ] && [ \"$f\" != \"..\" ]; then cp -R \"$f\" release/stripepayment/; fi; done'",
+    "cd release && zip -r stripepayment.zip stripepayment -x@../exclude.lst",
+    "rm -rf release/stripepayment"
     ],
     "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
     "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/*"

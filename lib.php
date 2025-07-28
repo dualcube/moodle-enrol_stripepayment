@@ -596,8 +596,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $costvalue = null;
         $costfieldexists = false;
 
-        // Debug: Log the data structure.
-        debugging("Stripepayment validation data: " . json_encode($data));
+        // // Debug: Log the data structure.
+        // debugging("Stripepayment validation data: " . json_encode($data));
 
         if (isset($data['costar']['cost'])) {
             $costvalue = $data['costar']['cost'];
@@ -626,8 +626,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 $cost = (float)$cost;
             }
 
-            // Debug: Log the cost value for troubleshooting.
-            debugging("Stripepayment validation: cost = {$cost}, costvalue = " . json_encode($costvalue));
+            // // Debug: Log the cost value for troubleshooting.
+            // debugging("Stripepayment validation: cost = {$cost}, costvalue = " . json_encode($costvalue));
 
             // Now validate the cost value.
             $currency = isset($data['currency']) ? $data['currency'] : 'USD';

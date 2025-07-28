@@ -24,7 +24,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 $capabilities = [
-    'enrol/stripepaymentpro:config' => array(
+    'enrol/stripepayment:config' => array(
     'captype' => 'write',
     'contextlevel' => CONTEXT_COURSE,
     'archetypes' => array(

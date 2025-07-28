@@ -56,21 +56,21 @@ jobs:
         run: composer install --no-dev --prefer-dist --no-progress
         working-directory: plugin
 
-      - name: Prepare Zip Output Folder
-        run: mkdir dist
+      - name: Prepare Release Folder
+        run: mkdir -p release
 
       - name: Build Zip & Clean Plugin Directory
-        run: composer run-script zip
+        run: composer run-script zip-unix
         working-directory: plugin
 
-      - name: Move Zip to dist/
-        run: mv plugin/stripepayment.zip ${{ github.workspace }}/dist/
+      - name: Copy Zip to release/
+        run: cp plugin/stripepayment.zip ${{ github.workspace }}/release/
 
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4
         with:
           name: stripepayment
-          path: dist/stripepayment.zip
+          path: release/stripepayment.zip
           retention-days: 14
 
 
@@ -141,3 +141,56 @@ jobs:
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
         run: exit 1
+  release:
+    runs-on: ubuntu-24.04
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout Plugin
+        uses: actions/checkout@v4
+        with:
+          path: plugin
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, soap, curl, gd, xml, json, zip, pdo, pdo_mysql,
+          ini-values: max_input_vars=5000
+          coverage: none
+
+      - name: Setup Node.js (for Grunt)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Moodle Node dependencies
+        run: npm install
+        working-directory: plugin
+
+      - name: Build grunt
+        run: npm run build
+        working-directory: plugin
+
+      - name: Install Plugin Composer Dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: plugin
+
+      - name: Prepare Release Folder
+        run: mkdir -p release
+
+      - name: Build Release Zip
+        run: composer run-script zip-unix
+        working-directory: plugin
+
+      - name: Move Zip to release/
+        run: mv plugin/stripepayment.zip ${{ github.workspace }}/release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/stripepayment.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
