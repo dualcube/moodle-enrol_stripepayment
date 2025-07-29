@@ -14,6 +14,7 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "scripts": {
-    "build": "npx grunt amd"
+    "build": "npx grunt amd",
+    "git-final-push": "node scripts/git-final-push.js"
   }
 }

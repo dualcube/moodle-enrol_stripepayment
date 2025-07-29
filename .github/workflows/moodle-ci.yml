@@ -62,20 +62,11 @@ jobs:
       - name: Build Zip & Clean Plugin Directory
         run: |
           composer run-script zip-unix
-          if [ ! -f release/stripepayment.zip ]; then
-            echo "Error: stripepayment.zip was not created"
-            exit 1
-          fi
         working-directory: plugin
 
       - name: Copy Zip to release/
         run: |
-          if [ -f plugin/release/stripepayment.zip ]; then
-            cp plugin/release/stripepayment.zip ${{ github.workspace }}/release/
-          else
-            echo "Error: stripepayment.zip not found"
-            exit 1
-          fi
+          cp plugin/release/stripepayment.zip ${{ github.workspace }}/release/
 
       - name: Upload plugin zip
         uses: actions/upload-artifact@v4

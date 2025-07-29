@@ -418,7 +418,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         }
 
         $plugin = enrol_get_plugin('stripepayment');
-        $secretkey = $plugin->get_config('secretkey');
+        $secretkey = $plugin->get_current_secret_key();
         $usertoken = $plugin->get_config('webservice_token');
 
         // Validate Stripe configuration.
