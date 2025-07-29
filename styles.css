@@ -220,3 +220,40 @@
     .stripepayment-couponsection input {
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
+
+    /* Payment button styling */
+    .stripepayment-pay-btn {
+        margin-top: 18px;
+        width: 100%;
+        background-color: #0070f3;
+        color: white;
+        border: none;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .stripepayment-pay-btn:hover {
+        background-color: #005fd1;
+        filter: brightness(0.9);
+    }
+
+    .stripepayment-pay-btn:active {
+        transform: translateY(1px);
+        background-color: #004bb5;
+        filter: brightness(0.8);
+    }
+
+    .stripepayment-pay-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Utility classes */
+    .stripepayment-hidden {
+        display: none !important;
+    }

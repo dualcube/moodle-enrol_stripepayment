@@ -339,7 +339,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 
         // Set up the required JavaScript for Stripe integration.
         $plugin = enrol_get_plugin('stripepayment');
-        $publishablekey = $plugin->get_config('publishablekey');
+        $publishablekey = $plugin->get_current_publishable_key();
         $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment',
             [
                 $USER->id,
@@ -678,6 +678,146 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             $fields['cost'] = unformat_float($fields['cost']);
         }
         return parent::add_instance($course, $fields);
+    }
+
+    /**
+     * Get the current Stripe mode (test or live) - NEW METHOD.
+     *
+     * @return string 'test' or 'live'
+     */
+    public function get_stripe_mode() {
+        $mode = get_config('enrol_stripepayment', 'stripe_mode');
+        return $mode ?: 'test'; // Default to test mode for safety
+    }
+
+    /**
+     * Get the appropriate API keys based on current mode - NEW METHOD.
+     *
+     * @return array Array with 'publishable', 'secret', and 'mode' keys
+     */
+    public function get_current_api_keys() {
+        $mode = $this->get_stripe_mode();
+
+        if ($mode === 'live') {
+            $publishable = get_config('enrol_stripepayment', 'live_publishablekey');
+            $secret = get_config('enrol_stripepayment', 'live_secretkey');
+        } else {
+            $publishable = get_config('enrol_stripepayment', 'test_publishablekey');
+            $secret = get_config('enrol_stripepayment', 'test_secretkey');
+        }
+
+        // Fallback to legacy keys if new keys are empty
+        if (empty($publishable) || empty($secret)) {
+            $legacy_publishable = get_config('enrol_stripepayment', 'publishablekey');
+            $legacy_secret = get_config('enrol_stripepayment', 'secretkey');
+
+            if (!empty($legacy_publishable) && !empty($legacy_secret)) {
+                $publishable = $legacy_publishable;
+                $secret = $legacy_secret;
+            }
+        }
+
+        return [
+            'publishable' => $publishable,
+            'secret' => $secret,
+            'mode' => $mode
+        ];
+    }
+
+    /**
+     * Get the current secret key based on mode - NEW METHOD.
+     *
+     * @return string The appropriate secret key
+     */
+    public function get_current_secret_key() {
+        $keys = $this->get_current_api_keys();
+        return $keys['secret'];
+    }
+
+    /**
+     * Get the current publishable key based on mode - NEW METHOD.
+     *
+     * @return string The appropriate publishable key
+     */
+    public function get_current_publishable_key() {
+        $keys = $this->get_current_api_keys();
+        return $keys['publishable'];
+    }
+
+    /**
+     * Check if the current mode has changed since last check - NEW METHOD.
+     *
+     * @return bool True if mode has changed
+     */
+    public function has_mode_changed() {
+        $current_mode = $this->get_stripe_mode();
+        $stored_mode = get_config('enrol_stripepayment', 'last_known_mode');
+
+        if ($stored_mode !== $current_mode) {
+            // Update the stored mode
+            set_config('last_known_mode', $current_mode, 'enrol_stripepayment');
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Validate API keys for the current mode - NEW METHOD.
+     *
+     * @return array Array with 'valid' boolean and 'errors' array
+     */
+    public function validate_current_api_keys() {
+        $keys = $this->get_current_api_keys();
+        $errors = [];
+
+        if (empty($keys['secret'])) {
+            $errors[] = 'Secret key is missing for ' . $keys['mode'] . ' mode';
+        }
+
+        if (empty($keys['publishable'])) {
+            $errors[] = 'Publishable key is missing for ' . $keys['mode'] . ' mode';
+        }
+
+        // Validate key format
+        if (!empty($keys['secret'])) {
+            $expected_prefix = $keys['mode'] === 'live' ? 'sk_live_' : 'sk_test_';
+            if (strpos($keys['secret'], $expected_prefix) !== 0) {
+                $errors[] = 'Secret key format is incorrect for ' . $keys['mode'] . ' mode';
+            }
+        }
+
+        if (!empty($keys['publishable'])) {
+            $expected_prefix = $keys['mode'] === 'live' ? 'pk_live_' : 'pk_test_';
+            if (strpos($keys['publishable'], $expected_prefix) !== 0) {
+                $errors[] = 'Publishable key format is incorrect for ' . $keys['mode'] . ' mode';
+            }
+        }
+
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+
+    /**
+     * Get mode status display text - NEW METHOD.
+     *
+     * @return string HTML formatted status text
+     */
+    public function get_mode_status_display() {
+        $mode = $this->get_stripe_mode();
+        $validation = $this->validate_current_api_keys();
+
+        if (!$validation['valid']) {
+            return '<span style="color: #d32f2f; font-weight: bold;">⚠️ ' . strtoupper($mode) . ' MODE - Configuration Error</span>';
+        }
+
+        if ($mode === 'live') {
+            return '<span style="color: #d32f2f; font-weight: bold;">🔴 LIVE MODE - Real payments will be processed</span>';
+        } else {
+            return '<span style="color: #388e3c; font-weight: bold;">🟢 TEST MODE - Safe for testing</span>';
+        }
     }
 }
 

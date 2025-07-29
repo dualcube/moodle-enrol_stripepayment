@@ -47,9 +47,9 @@ if ($ADMIN->fulltree) {
         'live' => get_string('livemode', 'enrol_stripepayment', 'Live Mode'),
     ];
     
-    $currentmode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
+    $currentmode = get_config('enrol_stripepayment', 'stripe_mode') ?: 'test';
     $modedescription = get_string('stripemodedesc', 'enrol_stripepayment');
-    
+
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/stripe_mode',
         get_string('stripemode', 'enrol_stripepayment'),
@@ -58,99 +58,127 @@ if ($ADMIN->fulltree) {
         $modeoptions
     ));
 
-    // Mode Status Display
-    $modestatustext = ($currentmode === 'live') ? 
-        '<span style="color: #d32f2f; font-weight: bold;">LIVE MODE - Real payments will be processed</span>' :
-        '<span style="color: #388e3c; font-weight: bold;">TEST MODE - Safe for testing</span>';
-    
+    // Note: Sections are now conditionally rendered server-side based on current mode
+    // This provides a cleaner interface and maintains Moodle's default structure
+
+    // Dynamic Mode Status Display
+    $plugin = enrol_get_plugin('stripepayment');
+    $modestatustext = $plugin->get_mode_status_display();
+
     $settings->add(new admin_setting_description(
         'enrol_stripepayment/mode_status',
         get_string('currentmodestatus', 'enrol_stripepayment'),
         $modestatustext
     ));
     
-    $settings->add(new admin_setting_heading(
-        'enrol_stripepayment_test_keys',
-        get_string('testapikeys', 'enrol_stripepayment'),
-        get_string('testapikeysdesc', 'enrol_stripepayment')
+    // Get current mode to show only relevant section
+    $current_mode = get_config('enrol_stripepayment', 'stripe_mode') ?: 'test';
+
+    // Add mode switching instructions
+    $mode_switch_text = $current_mode === 'test' ?
+        'To switch to Live Mode, change the mode above and save settings.' :
+        'To switch to Test Mode, change the mode above and save settings.';
+
+    $settings->add(new admin_setting_description(
+        'enrol_stripepayment/mode_switch_info',
+        '',
+        '<div style="background-color: #f0f8ff; padding: 10px; border-left: 4px solid #2196f3; margin: 10px 0;">' .
+        '<strong>ℹ️ Info:</strong> ' . $mode_switch_text .
+        '</div>'
     ));
 
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/test_publishablekey',
-        get_string('testpublishablekey', 'enrol_stripepayment'),
-        get_string('testpublishablekeydesc', 'enrol_stripepayment'),
-        '',
-        PARAM_TEXT
-    ));
-    
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/test_secretkey',
-        get_string('testsecretkey', 'enrol_stripepayment'),
-        get_string('testsecretkeydesc', 'enrol_stripepayment'),
-        '',
-        PARAM_TEXT
-    ));
-    
-    $settings->add(new admin_setting_heading(
-        'enrol_stripepayment_live_keys',
-        get_string('liveapikeys', 'enrol_stripepayment'),
-        get_string('liveapikeysdesc', 'enrol_stripepayment')
-    ));
+    if ($current_mode === 'test') {
+        $settings->add(new admin_setting_heading(
+            'enrol_stripepayment_test_keys',
+            '🟢 ' . get_string('testapikeys', 'enrol_stripepayment'),
+            '<div style="background-color: #e8f5e8; padding: 10px; border-left: 4px solid #4caf50; margin: 10px 0;">' .
+            get_string('testapikeysdesc', 'enrol_stripepayment') .
+            '</div>'
+        ));
 
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/live_publishablekey',
-        get_string('livepublishablekey', 'enrol_stripepayment'),
-        get_string('livepublishablekeydesc', 'enrol_stripepayment'),
-        '',
-        PARAM_TEXT
-    ));
-    
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/live_secretkey',
-        get_string('livesecretkey', 'enrol_stripepayment'),
-        get_string('livesecretkeydesc', 'enrol_stripepayment'),
-        '',
-        PARAM_TEXT
-    ));
-    
-    $settings->add(new admin_setting_heading(
-        'enrol_stripepayment_legacy_keys',
-        get_string('legacyapikeys', 'enrol_stripepayment'),
-        get_string('legacyapikeysdesc', 'enrol_stripepayment')
-    ));
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/test_publishablekey',
+            get_string('testpublishablekey', 'enrol_stripepayment'),
+            get_string('testpublishablekeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
 
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/publishablekey',
-        get_string('publishablekey', 'enrol_stripepayment') . ' (Legacy)',
-        get_string('publishablekeydesc', 'enrol_stripepayment') . ' - Use Test/Live keys above instead.',
-        '',
-        PARAM_TEXT
-    ));
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/test_secretkey',
+            get_string('testsecretkey', 'enrol_stripepayment'),
+            get_string('testsecretkeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
+    } else {
+        $settings->add(new admin_setting_heading(
+            'enrol_stripepayment_live_keys',
+            '🔴 ' . get_string('liveapikeys', 'enrol_stripepayment'),
+            '<div style="background-color: #ffebee; padding: 10px; border-left: 4px solid #f44336; margin: 10px 0;">' .
+            '<strong>⚠️ WARNING:</strong> ' . get_string('liveapikeysdesc', 'enrol_stripepayment') .
+            '</div>'
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/live_publishablekey',
+            get_string('livepublishablekey', 'enrol_stripepayment'),
+            get_string('livepublishablekeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/live_secretkey',
+            get_string('livesecretkey', 'enrol_stripepayment'),
+            get_string('livesecretkeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
+    }
     
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/secretkey',
-        get_string('secretkey', 'enrol_stripepayment') . ' (Legacy)',
-        get_string('secretkeydesc', 'enrol_stripepayment') . ' - Use Test/Live keys above instead.',
-        '',
-        PARAM_TEXT
-    ));
+    // Legacy fields are now auto-migrated and hidden from the interface
+    // They are kept in the database for backward compatibility but not shown to users
     
-    // Auto-migrate legacy keys if new keys are empty
+    // Enhanced auto-migration logic for legacy keys
     $legacy_publishable = get_config('enrol_stripepayment', 'publishablekey');
     $legacy_secret = get_config('enrol_stripepayment', 'secretkey');
     $test_publishable = get_config('enrol_stripepayment', 'test_publishablekey');
     $test_secret = get_config('enrol_stripepayment', 'test_secretkey');
-    
-    if (!empty($legacy_publishable) && empty($test_publishable)) {
-        // Auto-detect if legacy keys are test or live and migrate accordingly
-        if (strpos($legacy_secret, 'sk_test_') === 0) {
-            set_config('test_publishablekey', $legacy_publishable, 'enrol_stripepayment');
-            set_config('test_secretkey', $legacy_secret, 'enrol_stripepayment');
-            set_config('stripe_mode', 'test', 'enrol_stripepayment');
-        } else if (strpos($legacy_secret, 'sk_live_') === 0) {
-            set_config('live_publishablekey', $legacy_publishable, 'enrol_stripepayment');
-            set_config('live_secretkey', $legacy_secret, 'enrol_stripepayment');
-            set_config('stripe_mode', 'live', 'enrol_stripepayment');
+    $live_publishable = get_config('enrol_stripepayment', 'live_publishablekey');
+    $live_secret = get_config('enrol_stripepayment', 'live_secretkey');
+    $current_mode = get_config('enrol_stripepayment', 'stripe_mode');
+
+    // Auto-migrate legacy keys if they exist and new keys are empty
+    if (!empty($legacy_publishable) && !empty($legacy_secret)) {
+        $migration_needed = false;
+
+        // Check if we need to migrate
+        if (empty($test_publishable) && empty($live_publishable) &&
+            empty($test_secret) && empty($live_secret)) {
+            $migration_needed = true;
+        }
+
+        // Auto-detect mode from legacy keys and migrate
+        if ($migration_needed) {
+            if (strpos($legacy_secret, 'sk_test_') === 0 && strpos($legacy_publishable, 'pk_test_') === 0) {
+                set_config('test_publishablekey', $legacy_publishable, 'enrol_stripepayment');
+                set_config('test_secretkey', $legacy_secret, 'enrol_stripepayment');
+                set_config('stripe_mode', 'test', 'enrol_stripepayment');
+
+                // Clear legacy keys after migration
+                set_config('publishablekey', '', 'enrol_stripepayment');
+                set_config('secretkey', '', 'enrol_stripepayment');
+
+            } else if (strpos($legacy_secret, 'sk_live_') === 0 && strpos($legacy_publishable, 'pk_live_') === 0) {
+                set_config('live_publishablekey', $legacy_publishable, 'enrol_stripepayment');
+                set_config('live_secretkey', $legacy_secret, 'enrol_stripepayment');
+                set_config('stripe_mode', 'live', 'enrol_stripepayment');
+
+                // Clear legacy keys after migration
+                set_config('publishablekey', '', 'enrol_stripepayment');
+                set_config('secretkey', '', 'enrol_stripepayment');
+            }
         }
     }
     

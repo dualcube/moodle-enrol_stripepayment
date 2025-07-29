@@ -62,7 +62,7 @@
     {{/enablecouponsection}}
 
     <!-- Discount section (hidden by default, shown when coupon is applied) -->
-    <div id="discountsection-{{instanceid}}" style="display: none;">
+    <div id="discountsection-{{instanceid}}" class="stripepayment-hidden">
         <div class="stripepayment-discount">
             <span class="stripepayment-tag" id="discounttag-{{instanceid}}">{{# str }} discount, enrol_stripepayment {{/ str }}</span>
             <span class="stripepayment-discountamount" id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Container for displaying payment response/errors -->
-    <div id="paymentresponse-{{instanceid}}" class="stripepayment-error-message" style="display: none;"></div>
+    <div id="paymentresponse-{{instanceid}}" class="stripepayment-error-message stripepayment-hidden"></div>
 
     <!-- Single enrollment button that handles paid enrollment -->
     <div id="enrollmentbutton-{{instanceid}}">
@@ -87,29 +87,3 @@
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
-
-<style>
-    .stripepayment-pay-btn {
-        margin-top: 18px;
-        width: 100%;
-        background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#0070f3{{/enrolbtncolor}};
-        color: white;
-        border: none;
-        padding: 12px 0;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 6px;
-        cursor: pointer;
-    }
-
-    .stripepayment-pay-btn:hover {
-        background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#005fd1{{/enrolbtncolor}};
-        filter: brightness(0.9);
-    }
-
-    .stripepayment-pay-btn:active {
-        transform: translateY(1px);
-        background-color: {{#enrolbtncolor}}{{enrolbtncolor}}{{/enrolbtncolor}}{{^enrolbtncolor}}#004bb5{{/enrolbtncolor}};
-        filter: brightness(0.8);
-    }
-    </style>

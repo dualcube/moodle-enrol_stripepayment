@@ -33,15 +33,26 @@
         "squizlabs/php_codesniffer": "^3.13"
     },
     "scripts": {
-    "build": "./node_modules/.bin/grunt amd --root=enrol/stripepayment",
-    "zip-unix": [
-    "@build",
-    "mkdir -p release/stripepayment",
-    "sh -c 'for f in * .*; do if [ \"$f\" != \"release\" ] && [ \"$f\" != \".\" ] && [ \"$f\" != \"..\" ]; then cp -R \"$f\" release/stripepayment/; fi; done'",
-    "cd release && zip -r stripepayment.zip stripepayment -x@../exclude.lst",
-    "rm -rf release/stripepayment"
-    ],
-    "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
-    "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/*"
+        "build": "./node_modules/.bin/grunt amd --root=enrol/stripepayment",
+        "copy-files": [
+            "mkdir -p release/stripepayment",
+            "@php -r \"$exclude = ['release', '.', '..']; $files = array_diff(scandir('.'), $exclude); foreach($files as $file) { if($file[0] !== '.') { $cmd = 'cp -R ' . escapeshellarg($file) . ' release/stripepayment/'; exec($cmd); } }\""
+        ],
+        "zip-unix": [
+            "@build",
+            "@copy-files",
+            "cd release && zip -r stripepayment.zip stripepayment -x@../exclude.lst",
+            "rm -rf release/stripepayment"
+        ],
+        "zip-windows": [
+            "@build",
+            "if not exist release mkdir release",
+            "if not exist release\\stripepayment mkdir release\\stripepayment",
+            "xcopy /E /I /Y * release\\stripepayment\\ /EXCLUDE:exclude.lst",
+            "cd release && powershell Compress-Archive -Path stripepayment -DestinationPath stripepayment.zip -Force",
+            "rmdir /S /Q release\\stripepayment"
+        ],
+        "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
+        "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/*"
     }
 }
