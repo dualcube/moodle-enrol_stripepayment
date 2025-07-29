@@ -103,7 +103,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         }
 
         // Validate Stripe configuration.
-        $secretkey = $plugin->get_config('secretkey');
+        $secretkey = $plugin->get_current_secret_key();
         if (empty($secretkey)) {
             throw new invalid_parameter_exception('Stripe configuration incomplete');
         }
@@ -576,7 +576,7 @@ class moodle_enrol_stripepayment_external extends external_api {
         global $DB, $CFG, $PAGE, $OUTPUT;
         $data = new stdClass();
         $plugin = enrol_get_plugin('stripepayment');
-        $secretkey = $plugin->get_config('secretkey');
+        $secretkey = $plugin->get_current_secret_key();
         Stripe::setApiKey($secretkey);
         $checkoutsession = Session::retrieve($sessionid);
 
