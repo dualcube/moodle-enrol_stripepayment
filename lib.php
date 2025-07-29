@@ -323,6 +323,24 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $name = $this->get_instance_name($instance);
         $localisedcost = format_float($cost, 2, true);
         $cost = format_float($cost, 2, false);
+
+        // Check if current API keys can access the products/prices for this instance
+        $validation = $this->validate_instance_accessibility($instance);
+        if (!$validation['accessible']) {
+            $notification = new \core\output\notification(
+                get_string('paymentmethodnotfound', 'enrol_stripepayment'),
+                'error',
+                false
+            );
+            $notification->set_extra_classes(['mb-0']);
+            $enrolpage = new enrol_page(
+                instance: $instance,
+                header: $name,
+                body: $OUTPUT->render($notification)
+            );
+            return $OUTPUT->render($enrolpage);
+        }
+
         // Prepare data for the template - always use the same template regardless of cost.
         $templatedata = [
             'currency' => $instance->currency,
@@ -817,6 +835,37 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             return '<span style="color: #d32f2f; font-weight: bold;">🔴 LIVE MODE - Real payments will be processed</span>';
         } else {
             return '<span style="color: #388e3c; font-weight: bold;">🟢 TEST MODE - Safe for testing</span>';
+        }
+    }
+
+    /**
+     * Validate if current API keys can access the products/prices for an instance - NEW METHOD.
+     *
+     * @param stdClass $instance The enrolment instance
+     * @return array Array with 'accessible' boolean and 'error' message
+     */
+    public function validate_instance_accessibility($instance) {
+        $secret_key = $this->get_current_secret_key();
+
+        if (empty($secret_key)) {
+            return ['accessible' => false, 'error' => 'No API key configured'];
+        }
+
+        // If instance doesn't have custom price IDs, it's accessible (will create new prices)
+        if (empty($instance->customtext1)) {
+            return ['accessible' => true, 'error' => ''];
+        }
+
+        try {
+            require_once(__DIR__ . '/vendor/stripe/stripe-php/init.php');
+            \Stripe\Stripe::setApiKey($secret_key);
+
+            // Try to retrieve the price to see if it's accessible with current keys
+            $price = \Stripe\Price::retrieve($instance->customtext1);
+            return ['accessible' => true, 'error' => ''];
+        } catch (\Exception $e) {
+            // Price not found or not accessible with current API keys
+            return ['accessible' => false, 'error' => $e->getMessage()];
         }
     }
 }

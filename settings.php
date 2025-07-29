@@ -87,6 +87,18 @@ if ($ADMIN->fulltree) {
         '</div>'
     ));
 
+    // Add warning about mode changes affecting instances
+    $settings->add(new admin_setting_description(
+        'enrol_stripepayment/mode_change_warning',
+        '',
+        '<div style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin: 10px 0;">' .
+        '<strong>⚠️ Warning:</strong> Changing the mode will hide enrolment instances created in the other mode. ' .
+        'Products and prices are linked to specific API keys. If you switch modes and users try to access ' .
+        'enrolment instances from the previous mode, they will see a "Payment method not found, contact admin" error. ' .
+        'This is normal behavior and instances will reappear when you switch back to the original mode.' .
+        '</div>'
+    ));
+
     if ($current_mode === 'test') {
         $settings->add(new admin_setting_heading(
             'enrol_stripepayment_test_keys',

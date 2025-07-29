@@ -86,6 +86,7 @@ $string['publishablekeydesc'] = 'The API publishable key of stripe account';
 $string['secretkey'] = 'Stripe secret Key';
 $string['secretkeydesc'] = 'The API secret key of stripe account';
 $string['paymenterror'] = 'Payment session creation failed.';
+$string['paymentmethodnotfound'] = 'Payment method not found. This enrolment instance was created with different API keys. Please contact the administrator for assistance.';
 $string['sessioncreated'] = 'Checkout session created successfully!';
 $string['sessioncreatefail'] = 'Checkout session creation failed! ';
 $string['status'] = 'Allow stripe enrolments';
