@@ -82,5 +82,67 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025071807, 'enrol', 'stripepayment');
     }
 
+    if ($oldversion < 2025073004) {
+        // Rename database columns to remove underscores for consistency.
+        $table = new xmldb_table('enrol_stripepayment');
+
+        // Rename receiver_email to receiveremail.
+        $field = new xmldb_field('receiver_email', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'receiveremail');
+        }
+
+        // Rename receiver_id to receiverid.
+        $field = new xmldb_field('receiver_id', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'receiverid');
+        }
+
+        // Rename item_name to itemname.
+        $field = new xmldb_field('item_name', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'itemname');
+        }
+
+        // Rename coupon_id to couponid.
+        $field = new xmldb_field('coupon_id', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'couponid');
+        }
+
+        // Rename payment_status to paymentstatus.
+        $field = new xmldb_field('payment_status', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'paymentstatus');
+        }
+
+        // Rename pending_reason to pendingreason.
+        $field = new xmldb_field('pending_reason', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'pendingreason');
+        }
+
+        // Rename reason_code to reasoncode.
+        $field = new xmldb_field('reason_code', XMLDB_TYPE_CHAR, '30', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'reasoncode');
+        }
+
+        // Rename txn_id to txnid.
+        $field = new xmldb_field('txn_id', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'txnid');
+        }
+
+        // Rename payment_type to paymenttype.
+        $field = new xmldb_field('payment_type', XMLDB_TYPE_CHAR, '30', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'paymenttype');
+        }
+
+        // Stripe savepoint reached.
+        upgrade_plugin_savepoint(true, 2025073004, 'enrol', 'stripepayment');
+    }
+
     return true;
 }

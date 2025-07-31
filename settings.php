@@ -47,11 +47,11 @@ if ($ADMIN->fulltree) {
         'live' => get_string('livemode', 'enrol_stripepayment', 'Live Mode'),
     ];
     
-    $currentmode = get_config('enrol_stripepayment', 'stripe_mode') ?: 'test';
+    $currentmode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
     $modedescription = get_string('stripemodedesc', 'enrol_stripepayment');
 
     $settings->add(new admin_setting_configselect(
-        'enrol_stripepayment/stripe_mode',
+        'enrol_stripepayment/stripemode',
         get_string('stripemode', 'enrol_stripepayment'),
         $modedescription,
         'test',
@@ -72,7 +72,7 @@ if ($ADMIN->fulltree) {
     ));
     
     // Get current mode to show only relevant section
-    $current_mode = get_config('enrol_stripepayment', 'stripe_mode') ?: 'test';
+    $current_mode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
 
     // Add mode switching instructions
     $mode_switch_text = $current_mode === 'test' ?
@@ -109,7 +109,7 @@ if ($ADMIN->fulltree) {
         ));
 
         $settings->add(new admin_setting_configtext(
-            'enrol_stripepayment/test_publishablekey',
+            'enrol_stripepayment/testpublishablekey',
             get_string('testpublishablekey', 'enrol_stripepayment'),
             get_string('testpublishablekeydesc', 'enrol_stripepayment'),
             '',
@@ -117,7 +117,7 @@ if ($ADMIN->fulltree) {
         ));
 
         $settings->add(new admin_setting_configtext(
-            'enrol_stripepayment/test_secretkey',
+            'enrol_stripepayment/testsecretkey',
             get_string('testsecretkey', 'enrol_stripepayment'),
             get_string('testsecretkeydesc', 'enrol_stripepayment'),
             '',
@@ -133,7 +133,7 @@ if ($ADMIN->fulltree) {
         ));
 
         $settings->add(new admin_setting_configtext(
-            'enrol_stripepayment/live_publishablekey',
+            'enrol_stripepayment/livepublishablekey',
             get_string('livepublishablekey', 'enrol_stripepayment'),
             get_string('livepublishablekeydesc', 'enrol_stripepayment'),
             '',
@@ -141,7 +141,7 @@ if ($ADMIN->fulltree) {
         ));
 
         $settings->add(new admin_setting_configtext(
-            'enrol_stripepayment/live_secretkey',
+            'enrol_stripepayment/livesecretkey',
             get_string('livesecretkey', 'enrol_stripepayment'),
             get_string('livesecretkeydesc', 'enrol_stripepayment'),
             '',
@@ -155,11 +155,11 @@ if ($ADMIN->fulltree) {
     // Enhanced auto-migration logic for legacy keys
     $legacy_publishable = get_config('enrol_stripepayment', 'publishablekey');
     $legacy_secret = get_config('enrol_stripepayment', 'secretkey');
-    $test_publishable = get_config('enrol_stripepayment', 'test_publishablekey');
-    $test_secret = get_config('enrol_stripepayment', 'test_secretkey');
-    $live_publishable = get_config('enrol_stripepayment', 'live_publishablekey');
-    $live_secret = get_config('enrol_stripepayment', 'live_secretkey');
-    $current_mode = get_config('enrol_stripepayment', 'stripe_mode');
+    $test_publishable = get_config('enrol_stripepayment', 'testpublishablekey');
+    $test_secret = get_config('enrol_stripepayment', 'testsecretkey');
+    $live_publishable = get_config('enrol_stripepayment', 'livepublishablekey');
+    $live_secret = get_config('enrol_stripepayment', 'livesecretkey');
+    $current_mode = get_config('enrol_stripepayment', 'stripemode');
 
     // Auto-migrate legacy keys if they exist and new keys are empty
     if (!empty($legacy_publishable) && !empty($legacy_secret)) {
@@ -174,18 +174,18 @@ if ($ADMIN->fulltree) {
         // Auto-detect mode from legacy keys and migrate
         if ($migration_needed) {
             if (strpos($legacy_secret, 'sk_test_') === 0 && strpos($legacy_publishable, 'pk_test_') === 0) {
-                set_config('test_publishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('test_secretkey', $legacy_secret, 'enrol_stripepayment');
-                set_config('stripe_mode', 'test', 'enrol_stripepayment');
+                set_config('testpublishablekey', $legacy_publishable, 'enrol_stripepayment');
+                set_config('testsecretkey', $legacy_secret, 'enrol_stripepayment');
+                set_config('stripemode', 'test', 'enrol_stripepayment');
 
                 // Clear legacy keys after migration
                 set_config('publishablekey', '', 'enrol_stripepayment');
                 set_config('secretkey', '', 'enrol_stripepayment');
 
             } else if (strpos($legacy_secret, 'sk_live_') === 0 && strpos($legacy_publishable, 'pk_live_') === 0) {
-                set_config('live_publishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('live_secretkey', $legacy_secret, 'enrol_stripepayment');
-                set_config('stripe_mode', 'live', 'enrol_stripepayment');
+                set_config('livepublishablekey', $legacy_publishable, 'enrol_stripepayment');
+                set_config('livesecretkey', $legacy_secret, 'enrol_stripepayment');
+                set_config('stripemode', 'live', 'enrol_stripepayment');
 
                 // Clear legacy keys after migration
                 set_config('publishablekey', '', 'enrol_stripepayment');
@@ -250,7 +250,7 @@ if ($ADMIN->fulltree) {
         get_string('webservicetokenstring', 'enrol_stripepayment'),
         get_string('enablewebservicesfirst', 'enrol_stripepayment') . '<a href="' . $webservicesoverview . '" target="_blank"> '
         . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
-        . get_string('create_user_token', 'enrol_stripepayment') . '<a href="' . $restweblink . '" target="_blank"> '
+        . get_string('createusertoken', 'enrol_stripepayment') . '<a href="' . $restweblink . '" target="_blank"> '
         . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
         . get_string('enabledrestprotocol', 'enrol_stripepayment') . '<a href="' . $createtoken . '" target="_blank"> '
         . get_string('fromhere', 'enrol_stripepayment') . '</a>
@@ -304,7 +304,7 @@ if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configselect(
             'enrol_stripepayment/roleid',
             get_string('defaultrole', 'enrol_stripepayment'),
-            get_string('defaultrole_desc', 'enrol_stripepayment'),
+            get_string('defaultroledesc', 'enrol_stripepayment'),
             $student->id,
             $options
         ));

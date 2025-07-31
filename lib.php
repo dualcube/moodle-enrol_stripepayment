@@ -24,6 +24,7 @@
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 defined('MOODLE_INTERNAL') || die();
 
 use core_enrol\output\enrol_page;
@@ -358,7 +359,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         // Set up the required JavaScript for Stripe integration.
         $plugin = enrol_get_plugin('stripepayment');
         $publishablekey = $plugin->get_current_publishable_key();
-        $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripe_payment',
+        $PAGE->requires->js_call_amd('enrol_stripepayment/stripe_payment', 'stripePayment',
             [
                 $USER->id,
                 null, // Couponid starts as null.
@@ -704,7 +705,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @return string 'test' or 'live'
      */
     public function get_stripe_mode() {
-        $mode = get_config('enrol_stripepayment', 'stripe_mode');
+        $mode = get_config('enrol_stripepayment', 'stripemode');
         return $mode ?: 'test'; // Default to test mode for safety
     }
 
@@ -717,11 +718,11 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $mode = $this->get_stripe_mode();
 
         if ($mode === 'live') {
-            $publishable = get_config('enrol_stripepayment', 'live_publishablekey');
-            $secret = get_config('enrol_stripepayment', 'live_secretkey');
+            $publishable = get_config('enrol_stripepayment', 'livepublishablekey');
+            $secret = get_config('enrol_stripepayment', 'livesecretkey');
         } else {
-            $publishable = get_config('enrol_stripepayment', 'test_publishablekey');
-            $secret = get_config('enrol_stripepayment', 'test_secretkey');
+            $publishable = get_config('enrol_stripepayment', 'testpublishablekey');
+            $secret = get_config('enrol_stripepayment', 'testsecretkey');
         }
 
         // Fallback to legacy keys if new keys are empty
@@ -769,11 +770,11 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      */
     public function has_mode_changed() {
         $current_mode = $this->get_stripe_mode();
-        $stored_mode = get_config('enrol_stripepayment', 'last_known_mode');
+        $stored_mode = get_config('enrol_stripepayment', 'lastknownmode');
 
         if ($stored_mode !== $current_mode) {
             // Update the stored mode
-            set_config('last_known_mode', $current_mode, 'enrol_stripepayment');
+            set_config('lastknownmode', $current_mode, 'enrol_stripepayment');
             return true;
         }
 

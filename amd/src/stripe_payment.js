@@ -13,6 +13,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * External library for stripepayment
+ *
+ * @package    enrol_stripepayment
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  2019 DualCube Team(https://dualcube.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 import ajax from 'core/ajax';
 
 const { call: fetchMany } = ajax;
@@ -21,39 +30,39 @@ const { call: fetchMany } = ajax;
 const applyCoupon = (couponid, instanceid) =>
     fetchMany([{ methodname: "moodle_stripepayment_applycoupon", args: { couponid, instanceid } }])[0];
 
-const stripeenrol = (userid, couponid, instanceid) =>
+const stripeEnrol = (userid, couponid, instanceid) =>
     fetchMany([{ methodname: "moodle_stripepayment_enrol", args: { userid, couponid, instanceid } }])[0];
 
 const createDOM = (instanceid) => {
     const cache = new Map();
     return {
-        getelement(id) {
+        getElement(id) {
             const fullid = `${id}-${instanceid}`;
             if (!cache.has(fullid)) {
                 cache.set(fullid, document.getElementById(fullid));
             }
             return cache.get(fullid);
         },
-        setelement(id, html) {
-            const element = this.getelement(id);
+        setElement(id, html) {
+            const element = this.getElement(id);
             if (element) {
                 element.innerHTML = html;
             }
         },
-        toggleelement(id, show) {
-            const element = this.getelement(id);
+        toggleElement(id, show) {
+            const element = this.getElement(id);
             if (element) {
                 element.style.display = show ? "block" : "none";
             }
         },
-        focuselement(id) {
-            const element = this.getelement(id);
+        focusElement(id) {
+            const element = this.getElement(id);
             if (element) {
                 element.focus();
             }
         },
-        setbutton(id, disabled, text, opacity = disabled ? "0.7" : "1") {
-            const button = this.getelement(id);
+        setButton(id, disabled, text, opacity = disabled ? "0.7" : "1") {
+            const button = this.getElement(id);
             if (button) {
                 button.disabled = disabled;
                 button.textContent = text;
@@ -64,7 +73,7 @@ const createDOM = (instanceid) => {
     };
 };
 
-function stripe_payment(userid, couponid, instanceid, pleasewaitstring, entercoupon, couponappling,paymenterror) {
+function stripePayment(userid, couponid, instanceid, pleasewaitstring, entercoupon, couponappling,paymenterror) {
     const DOM = createDOM(instanceid);
     if (typeof window.Stripe === "undefined") {
         return;
@@ -77,13 +86,13 @@ function stripe_payment(userid, couponid, instanceid, pleasewaitstring, entercou
             case "success": color = "green"; break;
             default: color = "blue"; break;
         }
-        DOM.setelement(containerid, `<p style="color: ${color}; font-weight: bold;">${message}</p>`);
-        DOM.toggleelement(containerid, true);
+        DOM.setElement(containerid, `<p style="color: ${color}; font-weight: bold;">${message}</p>`);
+        DOM.toggleElement(containerid, true);
     };
 
     const clearError = (containerid) => {
-        DOM.setelement(containerid, "");
-        DOM.toggleelement(containerid, false);
+        DOM.setElement(containerid, "");
+        DOM.toggleElement(containerid, false);
     };
 
     const updateUIFromServerResponse = (data) => {
@@ -93,27 +102,27 @@ function stripe_payment(userid, couponid, instanceid, pleasewaitstring, entercou
             clearError("showmessage");
         }
 
-        DOM.toggleelement("enrolbutton", data.uistate === "paid");
-        DOM.toggleelement("total", data.uistate === "paid");
+        DOM.toggleElement("enrolbutton", data.uistate === "paid");
+        DOM.toggleElement("total", data.uistate === "paid");
 
         if (data.uistate !== "error") {
-            DOM.toggleelement("discountsection", data.showsections.discountsection);
+            DOM.toggleElement("discountsection", data.showsections.discountsection);
             if (data.showsections.discountsection) {
                 if (data.couponname) {
-                    DOM.setelement("discounttag", data.couponname);
+                    DOM.setElement("discounttag", data.couponname);
                 }
                 if (data.discountamount && data.currency) {
-                    DOM.setelement("discountamountdisplay", `-${data.currency} ${data.discountamount}`);
+                    DOM.setElement("discountamountdisplay", `-${data.currency} ${data.discountamount}`);
                 }
                 if (data.discountamount && data.discountvalue) {
                     const note = data.coupontype === "percentoff"
                         ? `${data.discountvalue}% off`
                         : `${data.currency} ${data.discountvalue} off`;
-                    DOM.setelement("discountnote", note);
+                    DOM.setElement("discountnote", note);
                 }
             }
             if (data.status && data.currency) {
-                const totalamount = DOM.getelement("totalamount");
+                const totalamount = DOM.getElement("totalamount");
                 if (totalamount) {
                     totalamount.textContent = `${data.currency} ${parseFloat(data.status).toFixed(2)}`;
                 }
@@ -123,37 +132,37 @@ function stripe_payment(userid, couponid, instanceid, pleasewaitstring, entercou
 
     const applyCouponHandler = async (event) => {
         event.preventDefault();
-        const couponinput = DOM.getelement("coupon");
+        const couponinput = DOM.getElement("coupon");
         const couponcode = couponinput?.value.trim();
         if (!couponcode) {
             displayMessage("showmessage", entercoupon, "error");
-            DOM.focuselement("coupon");
+            DOM.focusElement("coupon");
             return;
         }
-        DOM.setbutton("apply", true, couponappling);
+        DOM.setButton("apply", true, couponappling);
         try {
             const data = await applyCoupon(couponcode, instanceid);
             if (data?.status !== undefined) {
                 couponid = couponcode;
-                DOM.toggleelement("coupon", false);
-                DOM.toggleelement("apply", false);
+                DOM.toggleElement("coupon", false);
+                DOM.toggleElement("apply", false);
                 updateUIFromServerResponse(data);
             } else {
                 throw new Error("Invalid server response");
             }
         } catch (error) {
             displayMessage("showmessage", error.message || "Coupon validation failed", "error");
-            DOM.focuselement("coupon");
+            DOM.focusElement("coupon");
         }
     };
 
     const EnrollHandler = async () => {
-        const enrollbutton = DOM.getelement("enrolbutton");
+        const enrollbutton = DOM.getElement("enrolbutton");
         if (!enrollbutton) return;
         clearError("paymentresponse");
-        DOM.setbutton("enrolbutton", true, pleasewaitstring);
+        DOM.setButton("enrolbutton", true, pleasewaitstring);
         try {
-            const paymentdata = await stripeenrol(userid, couponid, instanceid);
+            const paymentdata = await stripeEnrol(userid, couponid, instanceid);
             if (paymentdata.error?.message) {
                 displayMessage("paymentresponse", paymentdata.error.message, "error");
             } else if (paymentdata.status === "success" && paymentdata.redirecturl) {
@@ -164,7 +173,7 @@ function stripe_payment(userid, couponid, instanceid, pleasewaitstring, entercou
         } catch (err) {
             displayMessage("paymentresponse", err.message, "error");
         } finally {
-            DOM.toggleelement("enrolbutton", false);
+            DOM.toggleElement("enrolbutton", false);
         }
     };
 
@@ -174,7 +183,7 @@ function stripe_payment(userid, couponid, instanceid, pleasewaitstring, entercou
             { id: "enrolbutton", event: "click", handler: EnrollHandler },
         ];
         elements.forEach(({ id, event, handler }) => {
-            const element = DOM.getelement(id);
+            const element = DOM.getElement(id);
             if (element) {
                 element.addEventListener(event, handler);
             }
@@ -185,5 +194,5 @@ function stripe_payment(userid, couponid, instanceid, pleasewaitstring, entercou
 }
 
 export default {
-    stripe_payment,
+    stripePayment,
 };

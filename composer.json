@@ -45,9 +45,6 @@
             "rm -rf release/stripepayment"
         ],
         "git-final-push": "@php scripts/git-final-push.php",
-        "git-tag-and-push": [
-            "@php scripts/git-tag-and-push.php"
-        ],
         "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
         "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/*"
     }

@@ -463,12 +463,12 @@ class moodle_enrol_stripepayment_external extends external_api {
             ];
             // Retrieve Stripe customer_id if previously set.
             $checkcustomer = $DB->get_records('enrol_stripepayment',
-            ['receiver_email' => $user->email]);
+            ['receiveremail' => $user->email]);
             foreach ($checkcustomer as $keydata => $valuedata) {
                 $checkcustomer = $valuedata;
             }
             if ($checkcustomer) {
-                $receiverid = $checkcustomer->receiver_id;
+                $receiverid = $checkcustomer->receiverid;
             } else {
                 $customers = Customer::all(['email' => $user->email]);
                 if ( empty($customers->data) ) {
@@ -594,7 +594,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             $txnid = $checkoutsession->id;
         }
 
-        $data->coupon_id = $couponid;
+        $data->couponid = $couponid;
         $data->stripeEmail = $email;
 
         // Validate users, course, conntext, plugininstance.
@@ -618,17 +618,17 @@ class moodle_enrol_stripepayment_external extends external_api {
             // Send the file, this line will be reached if no error was thrown above.
             $failuremessage = $charge ? ($charge->failure_message ?? 'NA') : 'NA';
             $failurecode = $charge ? ($charge->failure_code ?? 'NA') : 'NA';
-            $data->coupon_id = $couponid;
-            $data->receiver_email = $user->email; // Use user email from database instead of Stripe response.
-            $data->receiver_id = $checkoutsession->customer;
-            $data->txn_id = $txnid;
+            $data->couponid = $couponid;
+            $data->receiveremail = $user->email; // Use user email from database instead of Stripe response.
+            $data->receiverid = $checkoutsession->customer;
+            $data->txnid = $txnid;
             $data->price = $charge ? $charge->amount / 100 : 0;
             $data->memo = $charge ? $charge->payment_method : 'none';
-            $data->payment_status = $paymentstatus;
-            $data->pending_reason = $failuremessage;
-            $data->reason_code = $failurecode;
-            $data->item_name = $course->fullname;
-            $data->payment_type = $charge ? 'stripe' : 'free';
+            $data->paymentstatus = $paymentstatus;
+            $data->pendingreason = $failuremessage;
+            $data->reasoncode = $failurecode;
+            $data->itemname = $course->fullname;
+            $data->paymenttype = $charge ? 'stripe' : 'free';
 
             // Use consolidated enrollment and notification function.
             self::enroll_user_and_send_notifications($plugininstance, $course, $context, $user, $data);
