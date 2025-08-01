@@ -475,7 +475,7 @@ class moodle_enrol_stripepayment_external extends external_api {
                     $customer = Customer::create([
                         "email" => $user->email,
                         "name" => fullname($user),
-                        "description" => get_string('charge_description1', 'enrol_stripepayment'),
+                        "description" => get_string('chargedescription1', 'enrol_stripepayment'),
                     ]);
                 } else {
                     $customer = $customers->data[0];
