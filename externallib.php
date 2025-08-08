@@ -462,26 +462,53 @@ class moodle_enrol_stripepayment_external extends external_api {
                 ],
             ];
             // Retrieve Stripe customer_id if previously set.
-            $checkcustomer = $DB->get_records('enrol_stripepayment',
-            ['receiveremail' => $user->email]);
-            foreach ($checkcustomer as $keydata => $valuedata) {
-                $checkcustomer = $valuedata;
-            }
-            if ($checkcustomer) {
-                $receiverid = $checkcustomer->receiverid;
-            } else {
-                $customers = Customer::all(['email' => $user->email]);
-                if ( empty($customers->data) ) {
-                    $customer = Customer::create([
-                        "email" => $user->email,
-                        "name" => fullname($user),
-                        "description" => get_string('chargedescription1', 'enrol_stripepayment'),
-                    ]);
-                } else {
-                    $customer = $customers->data[0];
+            $checkcustomer = $DB->get_record('enrol_stripepayment', ['receiveremail' => $user->email], '*', IGNORE_MISSING);
+            $receiverid = $checkcustomer ? $checkcustomer->receiverid : null;
+
+            if ($receiverid) {
+                try {
+                    // Attempt to retrieve customer with the existing ID.
+                    Customer::retrieve($receiverid);
+                } catch (\Stripe\Exception\InvalidRequestException $e) {
+                    if (strpos($e->getMessage(), 'No such customer') !== false ||
+                        strpos($e->getMessage(), 'You do not have access') !== false) {
+                        // Customer doesn't exist or inaccessible with current API key.
+                        $receiverid = null;
+                    } else {
+                        throw $e; // Some other error, rethrow.
+                    }
                 }
-                $receiverid = $customer->id;
             }
+
+            if (!$receiverid) {
+                try {
+                    $newcustomer = Customer::create([
+                        'email' => $user->email,
+                        'name' => fullname($user),
+                        'description' => get_string('chargedescription1', 'enrol_stripepayment'),
+                    ]);
+                    $receiverid = $newcustomer->id;
+
+                    // Save or update in DB.
+                    if ($checkcustomer) {
+                        $DB->set_field('enrol_stripepayment', 'receiverid', $receiverid, ['receiveremail' => $user->email]);
+                    } else {
+                        // Save a new minimal record to store receiverid for this user.
+                        $DB->insert_record('enrol_stripepayment', [
+                            'receiveremail' => $user->email,
+                            'receiverid' => $receiverid,
+                            'userid' => $user->id,
+                            'timeupdated' => time()
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    return [
+                        'status' => 0,
+                        'error' => ['message' => 'Could not create customer in Stripe: ' . $e->getMessage()],
+                    ];
+                }
+            }
+
             // Create new Checkout Session for the order.
             try {
                 $sessionparams = [
