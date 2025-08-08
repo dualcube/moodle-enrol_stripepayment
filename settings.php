@@ -73,14 +73,14 @@ if ($ADMIN->fulltree) {
 
     // Add mode switching instructions
     $mode_switch_text = $current_mode === 'test' ?
-        'To switch to Live Mode, change the mode above and save settings.' :
-        'To switch to Test Mode, change the mode above and save settings.';
+        get_string('infomodetext', 'enrol_stripepayment') :
+        get_string('infomodetextlive', 'enrol_stripepayment');
 
     $settings->add(new admin_setting_description(
         'enrol_stripepayment/mode_switch_info',
         '',
         '<div style="background-color: #f0f8ff; padding: 10px; border-left: 4px solid #2196f3; margin: 10px 0;">' .
-        '<strong>ℹ️ Info:</strong> ' . $mode_switch_text .
+        '<strong>ℹ️ Info:</strong> ' . get_string('infomodetext', 'enrol_stripepayment') .
         '</div>'
     ));
 
@@ -89,10 +89,7 @@ if ($ADMIN->fulltree) {
         'enrol_stripepayment/mode_change_warning',
         '',
         '<div style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin: 10px 0;">' .
-        '<strong>⚠️ Warning:</strong> Changing the mode will hide enrolment instances created in the other mode. ' .
-        'Products and prices are linked to specific API keys. If you switch modes and users try to access ' .
-        'enrolment instances from the previous mode, they will see a "Payment method not found, contact admin" error. ' .
-        'This is normal behavior and instances will reappear when you switch back to the original mode.' .
+        '<strong>⚠️ Warning:</strong> ' . get_string('warningmodetext', 'enrol_stripepayment') .
         '</div>'
     ));
 
