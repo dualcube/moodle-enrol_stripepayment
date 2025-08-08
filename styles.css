@@ -255,5 +255,5 @@
 
     /* Utility classes */
     .stripepayment-hidden {
-        display: none !important;
+        display: none ;
     }
