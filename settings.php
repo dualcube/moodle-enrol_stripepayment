@@ -34,6 +34,16 @@ if ($ADMIN->fulltree) {
         '',
         get_string('pluginnamedesc', 'enrol_stripepayment')
     ));
+
+    // Dynamic Mode Status Display
+    $plugin = enrol_get_plugin('stripepayment');
+    $modestatustext = $plugin->get_mode_status_display();
+
+    $settings->add(new admin_setting_description(
+        'enrol_stripepayment/mode_status',
+        get_string('currentmodestatus', 'enrol_stripepayment'),
+        $modestatustext
+    ));
     
     $settings->add(new admin_setting_heading(
         'enrol_stripepayment_mode_settings',
@@ -56,19 +66,6 @@ if ($ADMIN->fulltree) {
         $modedescription,
         'test',
         $modeoptions
-    ));
-
-    // Note: Sections are now conditionally rendered server-side based on current mode
-    // This provides a cleaner interface and maintains Moodle's default structure
-
-    // Dynamic Mode Status Display
-    $plugin = enrol_get_plugin('stripepayment');
-    $modestatustext = $plugin->get_mode_status_display();
-
-    $settings->add(new admin_setting_description(
-        'enrol_stripepayment/mode_status',
-        get_string('currentmodestatus', 'enrol_stripepayment'),
-        $modestatustext
     ));
     
     // Get current mode to show only relevant section
