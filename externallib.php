@@ -25,7 +25,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once("$CFG->libdir/externallib.php");
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
 require_once("$CFG->libdir/enrollib.php");
 require_once('vendor/stripe/stripe-php/init.php');
 use Stripe\Stripe as Stripe;
@@ -64,7 +67,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             [
                 'status' => new external_value(PARAM_RAW, 'status: true if success'),
                 'couponname' => new external_value(PARAM_RAW, 'coupon name', VALUE_OPTIONAL),
-                'coupon_type' => new external_value(PARAM_RAW, 'coupon type: percent_off or amount_off', VALUE_OPTIONAL),
+                'coupontype' => new external_value(PARAM_RAW, 'coupon type: percent_off or amount_off', VALUE_OPTIONAL),
                 'discountvalue' => new external_value(PARAM_RAW, 'discount value', VALUE_OPTIONAL),
                 'currency' => new external_value(PARAM_RAW, 'currency code', VALUE_OPTIONAL),
                 'discountamount' => new external_value(PARAM_RAW, 'discount amount', VALUE_OPTIONAL),

@@ -754,7 +754,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     }
 
     /**
-     * Get the current publishable key based on mode - NEW METHOD.
+     * Get the current publishable key based on mode.
      *
      * @return string The appropriate publishable key
      */
@@ -763,26 +763,9 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         return $keys['publishable'];
     }
 
-    /**
-     * Check if the current mode has changed since last check - NEW METHOD.
-     *
-     * @return bool True if mode has changed
-     */
-    public function has_mode_changed() {
-        $current_mode = $this->get_stripe_mode();
-        $stored_mode = get_config('enrol_stripepayment', 'lastknownmode');
-
-        if ($stored_mode !== $current_mode) {
-            // Update the stored mode
-            set_config('lastknownmode', $current_mode, 'enrol_stripepayment');
-            return true;
-        }
-
-        return false;
-    }
 
     /**
-     * Validate API keys for the current mode - NEW METHOD.
+     * Validate API keys for the current mode.
      *
      * @return array Array with 'valid' boolean and 'errors' array
      */
