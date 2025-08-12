@@ -172,15 +172,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception($e->getMessage());
         }
 
-        // Add minimum cost validation after coupon application.
-        $minamount = [
-            'USD' => 0.5, 'AED' => 2.0, 'AUD' => 0.5, 'BGN' => 1.0, 'BRL' => 0.5,
-            'CAD' => 0.5, 'CHF' => 0.5, 'CZK' => 15.0, 'DKK' => 2.5, 'EUR' => 0.5,
-            'GBP' => 0.3, 'HKD' => 4.0, 'HUF' => 175.0, 'INR' => 0.5, 'JPY' => 50,
-            'MXN' => 10, 'MYR' => 2, 'NOK' => 3.0, 'NZD' => 0.5, 'PLN' => 2.0,
-            'RON' => 2.0, 'SEK' => 3.0, 'SGD' => 0.5, 'THB' => 10,
-        ];
-        $minamount = isset($minamount[$currency]) ? $minamount[$currency] : 0.5;
+        $minamount = $plugin->minamount($currency);
 
         // Calculate UI state for display purposes only.
         $uistate = [
@@ -249,6 +241,32 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         return true;
     }
+    private static function send_message($course, $userfrom, $userto, $subject, $orderdetails, $shortname, $fullmessage) {
+        
+        $fullmessagehtml = '<p>' . $fullmessage . '</p>';
+
+        $recipients = is_array($userto) ? $userto : [$userto];
+        foreach ($recipients as $recipient) {
+            $message = new \core\message\message();
+            $message->courseid = $course->id;
+            $message->component = 'enrol_stripepayment';
+            $message->name = 'stripepayment_enrolment';
+            $message->userfrom = $userfrom;
+            $message->userto = $recipient;
+            $message->subject = $subject;
+            $message->fullmessage = $fullmessage;
+            $message->fullmessageformat = FORMAT_PLAIN;
+            $message->fullmessagehtml = $fullmessagehtml;
+            $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
+            $message->notification = 1;
+            $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
+            $message->contexturlname = $orderdetails->coursename;
+
+            if (!message_send($message)) {
+                debugging("Failed to send stripepayment enrolment notification to user: {$recipient->id}", DEBUG_DEVELOPER);
+            }
+        }
+    }
 
     /**
      * Send enrollment notifications to students, teachers, and admins
@@ -283,85 +301,25 @@ class moodle_enrol_stripepayment_external extends external_api {
         $subject = get_string("enrolmentnew", 'enrol', $shortname);
         $orderdetails->user = fullname($user);
 
-        // Send notification to student.
+        // Student notification.
         if (!empty($mailstudents)) {
             $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
             $userfrom = empty($teacher) ? core_user::get_noreply_user() : $teacher;
             $fullmessage = get_string('welcometocoursetext', '', $orderdetails);
-            $fullmessagehtml = '<p>'.get_string('welcometocoursetext', '', $orderdetails).'</p>';
-
-            $message = new \core\message\message();
-            $message->courseid = $course->id;
-            $message->component = 'enrol_stripepayment';
-            $message->name = 'stripepayment_enrolment';
-            $message->userfrom = $userfrom;
-            $message->userto = $user;
-            $message->subject = $subject;
-            $message->fullmessage = $fullmessage;
-            $message->fullmessageformat = FORMAT_PLAIN;
-            $message->fullmessagehtml = $fullmessagehtml;
-            $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
-            $message->notification = 1;
-            $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
-            $message->contexturlname = $orderdetails->coursename;
-
-            $messageid = message_send($message);
-            if (!$messageid) {
-                debugging('Failed to send stripepayment enrolment notification to student: ' . $user->id, DEBUG_DEVELOPER);
-            }
+            self::send_message($course, $userfrom, $user, $subject, $orderdetails, $shortname, $fullmessage);
         }
 
-        // Send notification to teacher.
+        // Teacher notification.
         if (!empty($mailteachers) && !empty($teacher)) {
             $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-            $fullmessagehtml = '<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>';
-            $message = new \core\message\message();
-            $message->courseid = $course->id;
-            $message->component = 'enrol_stripepayment';
-            $message->name = 'stripepayment_enrolment';
-            $message->userfrom = $user;
-            $message->userto = $teacher;
-            $message->subject = $subject;
-            $message->fullmessage = $fullmessage;
-            $message->fullmessageformat = FORMAT_PLAIN;
-            $message->fullmessagehtml = $fullmessagehtml;
-            $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
-            $message->notification = 1;
-            $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
-            $message->contexturlname = $orderdetails->coursename;
-            $messageid = message_send($message);
-            if (!$messageid) {
-                debugging('Failed to send stripepayment enrolment notification to teacher: ' . $teacher->id, DEBUG_DEVELOPER);
-            }
+            self::send_message($course, $user, $teacher, $subject, $orderdetails, $shortname, $fullmessage);
         }
 
-        // Send notification to admins.
+        // Admin notifications.
         if (!empty($mailadmins)) {
             $admins = get_admins();
-            foreach ($admins as $admin) {
-                $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-                $fullmessagehtml = '<p>'.get_string('enrolmentnewuser', 'enrol', $orderdetails).'</p>';
-
-                $message = new \core\message\message();
-                $message->courseid = $course->id;
-                $message->component = 'enrol_stripepayment';
-                $message->name = 'stripepayment_enrolment';
-                $message->userfrom = $user;
-                $message->userto = $admin;
-                $message->subject = $subject;
-                $message->fullmessage = $fullmessage;
-                $message->fullmessageformat = FORMAT_PLAIN;
-                $message->fullmessagehtml = $fullmessagehtml;
-                $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
-                $message->notification = 1;
-                $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
-                $message->contexturlname = $orderdetails->coursename;
-
-                $messageid = message_send($message);
-                if (!$messageid) {
-                    debugging('Failed to send stripepayment enrolment notification to admin: ' . $admin->id, DEBUG_DEVELOPER);
-                }
-            }
+            $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
+            self::send_message($course, $user, $admins, $subject, $orderdetails, $shortname, $fullmessage);
         }
     }
 
@@ -481,6 +439,12 @@ class moodle_enrol_stripepayment_external extends external_api {
                         throw $e; // Some other error, rethrow.
                     }
                 }
+            }
+
+            $customers = Customer::all(['email' => $user->email]);
+            if ($customers->data){
+                $customer = $customers->data[0];
+                $receiverid = $customer->id;
             }
 
             if (!$receiverid) {

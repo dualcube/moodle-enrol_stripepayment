@@ -652,15 +652,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             $currency = isset($data['currency']) ? $data['currency'] : 'USD';
 
             // Minimum amounts for different currencies.
-            $minamount = [
-                'USD' => 0.5, 'AED' => 2.0, 'AUD' => 0.5, 'BGN' => 1.0, 'BRL' => 0.5,
-                'CAD' => 0.5, 'CHF' => 0.5, 'CZK' => 15.0, 'DKK' => 2.5, 'EUR' => 0.5,
-                'GBP' => 0.3, 'HKD' => 4.0, 'HUF' => 175.0, 'INR' => 0.5, 'JPY' => 50,
-                'MXN' => 10, 'MYR' => 2, 'NOK' => 3.0, 'NZD' => 0.5, 'PLN' => 2.0,
-                'RON' => 2.0, 'SEK' => 3.0, 'SGD' => 0.5, 'THB' => 10,
-            ];
-
-            $minamount = isset($minamount[$currency]) ? $minamount[$currency] : 0.5;
+            $minamount = self::minamount($currency);
 
             // Check if cost is 0 or less (not allowed).
             if ($cost <= 0) {
@@ -671,6 +663,18 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             }
         }
         return $errors;
+    }
+
+    public function minamount($currency) {
+        $minamount = [
+            'USD' => 0.5, 'AED' => 2.0, 'AUD' => 0.5, 'BGN' => 1.0, 'BRL' => 0.5,
+            'CAD' => 0.5, 'CHF' => 0.5, 'CZK' => 15.0, 'DKK' => 2.5, 'EUR' => 0.5,
+            'GBP' => 0.3, 'HKD' => 4.0, 'HUF' => 175.0, 'INR' => 0.5, 'JPY' => 50,
+            'MXN' => 10, 'MYR' => 2, 'NOK' => 3.0, 'NZD' => 0.5, 'PLN' => 2.0,
+            'RON' => 2.0, 'SEK' => 3.0, 'SGD' => 0.5, 'THB' => 10,
+        ];
+        $minamount = isset($minamount[$currency]) ? $minamount[$currency] : 0.5;
+        return $minamount;
     }
 
     /**
