@@ -162,7 +162,7 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         }
 
         // Stripe savepoint reached.
-        upgrade_plugin_savepoint(true, 2025081200, 'enrol', 'stripepayment');
+        upgrade_plugin_savepoint(true, 2025052900, 'enrol', 'stripepayment');
     }
 
     return true;
