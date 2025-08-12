@@ -241,9 +241,7 @@ class moodle_enrol_stripepayment_external extends external_api {
 
         return true;
     }
-    private static function send_message($course, $userfrom, $userto, $subject, $orderdetails, $shortname, $fullmessage) {
-        
-        $fullmessagehtml = '<p>' . $fullmessage . '</p>';
+    private static function send_message($course, $userfrom, $userto, $subject, $orderdetails, $shortname, $fullmessage, $fullmessagehtml) {
 
         $recipients = is_array($userto) ? $userto : [$userto];
         foreach ($recipients as $recipient) {
@@ -257,7 +255,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             $message->fullmessage = $fullmessage;
             $message->fullmessageformat = FORMAT_PLAIN;
             $message->fullmessagehtml = $fullmessagehtml;
-            $message->smallmessage = get_string('enrolmentnew', 'enrol', $shortname);
+            $message->smallmessage = get_string('newenrolment', 'enrol_stripepayment', $shortname);
             $message->notification = 1;
             $message->contexturl = new \moodle_url('/course/view.php', ['id' => $course->id]);
             $message->contexturlname = $orderdetails->coursename;
@@ -298,28 +296,45 @@ class moodle_enrol_stripepayment_external extends external_api {
         $orderdetails = new stdClass();
         $orderdetails->coursename = format_string($course->fullname, true, ['context' => $coursecontext]);
         $orderdetails->course = format_string($course->fullname, true, ['context' => $coursecontext]);
-        $subject = get_string("enrolmentnew", 'enrol', $shortname);
         $orderdetails->user = fullname($user);
 
         // Student notification.
         if (!empty($mailstudents)) {
             $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
             $userfrom = empty($teacher) ? core_user::get_noreply_user() : $teacher;
-            $fullmessage = get_string('welcometocoursetext', '', $orderdetails);
-            self::send_message($course, $userfrom, $user, $subject, $orderdetails, $shortname, $fullmessage);
+            $fullmessage = get_string('welcometocoursetext', 'enrol_stripepayment', format_string($course->fullname));
+            $fullmessagehtml = '<p>' . $fullmessage . '</p>';
+            $subject = get_string("enrolmentuser", 'enrol_stripepayment', $shortname);
+            self::send_message($course, $userfrom, $user, $subject, $orderdetails, $shortname, $fullmessage, $fullmessagehtml);
         }
 
         // Teacher notification.
         if (!empty($mailteachers) && !empty($teacher)) {
-            $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-            self::send_message($course, $user, $teacher, $subject, $orderdetails, $shortname, $fullmessage);
+            $fullmessage = get_string('adminmessage', 'enrol_stripepayment', [
+                'username' => fullname($user),
+                'course' => $course->fullname ,
+            ]);
+            $fullmessagehtml = '<p>' . $fullmessage . '</p>';
+            $subject = get_string("enrolmentnew", 'enrol_stripepayment', [
+                'username' => fullname($user),
+                'course' => $course->fullname ,
+            ]);
+            self::send_message($course, $user, $teacher, $subject, $orderdetails, $shortname, $fullmessage, $fullmessagehtml);
         }
 
         // Admin notifications.
         if (!empty($mailadmins)) {
             $admins = get_admins();
-            $fullmessage = get_string('enrolmentnewuser', 'enrol', $orderdetails);
-            self::send_message($course, $user, $admins, $subject, $orderdetails, $shortname, $fullmessage);
+            $fullmessage = get_string('adminmessage', 'enrol_stripepayment', [
+                'username' => fullname($user),
+                'course' => $course->fullname ,
+            ] );
+            $fullmessagehtml = '<p>' . $fullmessage . '</p>';
+            $subject = get_string("enrolmentnew", 'enrol_stripepayment', [
+                'username' => fullname($user),
+                'course' => $course->fullname ,
+            ]);
+            self::send_message($course, $user, $admins, $subject, $orderdetails, $shortname, $fullmessage, $fullmessagehtml);
         }
     }
 
@@ -441,22 +456,19 @@ class moodle_enrol_stripepayment_external extends external_api {
                 }
             }
 
-            $customers = Customer::all(['email' => $user->email]);
-            if ($customers->data){
-                $customer = $customers->data[0];
-                $receiverid = $customer->id;
-            }
-
             if (!$receiverid) {
                 try {
-                    $newcustomer = Customer::create([
-                        'email' => $user->email,
-                        'name' => fullname($user),
-                        'description' => get_string('chargedescription1', 'enrol_stripepayment'),
-                    ]);
-                    $receiverid = $newcustomer->id;
+                    $customers = Customer::all(['email' => $user->email]);
+                    if (!empty($customers->data)){
+                        $receiverid = $customers->data[0]->id;
+                    } else {
+                        $newcustomer = Customer::create([
+                            'email' => $user->email,
+                            'name' => fullname($user),
+                        ]);
+                        $receiverid = $newcustomer->id;
+                    }
 
-                    // Save or update in DB.
                     if ($checkcustomer) {
                         $DB->set_field('enrol_stripepayment', 'receiverid', $receiverid, ['receiveremail' => $user->email]);
                     } else {

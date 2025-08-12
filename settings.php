@@ -143,51 +143,6 @@ if ($ADMIN->fulltree) {
         ));
     }
     
-    // Legacy fields are now auto-migrated and hidden from the interface
-    // They are kept in the database for backward compatibility but not shown to users
-    
-    // Enhanced auto-migration logic for legacy keys
-    $legacy_publishable = get_config('enrol_stripepayment', 'publishablekey');
-    $legacy_secret = get_config('enrol_stripepayment', 'secretkey');
-    $test_publishable = get_config('enrol_stripepayment', 'testpublishablekey');
-    $test_secret = get_config('enrol_stripepayment', 'testsecretkey');
-    $live_publishable = get_config('enrol_stripepayment', 'livepublishablekey');
-    $live_secret = get_config('enrol_stripepayment', 'livesecretkey');
-    $current_mode = get_config('enrol_stripepayment', 'stripemode');
-
-    // Auto-migrate legacy keys if they exist and new keys are empty
-    if (!empty($legacy_publishable) && !empty($legacy_secret)) {
-        $migration_needed = false;
-
-        // Check if we need to migrate
-        if (empty($test_publishable) && empty($live_publishable) &&
-            empty($test_secret) && empty($live_secret)) {
-            $migration_needed = true;
-        }
-
-        // Auto-detect mode from legacy keys and migrate
-        if ($migration_needed) {
-            if (strpos($legacy_secret, 'sk_test_') === 0 && strpos($legacy_publishable, 'pk_test_') === 0) {
-                set_config('testpublishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('testsecretkey', $legacy_secret, 'enrol_stripepayment');
-                set_config('stripemode', 'test', 'enrol_stripepayment');
-
-                // Clear legacy keys after migration
-                set_config('publishablekey', '', 'enrol_stripepayment');
-                set_config('secretkey', '', 'enrol_stripepayment');
-
-            } else if (strpos($legacy_secret, 'sk_live_') === 0 && strpos($legacy_publishable, 'pk_live_') === 0) {
-                set_config('livepublishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('livesecretkey', $legacy_secret, 'enrol_stripepayment');
-                set_config('stripemode', 'live', 'enrol_stripepayment');
-
-                // Clear legacy keys after migration
-                set_config('publishablekey', '', 'enrol_stripepayment');
-                set_config('secretkey', '', 'enrol_stripepayment');
-            }
-        }
-    }
-    
     $settings->add(new admin_setting_configcheckbox(
         'enrol_stripepayment/mailstudents',
         get_string('mailstudents', 'enrol_stripepayment'),
