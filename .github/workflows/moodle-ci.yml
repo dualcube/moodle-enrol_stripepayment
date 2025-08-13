@@ -143,7 +143,7 @@ jobs:
         run: npm install
         working-directory: stripepayment
 
-      - name: Build grunt
+      - name: Build Grunt
         run: npm run build
         working-directory: stripepayment
 
@@ -156,7 +156,8 @@ jobs:
 
       - name: Build Zip using exclude.lst
         run: |
-          zip -r ../release/stripepayment.zip . -x@exclude.lst
+          zip -r ../release/stripepayment.zip . -x@../exclude.lst
+        working-directory: stripepayment
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
