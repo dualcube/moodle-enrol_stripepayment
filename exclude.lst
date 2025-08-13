@@ -20,3 +20,7 @@ stripepayment/node_modules/*
 stripepayment/phpunit.xml
 stripepayment/tests/*
 stripepayment/release/*
+stripepayment/release/*
+stripepayment/exclude.lst
+stripepayment/Gruntfile.js
+stripepayment/VERIFICATION.md
