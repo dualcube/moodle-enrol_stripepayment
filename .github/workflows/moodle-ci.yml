@@ -155,8 +155,8 @@ jobs:
         run: mkdir -p release
 
       - name: Build Zip using exclude.lst
-        run: |
-          git archive --format=zip HEAD | zip -@ -X -r stripepayment.zip --exclude-from=exclude.lst
+        run:
+          git archive --format=zip --prefix=stripepayment/ HEAD | zip -r -@ stripepayment.zip -x@exclude.lst
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
