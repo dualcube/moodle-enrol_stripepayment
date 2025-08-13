@@ -34,16 +34,6 @@
     },
     "scripts": {
         "build": "./node_modules/.bin/grunt amd --root=enrol/stripepayment",
-        "copy-files": [
-        "mkdir -p release/stripepayment",
-        "@php copy-release.php"
-        ],
-        "zip-unix": [
-            "@build",
-            "@copy-files",
-            "cd release && zip -r stripepayment.zip stripepayment -x@../exclude.lst",
-            "rm -rf release/stripepayment"
-        ],
         "git-final-push": "@php scripts/git-final-push.php",
         "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
         "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/*"

@@ -56,26 +56,6 @@ jobs:
         run: composer install --no-dev --prefer-dist --no-progress
         working-directory: plugin
 
-      - name: Prepare Release Folder
-        run: mkdir -p release
-
-      - name: Build Zip & Clean Plugin Directory
-        run: |
-          composer run-script zip-unix
-        working-directory: plugin
-
-      - name: Copy Zip to release/
-        run: |
-          cp plugin/release/stripepayment.zip ${{ github.workspace }}/release/
-
-      - name: Upload plugin zip
-        uses: actions/upload-artifact@v4
-        with:
-          name: stripepayment
-          path: release/stripepayment.zip
-          retention-days: 14
-
-
       - name: Clean Extra Files from Plugin
         run: |
           rm -rf plugin/.git plugin/.github plugin/node_modules plugin/tests plugin/phpunit.xml
@@ -154,15 +134,7 @@ jobs:
         with:
           path: plugin
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: mbstring, intl, soap, curl, gd, xml, json, zip, pdo, pdo_mysql,
-          ini-values: max_input_vars=5000
-          coverage: none
-
-      - name: Setup Node.js (for Grunt)
+      - name: Install Node.js (for Grunt)
         uses: actions/setup-node@v3
         with:
           node-version: '18'
@@ -182,23 +154,10 @@ jobs:
       - name: Prepare Release Folder
         run: mkdir -p release
 
-      - name: Build Release Zip
+      - name: Build Zip using exclude.lst
         run: |
-          composer run-script zip-unix
-          if [ ! -f release/stripepayment.zip ]; then
-            echo "Error: stripepayment.zip was not created"
-            exit 1
-          fi
-        working-directory: plugin
-
-      - name: Move Zip to release/
-        run: |
-          if [ -f plugin/release/stripepayment.zip ]; then
-            mv plugin/release/stripepayment.zip ${{ github.workspace }}/release/
-          else
-            echo "Error: stripepayment.zip not found"
-            exit 1
-          fi
+          cd plugin
+          zip -r ../release/stripepayment.zip . -x@exclude.lst
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
