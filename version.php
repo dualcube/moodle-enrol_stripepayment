@@ -28,4 +28,4 @@ $plugin->version   = 2025081300;
 $plugin->requires  = 2025041400;
 $plugin->component = 'enrol_stripepayment';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.5.1.1';
+$plugin->release   = '3.6.0';
