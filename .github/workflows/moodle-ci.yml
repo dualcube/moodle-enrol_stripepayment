@@ -155,7 +155,7 @@ jobs:
         run: mkdir -p release
 
       - name: Build Zip using exclude.lst
-        run:
+        run: |
           git archive --format=zip --prefix=stripepayment/ HEAD | zip -r -@ stripepayment.zip -x@exclude.lst
 
       - name: Create GitHub Release
