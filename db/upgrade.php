@@ -33,7 +33,7 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2025052900) {
+    if ($oldversion < 2025081300) {
         // Remove legacy fields that are not used by Stripe payment processing.
         $table = new xmldb_table('enrol_stripepayment');
 
@@ -78,9 +78,6 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
         }
-        
-        // Rename database columns to remove underscores for consistency.
-        $table = new xmldb_table('enrol_stripepayment');
 
         // Rename receiver_email to receiveremail.
         $field = new xmldb_field('receiver_email', XMLDB_TYPE_CHAR, '255', null, false, false);
@@ -136,33 +133,8 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
             $dbman->rename_field($table, $field, 'paymenttype');
         }
 
-        $legacy_publishable = get_config('enrol_stripepayment', 'publishablekey');
-        $legacy_secret = get_config('enrol_stripepayment', 'secretkey');
-
-        // Auto-migrate legacy keys if they exist and new keys are empty
-        if (!empty($legacy_publishable) && !empty($legacy_secret)) {
-            if (strpos($legacy_secret, 'sk_test_') === 0 && strpos($legacy_publishable, 'pk_test_') === 0) {
-                set_config('testpublishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('testsecretkey', $legacy_secret, 'enrol_stripepayment');
-                set_config('stripemode', 'test', 'enrol_stripepayment');
-
-                // Clear legacy keys after migration
-                set_config('publishablekey', '', 'enrol_stripepayment');
-                set_config('secretkey', '', 'enrol_stripepayment');
-
-            } else if (strpos($legacy_secret, 'sk_live_') === 0 && strpos($legacy_publishable, 'pk_live_') === 0) {
-                set_config('livepublishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('livesecretkey', $legacy_secret, 'enrol_stripepayment');
-                set_config('stripemode', 'live', 'enrol_stripepayment');
-
-                // Clear legacy keys after migration
-                set_config('publishablekey', '', 'enrol_stripepayment');
-                set_config('secretkey', '', 'enrol_stripepayment');
-            }
-        }
-
         // Stripe savepoint reached.
-        upgrade_plugin_savepoint(true, 2025052900, 'enrol', 'stripepayment');
+        upgrade_plugin_savepoint(true, 2025081300, 'enrol', 'stripepayment');
     }
 
     return true;
