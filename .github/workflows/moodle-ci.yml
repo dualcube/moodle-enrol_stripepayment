@@ -156,7 +156,7 @@ jobs:
 
       - name: Build Zip using exclude.lst
         run: |
-          zip -r release/stripepayment.zip stripepayment -x@/exclude.lst
+          zip -r release/stripepayment.zip stripepayment -x@stripepayment/exclude.lst
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
