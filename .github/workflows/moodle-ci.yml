@@ -156,7 +156,7 @@ jobs:
 
       - name: Build Zip using exclude.lst
         run: |
-          zip -r ../release/stripepayment.zip . -x@../exclude.lst
+          zip -r ../release/stripepayment.zip . -x@exclude.lst
         working-directory: stripepayment
 
       - name: Create GitHub Release
