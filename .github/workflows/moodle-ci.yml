@@ -66,7 +66,7 @@ jobs:
           COMPOSER_NO_INTERACTION: 1
 
       - name: Install moodle-plugin-ci
-        run: moodle-plugin-ci install --plugin . --db-host=127.0.0.1
+        run: moodle-plugin-ci install --plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
