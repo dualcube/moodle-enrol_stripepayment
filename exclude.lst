@@ -3,7 +3,6 @@ stripepayment/.github/*
 stripepayment/composer.lock
 stripepayment/composer.json
 stripepayment/log.txt
-stripepayment/CHANGELOG.md
 stripepayment/phpcs.xml
 stripepayment/.gitignore
 stripepayment/package.json
