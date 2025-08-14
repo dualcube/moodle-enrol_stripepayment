@@ -5,7 +5,6 @@ stripepayment/composer.json
 stripepayment/log.txt
 stripepayment/CHANGELOG.md
 stripepayment/phpcs.xml
-stripepayment/readme.md
 stripepayment/.gitignore
 stripepayment/package.json
 stripepayment/package-lock.json
