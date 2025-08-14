@@ -33,8 +33,6 @@
         "squizlabs/php_codesniffer": "^3.13"
     },
     "scripts": {
-        "build": "./node_modules/.bin/grunt amd --root=enrol/stripepayment",
-        "git-final-push": "@php scripts/git-final-push.php",
         "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
         "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/*"
     }

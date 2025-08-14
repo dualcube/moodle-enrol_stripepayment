@@ -1,6 +1,6 @@
 {
   "name": "moodle-enrol-stripepayment",
-  "version": "1.0.0",
+  "version": "3.6.0",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
@@ -15,6 +15,8 @@
   },
   "scripts": {
     "build": "npx grunt amd",
-    "git-final-push": "node scripts/git-final-push.js"
+    "release": "git tag -a v${npm_package_version} -m \"Release v${npm_package_version}\" && git push origin v${npm_package_version}",
+    "phpcs": "composer run-script phpcs",
+    "phpcbf": "composer run-script phpcf"
   }
 }
