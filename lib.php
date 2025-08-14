@@ -799,7 +799,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $validation = $this->validate_current_api_keys();
 
         if (!$validation['valid']) {
-            return '<span style="color: #d32f2f; font-weight: bold;">⚠️ ' 
+            return '<span style="color: #d32f2f; font-weight: bold;">⚠️ '
             . strtoupper($mode) . ' MODE - Configuration Error</span>';
         }
 
