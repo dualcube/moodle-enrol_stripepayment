@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Checkout Plugin
         uses: actions/checkout@v4
+        with:
+          path: stripepayment
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -44,17 +46,20 @@ jobs:
 
       - name: Install Moodle Node dependencies
         run: npm install
+        working-directory: stripepayment
 
       - name: Build grunt
         run: npm run build
+        working-directory: stripepayment
 
       - name: Install Plugin Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: stripepayment
 
       - name: Clean Extra Files from Plugin
         run: |
-          rm -rf /.git /.github /node_modules /tests /phpunit.xml
-          rm -f /composer.* /package*.json /webpack.config.js /.zipignore
+          rm -rf stripepayment/.git stripepayment/.github stripepayment/node_modules stripepayment/tests stripepayment/phpunit.xml
+          rm -f stripepayment/composer.* stripepayment/package*.json stripepayment/webpack.config.js stripepayment/.zipignore
 
       - name: Install moodle-plugin-ci tooling
         run: |
@@ -66,40 +71,40 @@ jobs:
           COMPOSER_NO_INTERACTION: 1
 
       - name: Install moodle-plugin-ci
-        run: moodle-plugin-ci install --plugin --db-host=127.0.0.1
+        run: moodle-plugin-ci install --plugin ./stripepayment --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: PHP Lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phplint .
+        run: moodle-plugin-ci phplint stripepayment
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: moodle-plugin-ci phpmd .
+        run: moodle-plugin-ci phpmd stripepayment
 
       - name: PHP Code Beautifier and Fixer
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcbf .
+        run: moodle-plugin-ci phpcbf stripepayment
 
       - name: Validate Plugin
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci validate .
+        run: moodle-plugin-ci validate stripepayment
 
       - name: Check Upgrade Savepoints
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci savepoints .
+        run: moodle-plugin-ci savepoints stripepayment
 
       - name: PHPUnit Tests
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpunit --fail-on-warning .
+        run: moodle-plugin-ci phpunit --fail-on-warning stripepayment
 
       - name: Run Behat Tests
         id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome --scss-deprecations .
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations stripepayment
 
 
       - name: Upload Behat Faildump (if failed)
@@ -113,7 +118,7 @@ jobs:
       
       - name: Final Cleanup - Remove Vendor
         if: ${{ always() }}
-        run: rm -rf /vendor
+        run: rm -rf stripepayment/vendor
 
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
@@ -146,7 +151,7 @@ jobs:
 
       - name: Build Zip using exclude.lst
         run: |
-          zip -r release/stripepayment.zip stripepayment -x@/exclude.lst
+          zip -r release/stripepayment.zip stripepayment -x@exclude.lst
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
