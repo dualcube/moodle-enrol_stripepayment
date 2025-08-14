@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Defines message providers (types of message sent) for the Stripe enrolment plugin.
  *
@@ -23,5 +24,10 @@
  */
 defined('MOODLE_INTERNAL') || die();
 $messageproviders = [
-    'stripepayment_enrolment' => [],
+    'stripepayment_enrolment' => [
+        'defaults' => [
+            'popup' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+            'email' => MESSAGE_PERMITTED + MESSAGE_DEFAULT_ENABLED,
+        ],
+    ],
 ];

@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Capabilities for stripe enrolment plugin.
  *
@@ -23,11 +24,19 @@
  */
 defined('MOODLE_INTERNAL') || die();
 $capabilities = [
-    'enrol/stripepayment:config' => [
+    'enrol/stripepayment:config' => array(
+    'captype' => 'write',
+    'contextlevel' => CONTEXT_COURSE,
+    'archetypes' => array(
+        'manager' => CAP_ALLOW,
+        )
+    ),
+    'enrol/stripepayment:enrol' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         ],
     ],
     'enrol/stripepayment:manage' => [
@@ -43,6 +52,7 @@ $capabilities = [
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         ],
     ],
     'enrol/stripepayment:unenrolself' => [

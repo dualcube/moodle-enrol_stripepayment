@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="MoodleCore">
+  <rule ref="./phpcs.xml"/>
+  <rule ref="moodle-extra"/>
+  <file>.</file>
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>.git/*</exclude-pattern>
+</ruleset>

@@ -1,0 +1,22 @@
+{
+  "name": "moodle-enrol-stripepayment",
+  "version": "3.6.0",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "grunt": "^1.6.1",
+    "grunt-contrib-watch": "1.1.0",
+    "grunt-eslint": "24.0.0",
+    "grunt-rollup": "^11.9.0",
+    "grunt-sass": "3.1.0",
+    "grunt-stylelint": "^0.19.0",
+    "rollup": "^2.79.2",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "scripts": {
+    "build": "npx grunt amd",
+    "release": "git tag -a v${npm_package_version} -m \"Release v${npm_package_version}\" && git push origin v${npm_package_version}",
+    "phpcs": "composer run-script phpcs",
+    "phpcbf": "composer run-script phpcf"
+  }
+}

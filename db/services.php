@@ -10,8 +10,9 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
+//
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Web services for stripe enrolment plugin.
@@ -24,54 +25,44 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$services = [
-    'moodle_enrol_stripepayment' => [                  
-        'functions' => [
-            'moodle_stripepayment_couponsettings',
-            'moodle_stripepayment_free_enrolsettings',
-            'moodle_stripepayment_stripe_js_settings', 
-            'moodle_stripepayment_success_stripe_url',
+$services = ['moodle_enrol_stripepayment' => [
+    'functions' => [
+            'moodle_stripepayment_applycoupon',
+            'moodle_stripepayment_enrol',
+            'moodle_stripepayment_process_payment',
         ],
         'requiredcapability' => '',
         'restrictedusers' => 0,
         'enabled' => 1,
-        'shortname' => 'enrolstripepayment',
-    ]
-];
+        'shortname' => 'enrolstripepayment', ],
+    ];
 $functions = [
-    'moodle_stripepayment_couponsettings' => [
+    'moodle_stripepayment_applycoupon' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_couponsettings',
+        'methodname' => 'stripepayment_applycoupon',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Load coupon settings data',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_free_enrolsettings' => [
+    'moodle_stripepayment_enrol' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_free_enrolsettings',
-        'classpath' => 'enrol/stripepayment/externallib.php',
-        'description' => 'Update information after Successful Free Enrol',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true,
-    ],
-    'moodle_stripepayment_stripe_js_settings' => [
-        'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripe_js_method',
+        'methodname' => 'stripepayment_enrol',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Update information after Stripe Successful Connect',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_success_stripe_url' => [
+    'moodle_stripepayment_process_payment' => [
         'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'success_stripe_url',
+        'methodname' => 'process_payment',
         'classpath' => 'enrol/stripepayment/externallib.php',
         'description' => 'Update information after Stripe Successful Payment',
         'type' => 'write',
         'ajax' => true,
-    ]
+        'loginrequired' => true,
+    ],
+
 ];

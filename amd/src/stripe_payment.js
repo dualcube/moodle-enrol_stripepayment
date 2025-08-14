@@ -1,84 +1,198 @@
-define(['jquery', 'core/ajax'],
-    function ($, ajax) {
-        return {
-            stripe_payment: function (user_id, publishablekey, couponid, instance_id, please_wait_string, buy_now_string, invalid_code_string) {
-                // coupon js code
-                $('#apply').click(function () {
-                    var coupon_id_name = $("#coupon").val();
-                    var promises = ajax.call([{
-                        methodname: 'moodle_stripepayment_couponsettings',
-                        args: { couponid: coupon_id_name, instance_id: instance_id},
-                    }]);
-                    promises[0].then(function (data) {
-                        $("#form_data_new_data").attr("value", data.status);
-                        $("#form_data_new_coupon_id").attr("value", coupon_id_name);
-                        $("#form_data_new").submit();
-                        $("#reload").load(location.href + " #reload");
-                        $("#coupon_id").attr("value", coupon_id_name);
-                        $(".coupon_id").val(coupon_id_name);
-                        if (data == 0.00) {
-                            $('#amountgreaterzero').css("display", "none");
-                            $('#amountequalzero').css("display", "block");
-                        } else {
-                            $('#amountgreaterzero').css("display", "block");
-                            $('#amountequalzero').css("display", "none");
-                        }
-                    }).fail(function (ex) { // do something with the exception 
-                        $("#coupon").focus();
-                        $("#new_coupon").html('<p style="color:red;"><b>' + invalid_code_string + '</b></p>');
-                    });
-                });
-                // free enrol js
-                var get_card_zero_cost = $('#card-button-zero');
-                if (get_card_zero_cost) {
-                    get_card_zero_cost.click(function () {
-                        get_card_zero_cost.prop('disabled', true);
-                        get_card_zero_cost.text(please_wait_string);
-                        var promises = ajax.call([{
-                            methodname: 'moodle_stripepayment_free_enrolsettings',
-                            args: { user_id:user_id, couponid: couponid, instance_id: instance_id },
-                        }]);
-                        promises[0].then(function (data) {
-                            location.reload();
-                        }).fail(function (ex) {
-                            location.reload();
-                        });
-                    });
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * External library for stripepayment
+ *
+ * @package    enrol_stripepayment
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  2019 DualCube Team(https://dualcube.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+import ajax from 'core/ajax';
+
+const { call: fetchMany } = ajax;
+
+// Repository functions
+const applyCoupon = (couponid, instanceid) =>
+    fetchMany([{ methodname: "moodle_stripepayment_applycoupon", args: { couponid, instanceid } }])[0];
+
+const stripeEnrol = (userid, couponid, instanceid) =>
+    fetchMany([{ methodname: "moodle_stripepayment_enrol", args: { userid, couponid, instanceid } }])[0];
+
+const createDOM = (instanceid) => {
+    const cache = new Map();
+    return {
+        getElement(id) {
+            const fullid = `${id}-${instanceid}`;
+            if (!cache.has(fullid)) {
+                cache.set(fullid, document.getElementById(fullid));
+            }
+            return cache.get(fullid);
+        },
+        setElement(id, html) {
+            const element = this.getElement(id);
+            if (element) {
+                element.innerHTML = html;
+            }
+        },
+        toggleElement(id, show) {
+            const element = this.getElement(id);
+            if (element) {
+                element.style.display = show ? "block" : "none";
+            }
+        },
+        focusElement(id) {
+            const element = this.getElement(id);
+            if (element) {
+                element.focus();
+            }
+        },
+        setButton(id, disabled, text, opacity = disabled ? "0.7" : "1") {
+            const button = this.getElement(id);
+            if (button) {
+                button.disabled = disabled;
+                button.textContent = text;
+                button.style.opacity = opacity;
+                button.style.cursor = disabled ? "not-allowed" : "pointer";
+            }
+        },
+    };
+};
+
+function stripePayment(userid, couponid, instanceid, pleasewaitstring, entercoupon, couponappling,paymenterror) {
+    const DOM = createDOM(instanceid);
+    if (typeof window.Stripe === "undefined") {
+        return;
+    }
+
+    const displayMessage = (containerid, message, type) => {
+        let color;
+        switch (type) {
+            case "error": color = "red"; break;
+            case "success": color = "green"; break;
+            default: color = "blue"; break;
+        }
+        DOM.setElement(containerid, `<p style="color: ${color}; font-weight: bold;">${message}</p>`);
+        DOM.toggleElement(containerid, true);
+    };
+
+    const clearError = (containerid) => {
+        DOM.setElement(containerid, "");
+        DOM.toggleElement(containerid, false);
+    };
+
+    const updateUIFromServerResponse = (data) => {
+        if (data.message) {
+            displayMessage("showmessage", data.message, data.uistate === "error" ? "error" : "success");
+        } else {
+            clearError("showmessage");
+        }
+
+        DOM.toggleElement("enrolbutton", data.uistate === "paid");
+        DOM.toggleElement("total", data.uistate === "paid");
+
+        if (data.uistate !== "error") {
+            DOM.toggleElement("discountsection", data.showsections.discountsection);
+            if (data.showsections.discountsection) {
+                if (data.couponname) {
+                    DOM.setElement("discounttag", data.couponname);
                 }
-                // stripe payment code
-                var buyBtn = $('#payButton');
-                var responseContainer = $('#paymentResponse');
-                // Handle any errors returned from Checkout
-                var handleResult = function (result) {
-                    if (result.error) {
-                        responseContainer.html('<p>' + result.error.message + '</p>');
-                    }
-                    buyBtn.prop('disabled', false);
-                    buyBtn.text(buy_now_string);
-                };
-                // Specify Stripe publishable key to initialize Stripe.js
-                var stripe = Stripe(publishablekey);
-                if (buyBtn) {
-                    buyBtn.click(function () {
-                        buyBtn.prop('disabled', true);
-                        buyBtn.text(please_wait_string);
-                        var promises = ajax.call([{
-                            methodname: 'moodle_stripepayment_stripe_js_settings',
-                            args: {user_id:user_id, couponid: couponid, instance_id: instance_id },
-                        }]);
-                        promises[0].then(function (data) {
-                            if (data.status) {
-                                stripe.redirectToCheckout({
-                                    sessionId: data.status,
-                                }).then(handleResult);
-                            } else {
-                                handleResult(data);
-                            }
-                        }).fail(function (ex) { // do something with the exception 
-                            handleResult(ex);
-                        });
-                    });
+                if (data.discountamount && data.currency) {
+                    DOM.setElement("discountamountdisplay", `-${data.currency} ${data.discountamount}`);
+                }
+                if (data.discountamount && data.discountvalue) {
+                    const note = data.coupontype === "percentoff"
+                        ? `${data.discountvalue}% off`
+                        : `${data.currency} ${data.discountvalue} off`;
+                    DOM.setElement("discountnote", note);
                 }
             }
-        };
-    });
+            if (data.status && data.currency) {
+                const totalamount = DOM.getElement("totalamount");
+                if (totalamount) {
+                    totalamount.textContent = `${data.currency} ${parseFloat(data.status).toFixed(2)}`;
+                }
+            }
+        }
+    };
+
+    const applyCouponHandler = async (event) => {
+        event.preventDefault();
+        const couponinput = DOM.getElement("coupon");
+        const couponcode = couponinput?.value.trim();
+        if (!couponcode) {
+            displayMessage("showmessage", entercoupon, "error");
+            DOM.focusElement("coupon");
+            return;
+        }
+        DOM.setButton("apply", true, couponappling);
+        try {
+            const data = await applyCoupon(couponcode, instanceid);
+            if (data?.status !== undefined) {
+                couponid = couponcode;
+                DOM.toggleElement("coupon", false);
+                DOM.toggleElement("apply", false);
+                updateUIFromServerResponse(data);
+            } else {
+                throw new Error("Invalid server response");
+            }
+        } catch (error) {
+            displayMessage("showmessage", error.message || "Coupon validation failed", "error");
+            DOM.focusElement("coupon");
+        }
+    };
+
+    const EnrollHandler = async () => {
+        const enrollbutton = DOM.getElement("enrolbutton");
+        if (!enrollbutton) return;
+        clearError("paymentresponse");
+        DOM.setButton("enrolbutton", true, pleasewaitstring);
+        try {
+            const paymentdata = await stripeEnrol(userid, couponid, instanceid);
+            if (paymentdata.error?.message) {
+                displayMessage("paymentresponse", paymentdata.error.message, "error");
+            } else if (paymentdata.status === "success" && paymentdata.redirecturl) {
+                window.location.href = paymentdata.redirecturl;
+            } else {
+                displayMessage("paymentresponse", "Unknown error occurred during payment.", "error");
+            }
+        } catch (err) {
+            displayMessage("paymentresponse", err.message, "error");
+        } finally {
+            DOM.toggleElement("enrolbutton", false);
+        }
+    };
+
+    const setupEventListeners = () => {
+        const elements = [
+            { id: "apply", event: "click", handler: applyCouponHandler },
+            { id: "enrolbutton", event: "click", handler: EnrollHandler },
+        ];
+        elements.forEach(({ id, event, handler }) => {
+            const element = DOM.getElement(id);
+            if (element) {
+                element.addEventListener(event, handler);
+            }
+        });
+    };
+
+    setupEventListeners();
+}
+
+export default {
+    stripePayment,
+};

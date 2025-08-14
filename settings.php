@@ -13,10 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Stripe enrolment plugin.
+ * Stripe enrolment plugin - ENHANCED WITH LIVE/TEST TOGGLE.
  *
- * This plugin allows you to set up paid courses.
+ * This plugin allows you to set up paid courses with Live/Test mode toggle.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
@@ -27,26 +28,121 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/enrol/stripepayment/lib.php');
-if (is_siteadmin()) {
+if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
         'enrol_stripepayment_settings',
         '',
-        get_string('pluginname_desc', 'enrol_stripepayment')
+        get_string('pluginnamedesc', 'enrol_stripepayment')
     ));
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/publishablekey',
-        get_string('publishablekey', 'enrol_stripepayment'),
-        get_string('publishablekey_desc', 'enrol_stripepayment'),
+
+    // Dynamic Mode Status Display
+    $plugin = enrol_get_plugin('stripepayment');
+    $modestatustext = $plugin->get_mode_status_display();
+
+    $settings->add(new admin_setting_description(
+        'enrol_stripepayment/mode_status',
+        get_string('currentmodestatus', 'enrol_stripepayment'),
+        $modestatustext
+    ));
+    
+    $settings->add(new admin_setting_heading(
+        'enrol_stripepayment_mode_settings',
+        get_string('stripemodesettings', 'enrol_stripepayment'),
+        get_string('stripemodesettingsdesc', 'enrol_stripepayment')
+    ));
+
+    // Current Mode Toggle
+    $modeoptions = [
+        'test' => get_string('testmode', 'enrol_stripepayment', 'Test Mode'),
+        'live' => get_string('livemode', 'enrol_stripepayment', 'Live Mode'),
+    ];
+    
+    $currentmode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
+    $modedescription = get_string('stripemodedesc', 'enrol_stripepayment');
+
+    $settings->add(new admin_setting_configselect(
+        'enrol_stripepayment/stripemode',
+        get_string('stripemode', 'enrol_stripepayment'),
+        $modedescription,
+        'test',
+        $modeoptions
+    ));
+    
+    // Get current mode to show only relevant section
+    $current_mode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
+
+    // Add mode switching instructions
+    $mode_switch_text = $current_mode === 'test' ?
+        get_string('infomodetext', 'enrol_stripepayment') :
+        get_string('infomodetextlive', 'enrol_stripepayment');
+
+    $settings->add(new admin_setting_description(
+        'enrol_stripepayment/mode_switch_info',
         '',
-        PARAM_TEXT
+        '<div style="background-color: #f0f8ff; padding: 10px; border-left: 4px solid #2196f3; margin: 10px 0;">' .
+        '<strong>ℹ️ Info:</strong> ' . get_string('infomodetext', 'enrol_stripepayment') .
+        '</div>'
     ));
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/secretkey',
-        get_string('secretkey', 'enrol_stripepayment'),
-        get_string('secretkey_desc', 'enrol_stripepayment'),
+
+    // Add warning about mode changes affecting instances
+    $settings->add(new admin_setting_description(
+        'enrol_stripepayment/mode_change_warning',
         '',
-        PARAM_TEXT
+        '<div style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin: 10px 0;">' .
+        '<strong>⚠️ Warning:</strong> ' . get_string('warningmodetext', 'enrol_stripepayment') .
+        '</div>'
     ));
+
+    if ($current_mode === 'test') {
+        $settings->add(new admin_setting_heading(
+            'enrol_stripepayment_test_keys',
+            '🟢 ' . get_string('testapikeys', 'enrol_stripepayment'),
+            '<div style="background-color: #e8f5e8; padding: 10px; border-left: 4px solid #4caf50; margin: 10px 0;">' .
+            get_string('testapikeysdesc', 'enrol_stripepayment') .
+            '</div>'
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/testpublishablekey',
+            get_string('testpublishablekey', 'enrol_stripepayment'),
+            get_string('testpublishablekeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/testsecretkey',
+            get_string('testsecretkey', 'enrol_stripepayment'),
+            get_string('testsecretkeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
+    } else {
+        $settings->add(new admin_setting_heading(
+            'enrol_stripepayment_live_keys',
+            '🔴 ' . get_string('liveapikeys', 'enrol_stripepayment'),
+            '<div style="background-color: #ffebee; padding: 10px; border-left: 4px solid #f44336; margin: 10px 0;">' .
+            '<strong>⚠️ WARNING:</strong> ' . get_string('liveapikeysdesc', 'enrol_stripepayment') .
+            '</div>'
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/livepublishablekey',
+            get_string('livepublishablekey', 'enrol_stripepayment'),
+            get_string('livepublishablekeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
+
+        $settings->add(new admin_setting_configtext(
+            'enrol_stripepayment/livesecretkey',
+            get_string('livesecretkey', 'enrol_stripepayment'),
+            get_string('livesecretkeydesc', 'enrol_stripepayment'),
+            '',
+            PARAM_TEXT
+        ));
+    }
+        
     $settings->add(new admin_setting_configcheckbox(
         'enrol_stripepayment/mailstudents',
         get_string('mailstudents', 'enrol_stripepayment'),
@@ -65,42 +161,48 @@ if (is_siteadmin()) {
         '',
         0
     ));
-    
     $settings->add(new admin_setting_configcheckbox(
-        'enrol_stripepayment/enable_coupon_section', 
-        get_string('enable_coupon_section', 'enrol_stripepayment'), 
-        '', 
-        0
+        'enrol_stripepayment/enablecouponsection',
+        get_string('enablecouponsection', 'enrol_stripepayment'),
+        '',
+        0,
     ));
 
     // Variable $enroll button color.
     $settings->add( new admin_setting_configcolourpicker(
-        'enrol_stripepayment/enrolbtncolor', 
-        get_string('enrol_btn_color', 'enrol_stripepayment'), 
-        get_string('enrol_btn_color_des', 'enrol_stripepayment'), 
+        'enrol_stripepayment/enrolbtncolor',
+        get_string('enrolbtncolor', 'enrol_stripepayment'),
+        get_string('enrolbtncolordes', 'enrol_stripepayment'),
         '#1177d1'
     ));
     // Note: let's reuse the ext sync constants and strings here, internally it is very similar,
     // it describes what should happen when users are not supposed to be enrolled any more.
-    $options = array(
+    $options = [
         ENROL_EXT_REMOVED_KEEP           => get_string('extremovedkeep', 'enrol'),
         ENROL_EXT_REMOVED_SUSPENDNOROLES => get_string('extremovedsuspendnoroles', 'enrol'),
         ENROL_EXT_REMOVED_UNENROL        => get_string('extremovedunenrol', 'enrol'),
-    );
+    ];
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/expiredaction',
         get_string('expiredaction', 'enrol_stripepayment'),
-        get_string('expiredaction_help', 'enrol_stripepayment'),
+        get_string('expiredactionhelp', 'enrol_stripepayment'),
         ENROL_EXT_REMOVED_SUSPENDNOROLES,
         $options
     ));
-    // webservice token
-    $rest_web_link = $CFG->wwwroot . '/admin/settings.php?section=webserviceprotocols';
-    $create_token = $CFG->wwwroot . '/admin/webservice/tokens.php';
+
+    // Webservice token.
+    $webservicesoverview = $CFG->wwwroot . '/admin/search.php?query=enablewebservices';
+    $restweblink = $CFG->wwwroot . '/admin/settings.php?section=webserviceprotocols';
+    $createtoken = $CFG->wwwroot . '/admin/webservice/tokens.php';
     $settings->add(new admin_enrol_stripepayment_configtext(
         'enrol_stripepayment/webservice_token',
-        get_string('webservice_token_string', 'enrol_stripepayment'),
-        get_string('create_user_token', 'enrol_stripepayment') . '<a href="' . $rest_web_link . '" target="_blank"> ' . get_string('from_here', 'enrol_stripepayment') . '</a> . ' . get_string('enabled_rest_protocol', 'enrol_stripepayment') . '<a href="' . $create_token . '" target="_blank"> ' . get_string('from_here', 'enrol_stripepayment') . '</a>
+        get_string('webservicetokenstring', 'enrol_stripepayment'),
+        get_string('enablewebservicesfirst', 'enrol_stripepayment') . '<a href="' . $webservicesoverview . '" target="_blank"> '
+        . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
+        . get_string('createusertoken', 'enrol_stripepayment') . '<a href="' . $restweblink . '" target="_blank"> '
+        . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
+        . get_string('enabledrestprotocol', 'enrol_stripepayment') . '<a href="' . $createtoken . '" target="_blank"> '
+        . get_string('fromhere', 'enrol_stripepayment') . '</a>
         ',
         ''
     ));
@@ -110,10 +212,10 @@ if (is_siteadmin()) {
         get_string('enrolinstancedefaults', 'admin'),
         get_string('enrolinstancedefaults_desc', 'admin')
     ));
-    $options = array(
+    $options = [
         ENROL_INSTANCE_ENABLED  => get_string('yes'),
-        ENROL_INSTANCE_DISABLED => get_string('no')
-    );
+        ENROL_INSTANCE_DISABLED => get_string('no'),
+    ];
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/status',
         get_string('status', 'enrol_stripepayment'),
@@ -140,7 +242,7 @@ if (is_siteadmin()) {
     $settings->add(new admin_setting_configtext(
         'enrol_stripepayment/maxenrolled',
         get_string('maxenrolled', 'enrol_stripepayment'),
-        get_string('maxenrolled_help', 'enrol_stripepayment'),
+        get_string('maxenrolledhelp', 'enrol_stripepayment'),
         0,
         PARAM_INT
     ));
@@ -151,7 +253,7 @@ if (is_siteadmin()) {
         $settings->add(new admin_setting_configselect(
             'enrol_stripepayment/roleid',
             get_string('defaultrole', 'enrol_stripepayment'),
-            get_string('defaultrole_desc', 'enrol_stripepayment'),
+            get_string('defaultroledesc', 'enrol_stripepayment'),
             $student->id,
             $options
         ));
@@ -159,7 +261,7 @@ if (is_siteadmin()) {
     $settings->add(new admin_setting_configduration(
         'enrol_stripepayment/enrolperiod',
         get_string('enrolperiod', 'enrol_stripepayment'),
-        get_string('enrolperiod_desc', 'enrol_stripepayment'),
+        get_string('enrolperioddesc', 'enrol_stripepayment'),
         0
     ));
 }

@@ -1,223 +1,259 @@
-.generalbox {
-    margin: auto;
-}
-
-.strip-wrap {
-    margin: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 2.5rem;
-    border-top: 0.06rem solid #eee;
-    border-bottom: 0.06rem solid #eee;
-    padding: 3rem 0;
-}
-
-.stripe-right {
-    flex: auto;
-}
-
-.stripe-img {
-    height: 68px;
-    margin: 0rem auto 1.5rem;
-    border-bottom: 0.06rem solid #eee;
-    width: 48%;
-    padding: 0.25rem 0;
-}
-
-.couponcode-wrap {
-    padding: 1rem 0 1.5rem 0;
-    border-top: 0.06rem solid #eee;
-    margin: 1.25rem auto 0rem;
-    width: 48%;
-}
-
-.stripe-line-left {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 600;
-    width: 48%;
-    margin: 0.5rem auto;
-}
-
-.stripe-line-left span {
-    font-weight: 700;
-}
-
-.stripe-buy-btn {
-    text-align: center;
-    padding: 1.5rem 0 0;
-    margin: 0rem auto 0;
-    border-top: 0.06rem solid #eee;
-    width: 52%;
-}
-
-.stripe-cupon-input input#coupon {
-    border-radius: 1rem;
-}
-
-.stripe-cupon-apply#apply {
-    border-radius: 1rem;
-    background: #0a2540;
-}
-
-.stripe-dclr {
-    margin: 0 auto;
-    border-bottom: 0.06rem solid #eee;
-    padding-bottom: 1rem;
-    text-align: center;
-    font-size: 1rem;
-    width: 48%;
-    font-weight: 500;
-}
-
-.stripe-cupon-input {
-    margin: 0;
-}
-
-.couponcode-wrap .couponcode-text {
-    font-size: 14px;
-    margin: 0 0 1rem;
-    display: block;
-}
-
-#new_coupon b {
-    font-weight: 400;
-}
-
-.couponcode-wrap input#coupon {
-    margin: 0 4px 4px 0;
-}
-
-div#new_coupon p {
-    margin: 0 0 -21px;
-    padding: 5px;
-}
-
-div#transaction-status,
-div#transaction-status-zero {
-    margin: 15px;
-    background: antiquewhite;
-    color: chocolate;
-    display: none;
-}
-
-.CardField-input-wrapper {
-    overflow: inherit;
-}
-
-.coursebox .content .summary {
-    width: 100%
-}
-
-input#coupon {
-    border: 1px dashed #a2a2a2;
-    padding: 3px 14px;
-}
-
-p {
-    text-align: left;
-}
-
-.stripe-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-}
-
-body#page-enrol-index #region-main .generalbox.info {
-    width: 100%;
-    box-shadow: none;
-}
-
-body#page-enrol-index #region-main .generalbox .card a img {
-    max-width: 458px;
-    height: 300px;
-    padding: 0;
-    box-shadow: 0 0 10px #b0afaf;
-}
-
-#page-enrol-index .access-btn {
-    display: none;
-}
-
-.payment-left p {
-    text-align: center;
-}
-
-#page-enrol-index #region-main-box .card-title {
-    position: relative;
-    line-height: 59px;
-    font-size: 2rem;
-    text-transform: capitalize;
-}
-
-.StripeElement {
-    padding: 15px;
-    border: 1px solid #e9ebec;
-    background: #f9f9f9;
-    box-shadow: 0 10px 6px -4px #d4d2d2;
-}
-@media (min-width: 200px) and (max-width: 700px) {
-
-    .stripe-img,
-    .stripe-dclr,
-    .stripe-line-left,
-    .couponcode-wrap,
-    .stripe-buy-btn {
+    .stripepayment-paymentcontainer {
+        background: transparent;
+        padding: 20px 0;
         width: 100%;
-    }
-
-    .stripe-left {
-        width: 100%;
-    }
-
-    #region-main {
-        padding: 0;
-    }
-
-    .generalbox {
-        width: 300px;
-    }
-
-    body#page-enrol-index #region-main .generalbox:last-of-type {
-        width: 320px;
+        max-width: 400px;
         margin: 0 auto;
-        float: none;
     }
 
-    #page-enrol-index p {
-        text-align: center;
+    .stripepayment-currencybox {
+        margin-bottom: 8px;
     }
 
-    #apply {
-        margin-top: 10px;
+    .stripepayment-currencyselected {
+        display: inline-flex;
+        align-items: center;
+        border: 2px solid #ccc;
+        padding: 6px 12px;
+        border-radius: 6px;
+        background: #f1f1f1;
+        font-weight: bold;
     }
 
-    #coupon {
-        margin-top: 10px;
+    .stripepayment-currencyselected img {
+        width: 20px;
+        height: 14px;
+        margin-right: 6px;
     }
 
-    #page-enrol-index #region-main-box .card-title {
-        text-align: center;
+    .stripepayment-note {
+        font-size: 12px;
+        color: gray;
+        margin-bottom: 20px;
     }
 
-    #page-enrol-index #region-main-box .card-title:before,
-    #page-enrol-index #region-main-box .card-title:after {
-        display: none;
+    .stripepayment-item, .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
     }
 
-    .couponcode-wrap {
-        display: block;
+    .stripepayment-itemtitle {
+        font-weight: bold;
     }
-}
 
-#new_coupon {
-    margin-bottom: 10px;
-}
+    .stripepayment-itemsubtitle, .stripepayment-discountnote {
+        font-size: 13px;
+        color: gray;
+        margin-bottom: 12px;
+    }
 
-button#final-payment-button {
-    line-height: 1;
-}
+    .stripepayment-line {
+        height: 1px;
+        background: #eee;
+        margin: 12px 0;
+    }
+
+    .stripepayment-tag {
+        background: #f1f1f1;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .stripepayment-discountamount {
+        color:rgb(167, 167, 167);
+    }
+
+    .stripepayment-couponsection {
+        margin: 18px 0 12px 0;
+        padding: 15px 0 12px 0;
+        border-top: 1px solid #eee;
+    }
+
+    .stripepayment-total {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #eee;
+    }
+
+    .stripepayment-coupon-input-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .stripepayment-couponsection input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .stripepayment-applybtn {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        min-width: 80px;
+    }
+
+    .stripepayment-applybtn:hover {
+        background-color: #5a6268;
+    }
+
+    .stripepayment-couponmessage {
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .stripepayment-error-message {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 8px 12px;
+        border-radius: 4px;
+        margin: 10px 0;
+        font-size: 14px;
+    }
+
+    .stripepayment-pay-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .stripepayment-paymentcontainer {
+            width: 100%;
+            max-width: 100%;
+            padding: 15px 10px;
+        }
+
+        .stripepayment-currencyselected {
+            font-size: 14px;
+            padding: 8px 12px;
+        }
+
+        .stripepayment-currencyselected img {
+            width: 18px;
+            height: 12px;
+        }
+
+        .stripepayment-itemtitle {
+            font-size: 14px;
+        }
+
+        .stripepayment-coupon-input-group {
+            gap: 6px;
+        }
+
+        .stripepayment-couponsection input {
+            padding: 10px 12px;
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+
+        .stripepayment-applybtn {
+            padding: 10px 12px;
+            font-size: 16px;
+            min-width: 70px;
+        }
+
+        .stripepayment-pay-btn {
+            padding: 14px 0;
+            font-size: 18px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stripepayment-paymentcontainer {
+            padding: 10px 5px;
+        }
+
+        .stripepayment-currencyselected {
+            font-size: 13px;
+            padding: 6px 10px;
+        }
+
+        .stripepayment-item, .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
+            font-size: 14px;
+        }
+
+        .stripepayment-coupon-input-group {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stripepayment-applybtn {
+            width: 100%;
+            min-width: auto;
+        }
+
+        .stripepayment-couponsection {
+            margin: 15px 0 10px 0;
+            padding: 12px 0 10px 0;
+        }
+    }
+
+    /* Interactive Elements */
+    .stripepayment-applybtn:active {
+        transform: translateY(1px);
+        background-color: #495057;
+    }
+
+    .stripepayment-couponsection input:focus {
+        outline: none;
+        border-color: #0070f3;
+        box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
+    }
+
+    /* Smooth transitions */
+    .stripepayment-applybtn, .stripepayment-pay-btn {
+        transition: all 0.2s ease;
+    }
+
+    .stripepayment-couponsection input {
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Payment button styling */
+    .stripepayment-pay-btn {
+        margin-top: 18px;
+        width: 100%;
+        background-color: #0070f3;
+        color: white;
+        border: none;
+        padding: 12px 0;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .stripepayment-pay-btn:hover {
+        background-color: #005fd1;
+        filter: brightness(0.9);
+    }
+
+    .stripepayment-pay-btn:active {
+        transform: translateY(1px);
+        background-color: #004bb5;
+        filter: brightness(0.8);
+    }
+
+    .stripepayment-pay-btn:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Utility classes */
+    .stripepayment-hidden {
+        display: none ;
+    }
