@@ -459,7 +459,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             if (!$receiverid) {
                 try {
                     $customers = Customer::all(['email' => $user->email]);
-                    if (!empty($customers->data)){
+                    if (!empty($customers->data)) {
                         $receiverid = $customers->data[0]->id;
                     } else {
                         $newcustomer = Customer::create([

@@ -132,26 +132,26 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'paymenttype');
         }
-         $legacy_publishable = get_config('enrol_stripepayment', 'publishablekey');
-        $legacy_secret = get_config('enrol_stripepayment', 'secretkey');
+        $legacypublishable = get_config('enrol_stripepayment', 'publishablekey');
+        $legacysecret = get_config('enrol_stripepayment', 'secretkey');
 
-        // Auto-migrate legacy keys if they exist and new keys are empty
-        if (!empty($legacy_publishable) && !empty($legacy_secret)) {
-            if (strpos($legacy_secret, 'sk_test_') === 0 && strpos($legacy_publishable, 'pk_test_') === 0) {
-                set_config('testpublishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('testsecretkey', $legacy_secret, 'enrol_stripepayment');
+        // Auto-migrate legacy keys if they exist and new keys are empty.
+        if (!empty($legacypublishable) && !empty($legacysecret)) {
+            if (strpos($legacysecret, 'sk_test_') === 0 && strpos($legacypublishable, 'pk_test_') === 0) {
+                set_config('testpublishablekey', $legacypublishable, 'enrol_stripepayment');
+                set_config('testsecretkey', $legacysecret, 'enrol_stripepayment');
                 set_config('stripemode', 'test', 'enrol_stripepayment');
 
-                // Clear legacy keys after migration
+                // Clear legacy keys after migration.
                 set_config('publishablekey', '', 'enrol_stripepayment');
                 set_config('secretkey', '', 'enrol_stripepayment');
 
-            } else if (strpos($legacy_secret, 'sk_live_') === 0 && strpos($legacy_publishable, 'pk_live_') === 0) {
-                set_config('livepublishablekey', $legacy_publishable, 'enrol_stripepayment');
-                set_config('livesecretkey', $legacy_secret, 'enrol_stripepayment');
+            } else if (strpos($legacysecret, 'sk_live_') === 0 && strpos($legacypublishable, 'pk_live_') === 0) {
+                set_config('livepublishablekey', $legacypublishable, 'enrol_stripepayment');
+                set_config('livesecretkey', $legacysecret, 'enrol_stripepayment');
                 set_config('stripemode', 'live', 'enrol_stripepayment');
 
-                // Clear legacy keys after migration
+                // Clear legacy keys after migration.
                 set_config('publishablekey', '', 'enrol_stripepayment');
                 set_config('secretkey', '', 'enrol_stripepayment');
             }
