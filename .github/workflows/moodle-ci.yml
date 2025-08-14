@@ -131,6 +131,8 @@ jobs:
     steps:
       - name: Checkout Plugin
         uses: actions/checkout@v4
+        with:
+          path: stripepayment
 
       - name: Install Node.js (for Grunt)
         uses: actions/setup-node@v3
@@ -139,19 +141,22 @@ jobs:
 
       - name: Install Moodle Node dependencies
         run: npm install
+        working-directory: stripepayment
 
       - name: Build Grunt
         run: npm run build
+        working-directory: stripepayment
 
       - name: Install Plugin Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: stripepayment
 
       - name: Prepare Release Folder
         run: mkdir -p release
 
       - name: Build Zip using exclude.lst
         run: |
-          zip -r release/stripepayment.zip stripepayment -x@exclude.lst
+          zip -r release/stripepayment.zip stripepayment -x@stripepayment/exclude.lst
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
