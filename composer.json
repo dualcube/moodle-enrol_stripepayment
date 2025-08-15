@@ -34,6 +34,6 @@
     },
     "scripts": {
         "phpcs": "vendor/bin/phpcs --standard=Moodle --ignore=vendor/*,.git/* .",
-        "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/*"
+        "phpcf": "vendor/bin/phpcbf --standard=Moodle --ignore=vendor/*,.git/* ."
     }
 }

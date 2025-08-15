@@ -35,7 +35,7 @@ if ($ADMIN->fulltree) {
         get_string('pluginnamedesc', 'enrol_stripepayment')
     ));
 
-    // Dynamic Mode Status Display
+    // Dynamic Mode Status Display.
     $plugin = enrol_get_plugin('stripepayment');
     $modestatustext = $plugin->get_mode_status_display();
 
@@ -44,19 +44,19 @@ if ($ADMIN->fulltree) {
         get_string('currentmodestatus', 'enrol_stripepayment'),
         $modestatustext
     ));
-    
+
     $settings->add(new admin_setting_heading(
         'enrol_stripepayment_mode_settings',
         get_string('stripemodesettings', 'enrol_stripepayment'),
         get_string('stripemodesettingsdesc', 'enrol_stripepayment')
     ));
 
-    // Current Mode Toggle
+    // Current Mode Toggle.
     $modeoptions = [
         'test' => get_string('testmode', 'enrol_stripepayment', 'Test Mode'),
         'live' => get_string('livemode', 'enrol_stripepayment', 'Live Mode'),
     ];
-    
+
     $currentmode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
     $modedescription = get_string('stripemodedesc', 'enrol_stripepayment');
 
@@ -67,12 +67,12 @@ if ($ADMIN->fulltree) {
         'test',
         $modeoptions
     ));
-    
-    // Get current mode to show only relevant section
-    $current_mode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
 
-    // Add mode switching instructions
-    $mode_switch_text = $current_mode === 'test' ?
+    // Get current mode to show only relevant section.
+    $currentmode = get_config('enrol_stripepayment', 'stripemode') ?: 'test';
+
+    // Add mode switching instructions.
+    $modeswitchtext = $currentmode === 'test' ?
         get_string('infomodetext', 'enrol_stripepayment') :
         get_string('infomodetextlive', 'enrol_stripepayment');
 
@@ -84,7 +84,7 @@ if ($ADMIN->fulltree) {
         '</div>'
     ));
 
-    // Add warning about mode changes affecting instances
+    // Add warning about mode changes affecting instances.
     $settings->add(new admin_setting_description(
         'enrol_stripepayment/mode_change_warning',
         '',
@@ -93,7 +93,7 @@ if ($ADMIN->fulltree) {
         '</div>'
     ));
 
-    if ($current_mode === 'test') {
+    if ($currentmode === 'test') {
         $settings->add(new admin_setting_heading(
             'enrol_stripepayment_test_keys',
             '🟢 ' . get_string('testapikeys', 'enrol_stripepayment'),
@@ -142,7 +142,7 @@ if ($ADMIN->fulltree) {
             PARAM_TEXT
         ));
     }
-        
+
     $settings->add(new admin_setting_configcheckbox(
         'enrol_stripepayment/mailstudents',
         get_string('mailstudents', 'enrol_stripepayment'),

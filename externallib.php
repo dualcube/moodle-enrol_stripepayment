@@ -111,7 +111,8 @@ class moodle_enrol_stripepayment_external extends external_api {
             throw new invalid_parameter_exception('Stripe configuration incomplete');
         }
 
-        $cost = (float)$plugininstance->cost > 0 ? (float)$plugininstance->cost : (float)$plugin->get_config('cost');;
+        $defaultcost = (float)$plugin->get_config('cost');
+        $cost = (float)$plugininstance->cost > 0 ? (float)$plugininstance->cost : $defaultcost;
         $currency = $plugininstance->currency ? $plugininstance->currency : 'USD';
         $cost = format_float($cost, 2, false);
 
@@ -459,7 +460,7 @@ class moodle_enrol_stripepayment_external extends external_api {
             if (!$receiverid) {
                 try {
                     $customers = Customer::all(['email' => $user->email]);
-                    if (!empty($customers->data)){
+                    if (!empty($customers->data)) {
                         $receiverid = $customers->data[0]->id;
                     } else {
                         $newcustomer = Customer::create([

@@ -66,7 +66,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     }
     /**
      * Get stripe amount
-     * @param integer $cost $currency $reverse 
+     * @param integer $cost $currency $reverse
      * @return $Stripe ammount
      */
     public function get_stripe_amount($cost, $currency, $reverse) {
@@ -325,7 +325,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $localisedcost = format_float($cost, 2, true);
         $cost = format_float($cost, 2, false);
 
-        // Check if current API keys can access the products/prices for this instance
+        // Check if current API keys can access the products/prices for this instance.
         $validation = $this->validate_instance_accessibility($instance);
         if (!$validation['accessible']) {
             $notification = new \core\output\notification(
@@ -615,9 +615,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $costvalue = null;
         $costfieldexists = false;
 
-        // // Debug: Log the data structure.
-        // debugging("Stripepayment validation data: " . json_encode($data));
-
         if (isset($data['costar']['cost'])) {
             $costvalue = $data['costar']['cost'];
             $costfieldexists = true;
@@ -644,9 +641,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
                 }
                 $cost = (float)$cost;
             }
-
-            // // Debug: Log the cost value for troubleshooting.
-            // debugging("Stripepayment validation: cost = {$cost}, costvalue = " . json_encode($costvalue));
 
             // Now validate the cost value.
             $currency = isset($data['currency']) ? $data['currency'] : 'USD';
@@ -710,7 +704,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      */
     public function get_stripe_mode() {
         $mode = get_config('enrol_stripepayment', 'stripemode');
-        return $mode ?: 'test'; // Default to test mode for safety
+        return $mode ?: 'test'; // Default to test mode for safety.
     }
 
     /**
@@ -727,17 +721,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         } else {
             $publishable = get_config('enrol_stripepayment', 'testpublishablekey');
             $secret = get_config('enrol_stripepayment', 'testsecretkey');
-        }
-
-        // Fallback to legacy keys if new keys are empty
-        if (empty($publishable) || empty($secret)) {
-            $legacy_publishable = get_config('enrol_stripepayment', 'publishablekey');
-            $legacy_secret = get_config('enrol_stripepayment', 'secretkey');
-
-            if (!empty($legacy_publishable) && !empty($legacy_secret)) {
-                $publishable = $legacy_publishable;
-                $secret = $legacy_secret;
-            }
         }
 
         return [
@@ -785,17 +768,17 @@ class enrol_stripepayment_plugin extends enrol_plugin {
             $errors[] = 'Publishable key is missing for ' . $keys['mode'] . ' mode';
         }
 
-        // Validate key format
+        // Validate key format.
         if (!empty($keys['secret'])) {
-            $expected_prefix = $keys['mode'] === 'live' ? 'sk_live_' : 'sk_test_';
-            if (strpos($keys['secret'], $expected_prefix) !== 0) {
+            $expectedprefix = $keys['mode'] === 'live' ? 'sk_live_' : 'sk_test_';
+            if (strpos($keys['secret'], $expectedprefix) !== 0) {
                 $errors[] = 'Secret key format is incorrect for ' . $keys['mode'] . ' mode';
             }
         }
 
         if (!empty($keys['publishable'])) {
-            $expected_prefix = $keys['mode'] === 'live' ? 'pk_live_' : 'pk_test_';
-            if (strpos($keys['publishable'], $expected_prefix) !== 0) {
+            $expectedprefix = $keys['mode'] === 'live' ? 'pk_live_' : 'pk_test_';
+            if (strpos($keys['publishable'], $expectedprefix) !== 0) {
                 $errors[] = 'Publishable key format is incorrect for ' . $keys['mode'] . ' mode';
             }
         }
@@ -816,7 +799,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
         $validation = $this->validate_current_api_keys();
 
         if (!$validation['valid']) {
-            return '<span style="color: #d32f2f; font-weight: bold;">⚠️ ' . strtoupper($mode) . ' MODE - Configuration Error</span>';
+            return '<span style="color: #d32f2f; font-weight: bold;">⚠️ '
+            . strtoupper($mode) . ' MODE - Configuration Error</span>';
         }
 
         if ($mode === 'live') {
@@ -833,26 +817,26 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @return array Array with 'accessible' boolean and 'error' message
      */
     public function validate_instance_accessibility($instance) {
-        $secret_key = $this->get_current_secret_key();
+        $secretkey = $this->get_current_secret_key();
 
-        if (empty($secret_key)) {
+        if (empty($secretkey)) {
             return ['accessible' => false, 'error' => 'No API key configured'];
         }
 
-        // If instance doesn't have custom price IDs, it's accessible (will create new prices)
+        // If instance doesn't have custom price IDs, it's accessible (will create new prices).
         if (empty($instance->customtext1)) {
             return ['accessible' => true, 'error' => ''];
         }
 
         try {
             require_once(__DIR__ . '/vendor/stripe/stripe-php/init.php');
-            \Stripe\Stripe::setApiKey($secret_key);
+            \Stripe\Stripe::setApiKey($secretkey);
 
-            // Try to retrieve the price to see if it's accessible with current keys
+            // Try to retrieve the price to see if it's accessible with current keys.
             $price = \Stripe\Price::retrieve($instance->customtext1);
             return ['accessible' => true, 'error' => ''];
         } catch (\Exception $e) {
-            // Price not found or not accessible with current API keys
+            // Price not found or not accessible with current API keys.
             return ['accessible' => false, 'error' => $e->getMessage()];
         }
     }
