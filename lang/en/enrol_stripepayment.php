@@ -132,5 +132,5 @@ $string['totaldue'] = 'Total due';
 $string['unenrolselfconfirm'] = 'Do you really want to unenrol yourself from course "{$a}"?';
 $string['warningmodetext'] = 'Changing the mode will hide enrolment instances created in the other mode. Products and prices are linked to specific API keys. If you switch modes and users try to access enrolment instances from the previous mode, they will see a "Payment method not found, contact admin" error. This is normal behavior and instances will reappear when you switch back to the original mode.';
 $string['webservicetokenstring'] = 'User token';
-$string['welcometocoursetext'] = 'Hello,<br /> You have been successfully enrolled in {$a}. We look forward to your learning journey with us.<br /> Best regards, <br /> {$a} Team';
+$string['welcometocoursetext'] = 'Hello,<br /> You have been successfully enrolled in {$a->course}}. We look forward to your learning journey with us.<br /> Best regards, <br /> {$a->sitename} Team';
 $string['yes'] = 'Yes';

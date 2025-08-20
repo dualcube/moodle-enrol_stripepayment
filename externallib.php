@@ -303,7 +303,10 @@ class moodle_enrol_stripepayment_external extends external_api {
         if (!empty($mailstudents)) {
             $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
             $userfrom = empty($teacher) ? core_user::get_noreply_user() : $teacher;
-            $fullmessage = get_string('welcometocoursetext', 'enrol_stripepayment', $sitename);
+            $fullmessage = get_string('welcometocoursetext', 'enrol_stripepayment', [
+                'course' => $course->fullname,
+                'sitename' => $sitename ,
+            ]);
             $fullmessagehtml = '<p>' . $fullmessage . '</p>';
             $subject = get_string("enrolmentuser", 'enrol_stripepayment', $shortname);
             self::send_message($course, $userfrom, $user, $subject, $orderdetails, $shortname, $fullmessage, $fullmessagehtml);
