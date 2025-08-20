@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['adminmessage'] = ' Hello,<br /> A new student has enrolled in a course. <br />Student Name: {$a->username}<br /> Course Name: {$a->course}<br /> Best regards,<br /> {$a->course} System';
+$string['adminmessage'] = ' Hello,<br /> A new student has enrolled in a course. <br />Student Name: {$a->username}<br /> Course Name: {$a->course}<br /> Best regards,<br /> {$a->sitename} Team';
 $string['apply'] = 'Apply';
 $string['assignrole'] = 'Assign role';
 $string['canntenrol'] = 'Enrolment is disabled or inactive';
