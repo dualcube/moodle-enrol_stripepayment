@@ -313,7 +313,8 @@ class moodle_enrol_stripepayment_external extends external_api {
         if (!empty($mailteachers) && !empty($teacher)) {
             $fullmessage = get_string('adminmessage', 'enrol_stripepayment', [
                 'username' => fullname($user),
-                'sitename' => $sitename ,
+                'course' => $course->fullname,
+                'sitename' => $sitename
             ]);
             $fullmessagehtml = '<p>' . $fullmessage . '</p>';
             $subject = get_string("enrolmentnew", 'enrol_stripepayment', [
@@ -328,7 +329,8 @@ class moodle_enrol_stripepayment_external extends external_api {
             $admins = get_admins();
             $fullmessage = get_string('adminmessage', 'enrol_stripepayment', [
                 'username' => fullname($user),
-                'sitename' => $sitename ,
+                'course' => $course->fullname,
+                'sitename' => $sitename
             ] );
             $fullmessagehtml = '<p>' . $fullmessage . '</p>';
             $subject = get_string("enrolmentnew", 'enrol_stripepayment', [
