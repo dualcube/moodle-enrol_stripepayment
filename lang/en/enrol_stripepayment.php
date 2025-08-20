@@ -83,6 +83,7 @@ $string['livesecretkey'] = 'Live Secret Key';
 $string['livesecretkeydesc'] = 'Your Stripe live secret key (starts with sk_live_) ⚠️ LIVE KEY';
 $string['mailadmins'] = 'Notify admin';
 $string['mailstudents'] = 'Notify students';
+$string['mailteachers'] = 'Notify teachers';
 $string['maxenrolled'] = 'Max enrolled users';
 $string['maxenrolled_help'] = 'Specifies the maximum number of users that can stripepayment enrol. 0 means no limit.';
 $string['maxenrolledhelp'] = 'Stripe enrolment messages';
