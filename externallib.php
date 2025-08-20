@@ -298,12 +298,15 @@ class moodle_enrol_stripepayment_external extends external_api {
         $orderdetails->coursename = format_string($course->fullname, true, ['context' => $coursecontext]);
         $orderdetails->course = format_string($course->fullname, true, ['context' => $coursecontext]);
         $orderdetails->user = fullname($user);
-
+        $sitename = $CFG->sitename;
         // Student notification.
         if (!empty($mailstudents)) {
             $orderdetails->profileurl = "$CFG->wwwroot/user/view.php?id=$user->id";
             $userfrom = empty($teacher) ? core_user::get_noreply_user() : $teacher;
-            $fullmessage = get_string('welcometocoursetext', 'enrol_stripepayment', format_string($course->fullname));
+            $fullmessage = get_string('welcometocoursetext', 'enrol_stripepayment', [
+                'course' => $course->fullname,
+                'sitename' => $sitename ,
+            ]);
             $fullmessagehtml = '<p>' . $fullmessage . '</p>';
             $subject = get_string("enrolmentuser", 'enrol_stripepayment', $shortname);
             self::send_message($course, $userfrom, $user, $subject, $orderdetails, $shortname, $fullmessage, $fullmessagehtml);
@@ -313,7 +316,8 @@ class moodle_enrol_stripepayment_external extends external_api {
         if (!empty($mailteachers) && !empty($teacher)) {
             $fullmessage = get_string('adminmessage', 'enrol_stripepayment', [
                 'username' => fullname($user),
-                'course' => $course->fullname ,
+                'course' => $course->fullname,
+                'sitename' => $sitename
             ]);
             $fullmessagehtml = '<p>' . $fullmessage . '</p>';
             $subject = get_string("enrolmentnew", 'enrol_stripepayment', [
@@ -328,7 +332,8 @@ class moodle_enrol_stripepayment_external extends external_api {
             $admins = get_admins();
             $fullmessage = get_string('adminmessage', 'enrol_stripepayment', [
                 'username' => fullname($user),
-                'course' => $course->fullname ,
+                'course' => $course->fullname,
+                'sitename' => $sitename
             ] );
             $fullmessagehtml = '<p>' . $fullmessage . '</p>';
             $subject = get_string("enrolmentnew", 'enrol_stripepayment', [
