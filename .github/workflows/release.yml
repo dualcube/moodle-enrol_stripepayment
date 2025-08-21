@@ -1,10 +1,6 @@
 name: Moodle Plugin CI
 
-on:
-  push:
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   test:
@@ -110,7 +106,6 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci behat --profile chrome --scss-deprecations stripepayment
 
-
       - name: Upload Behat Faildump (if failed)
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
         uses: actions/upload-artifact@v4
@@ -128,33 +123,10 @@ jobs:
         if: ${{ cancelled() }}
         run: exit 1
 
-  create_tag:
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-24.04
-    needs: test
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          path: stripepayment
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Configure Git
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-      - name: Install dependencies
-        run: npm install
-        working-directory: stripepayment
-      - name: Create and push tag
-        run: npm run release
-        working-directory: stripepayment
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   release:
     runs-on: ubuntu-24.04
     needs: test
-    if: github.event.pull_request.merged == true || startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout Plugin
