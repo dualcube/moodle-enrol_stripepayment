@@ -1,6 +1,10 @@
 name: Moodle Plugin CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
@@ -123,34 +127,10 @@ jobs:
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
         run: exit 1
-
-  create_tag:
-    runs-on: ubuntu-24.04
-    needs: test
-    if: github.event.pull_request.merged == true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: enrol/stripepayment
-
-      - name: Create and push tag
-        run: npm run release
-        working-directory: enrol/stripepayment
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   release:
     runs-on: ubuntu-24.04
     needs: test
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.event.pull_request.merged == true || startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout Plugin
