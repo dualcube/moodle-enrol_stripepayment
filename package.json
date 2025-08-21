@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "npx grunt amd",
-    "release": "git tag -a v${npm_package_version} -m \"Release v${npm_package_version}\" && git push origin v${npm_package_version}",
+    "release": "git tag -a v$npm_package_version -m \"Release v$npm_package_version\" && git push origin v$npm_package_version",
     "phpcs": "composer run-script phpcs",
     "phpcbf": "composer run-script phpcf"
   }
