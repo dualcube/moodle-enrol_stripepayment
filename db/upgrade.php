@@ -33,7 +33,7 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();
 
-    if ($oldversion < 2025081300) {
+    if ($oldversion < 2025082000) {
         // Remove legacy fields that are not used by Stripe payment processing.
         $table = new xmldb_table('enrol_stripepayment');
 
@@ -158,7 +158,7 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         }
 
         // Stripe savepoint reached.
-        upgrade_plugin_savepoint(true, 2025081300, 'enrol', 'stripepayment');
+        upgrade_plugin_savepoint(true, 2025082000, 'enrol', 'stripepayment');
     }
 
     return true;
