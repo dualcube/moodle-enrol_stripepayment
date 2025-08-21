@@ -144,6 +144,11 @@ jobs:
         with:
           node-version: 18
 
+      - name: Configure Git identity
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
       - name: Install dependencies
         run: npm install
         working-directory: stripepayment
@@ -153,6 +158,7 @@ jobs:
         working-directory: stripepayment
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
 
   release:
