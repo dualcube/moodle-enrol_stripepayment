@@ -2,11 +2,9 @@ name: Moodle Plugin CI
 
 on:
   push:
-    branches:
-      - master
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   test:
@@ -35,7 +33,7 @@ jobs:
       - name: Checkout Plugin
         uses: actions/checkout@v4
         with:
-          path: stripepayment
+          path: stripepaymentpro
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -52,20 +50,20 @@ jobs:
 
       - name: Install Moodle Node dependencies
         run: npm install
-        working-directory: stripepayment
+        working-directory: stripepaymentpro
 
       - name: Build grunt
         run: npm run build
-        working-directory: stripepayment
+        working-directory: stripepaymentpro
 
       - name: Install Plugin Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
-        working-directory: stripepayment
+        working-directory: stripepaymentpro
 
       - name: Clean Extra Files from Plugin
         run: |
-          rm -rf stripepayment/.git stripepayment/.github stripepayment/node_modules stripepayment/tests stripepayment/phpunit.xml
-          rm -f stripepayment/composer.* stripepayment/package*.json stripepayment/webpack.config.js stripepayment/.zipignore
+          rm -rf stripepaymentpro/.git stripepaymentpro/.github stripepaymentpro/node_modules stripepaymentpro/tests stripepaymentpro/phpunit.xml
+          rm -f stripepaymentpro/composer.* stripepaymentpro/package*.json stripepaymentpro/webpack.config.js stripepaymentpro/.zipignore
 
       - name: Install moodle-plugin-ci tooling
         run: |
@@ -77,40 +75,41 @@ jobs:
           COMPOSER_NO_INTERACTION: 1
 
       - name: Install moodle-plugin-ci
-        run: moodle-plugin-ci install --plugin ./stripepayment --db-host=127.0.0.1
+        run: moodle-plugin-ci install --plugin ./stripepaymentpro --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: PHP Lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phplint stripepayment
+        run: moodle-plugin-ci phplint stripepaymentpro
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: moodle-plugin-ci phpmd stripepayment
+        run: moodle-plugin-ci phpmd stripepaymentpro
 
       - name: PHP Code Beautifier and Fixer
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcbf stripepayment
+        run: moodle-plugin-ci phpcbf stripepaymentpro
 
       - name: Validate Plugin
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci validate stripepayment
+        run: moodle-plugin-ci validate stripepaymentpro
 
       - name: Check Upgrade Savepoints
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci savepoints stripepayment
+        run: moodle-plugin-ci savepoints stripepaymentpro
 
       - name: PHPUnit Tests
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpunit --fail-on-warning stripepayment
+        run: moodle-plugin-ci phpunit --fail-on-warning stripepaymentpro
 
       - name: Run Behat Tests
         id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome --scss-deprecations stripepayment
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations stripepaymentpro
+
 
       - name: Upload Behat Faildump (if failed)
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
@@ -123,36 +122,50 @@ jobs:
       
       - name: Final Cleanup - Remove Vendor
         if: ${{ always() }}
-        run: rm -rf stripepayment/vendor
+        run: rm -rf stripepaymentpro/vendor
 
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
         run: exit 1
-  create_and_release:
+  release:
     runs-on: ubuntu-24.04
     needs: test
+    if: github.event.pull_request.merged == true || startsWith(github.ref, 'refs/tags/')
+
     steps:
-      - name: Checkout
+      - name: Checkout Plugin
         uses: actions/checkout@v4
         with:
-          path: stripepayment
+          path: stripepaymentpro
 
-      - name: Setup Node.js
+      - name: Install Node.js (for Grunt)
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '18'
 
-      - name: Configure Git identity
-        run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-
-      - name: Install dependencies
+      - name: Install Moodle Node dependencies
         run: npm install
-        working-directory: stripepayment
+        working-directory: stripepaymentpro
 
-      - name: Run npm release command and create tag
-        run: npm run release
-        working-directory: stripepayment
+      - name: Build Grunt
+        run: npm run build
+        working-directory: stripepaymentpro
+
+      - name: Install Plugin Composer Dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: stripepaymentpro
+
+      - name: Prepare Release Folder
+        run: mkdir -p release
+
+      - name: Build Zip using exclude.lst
+        run: |
+          zip -r release/stripepaymentpro.zip stripepaymentpro -x@stripepaymentpro/exclude.lst
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/stripepaymentpro.zip
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

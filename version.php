@@ -24,8 +24,8 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2025082000;
+$plugin->version   = 2025082100;
 $plugin->requires  = 2025041400;
 $plugin->component = 'enrol_stripepayment';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.5.9';
+$plugin->release   = '3.6.0';
