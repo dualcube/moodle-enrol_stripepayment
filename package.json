@@ -1,6 +1,6 @@
 {
   "name": "moodle-enrol-stripepayment",
-  "version": "3.6.0",
+  "version": "3.5.9",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
