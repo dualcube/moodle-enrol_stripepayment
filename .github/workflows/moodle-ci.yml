@@ -136,6 +136,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          path: stripepayment
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -144,13 +146,14 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: enrol/stripepayment
+        working-directory: stripepayment
 
       - name: Create and push tag
         run: npm run release
-        working-directory: enrol/stripepayment
+        working-directory: stripepayment
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   release:
     runs-on: ubuntu-24.04
