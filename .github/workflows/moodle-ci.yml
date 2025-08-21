@@ -128,3 +128,31 @@ jobs:
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
         run: exit 1
+  create_and_release:
+    runs-on: ubuntu-24.04
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: stripepayment
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Configure Git identity
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: stripepayment
+
+      - name: Run npm release command and create tag
+        run: npm run release
+        working-directory: stripepayment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
