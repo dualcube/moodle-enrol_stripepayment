@@ -1,0 +1,40 @@
+name: Moodle Plugin Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Plugin
+        uses: actions/checkout@v4
+        with:
+          path: stripepayment
+      - name: Install Node.js (for Grunt)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install Moodle Node dependencies
+        run: npm install
+        working-directory: stripepayment
+      - name: Build Grunt
+        run: npm run build
+        working-directory: stripepayment
+      - name: Install Plugin Composer Dependencies
+        run: composer install --no-dev --prefer-dist --no-progress
+        working-directory: stripepayment
+      - name: Prepare Release Folder
+        run: mkdir -p release
+      - name: Build Zip using exclude.lst
+        run: |
+          zip -r release/stripepayment.zip stripepayment -x@stripepayment/exclude.lst
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/stripepayment.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
