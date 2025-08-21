@@ -1,6 +1,12 @@
 name: Moodle Plugin CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   test:
@@ -127,7 +133,6 @@ jobs:
   create_tag:
     runs-on: ubuntu-24.04
     needs: test
-    if: github.event.pull_request.merged == true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
