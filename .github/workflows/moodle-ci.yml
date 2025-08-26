@@ -127,6 +127,9 @@ jobs:
   create_tag_and_release:
     runs-on: ubuntu-24.04
     needs: test
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, 'Merge pull request')
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -141,15 +144,12 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
-      - name: Install dependencies
+      - name: Clear npm cache
+        run: npm cache clean --force
+
+      - name: Install Moodle Node dependencies
         run: npm install
         working-directory: stripepayment
-
-      - name: Create and push tag
-        run: npm run release
-        working-directory: stripepayment
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
@@ -162,10 +162,18 @@ jobs:
         run: |
           zip -r release/stripepayment.zip stripepayment -x@stripepayment/exclude.lst
 
+      - name: Get version from package.json
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        working-directory: stripepayment
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v${{ steps.version.outputs.version }}
           files: release/stripepayment.zip
-          generate_release_notes: true
+          body: |
+            This is the official release for version v${{ steps.version.outputs.version }}.
+            Thank you for using our Moodle plugin!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
