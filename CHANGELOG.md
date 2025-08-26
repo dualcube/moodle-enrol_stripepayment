@@ -1,5 +1,10 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.6.0 (2025082100)
+ * Added: Multiple instance supporton null.
+ * Added: Compatibility with Moodle 5.
+ * Added : UI enhancement to clearly indicate Live mode vs Test mode. 
+
 3.4.8 (2024082100)
  * Fixed :  Error notice Call to a member function js_call_amd() on null.
  * Fixed : Multiple redemptions of coupon not prevented in free enrollment case.
