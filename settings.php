@@ -25,9 +25,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use enrol_stripepayment\util;
+
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->dirroot . '/enrol/stripepayment/lib.php');
+
 if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
         'enrol_stripepayment_settings',
@@ -35,9 +36,7 @@ if ($ADMIN->fulltree) {
         get_string('pluginnamedesc', 'enrol_stripepayment')
     ));
 
-    // Dynamic Mode Status Display.
-    $plugin = enrol_get_plugin('stripepayment');
-    $modestatustext = $plugin->get_mode_status_display();
+    $modestatustext = util::get_mode_status_display();
 
     $settings->add(new admin_setting_description(
         'enrol_stripepayment/mode_status',
@@ -169,7 +168,7 @@ if ($ADMIN->fulltree) {
     ));
 
     // Variable $enroll button color.
-    $settings->add( new admin_setting_configcolourpicker(
+    $settings->add(new admin_setting_configcolourpicker(
         'enrol_stripepayment/enrolbtncolor',
         get_string('enrolbtncolor', 'enrol_stripepayment'),
         get_string('enrolbtncolordes', 'enrol_stripepayment'),
@@ -190,20 +189,10 @@ if ($ADMIN->fulltree) {
         $options
     ));
 
-    // Webservice token.
-    $webservicesoverview = $CFG->wwwroot . '/admin/search.php?query=enablewebservices';
-    $restweblink = $CFG->wwwroot . '/admin/settings.php?section=webserviceprotocols';
-    $createtoken = $CFG->wwwroot . '/admin/webservice/tokens.php';
-    $settings->add(new admin_enrol_stripepayment_configtext(
+    $settings->add(new admin_setting_configtext(
         'enrol_stripepayment/webservice_token',
         get_string('webservicetokenstring', 'enrol_stripepayment'),
-        get_string('enablewebservicesfirst', 'enrol_stripepayment') . '<a href="' . $webservicesoverview . '" target="_blank"> '
-        . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
-        . get_string('createusertoken', 'enrol_stripepayment') . '<a href="' . $restweblink . '" target="_blank"> '
-        . get_string('fromhere', 'enrol_stripepayment') . '</a> . '
-        . get_string('enabledrestprotocol', 'enrol_stripepayment') . '<a href="' . $createtoken . '" target="_blank"> '
-        . get_string('fromhere', 'enrol_stripepayment') . '</a>
-        ',
+        util::get_webservice_setup_message('moodle_enrol_stripepayment'),
         ''
     ));
     // Enrol instance defaults.
@@ -212,10 +201,7 @@ if ($ADMIN->fulltree) {
         get_string('enrolinstancedefaults', 'admin'),
         get_string('enrolinstancedefaults_desc', 'admin')
     ));
-    $options = [
-        ENROL_INSTANCE_ENABLED  => get_string('yes'),
-        ENROL_INSTANCE_DISABLED => get_string('no'),
-    ];
+    $options = util::get_status_options();
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/status',
         get_string('status', 'enrol_stripepayment'),
@@ -231,7 +217,7 @@ if ($ADMIN->fulltree) {
         PARAM_FLOAT,
         4
     ));
-    $stripecurrencies = enrol_get_plugin('stripepayment')->get_currencies();
+    $stripecurrencies = util::get_currencies();
     $settings->add(new admin_setting_configselect(
         'enrol_stripepayment/currency',
         get_string('currency', 'enrol_stripepayment'),

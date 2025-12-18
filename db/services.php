@@ -27,8 +27,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $services = ['moodle_enrol_stripepayment' => [
     'functions' => [
-            'moodle_stripepayment_applycoupon',
-            'moodle_stripepayment_enrol',
+            'moodle_stripepayment_apply_coupon',
+            'moodle_stripepayment_process_enrolment',
             'moodle_stripepayment_process_payment',
         ],
         'requiredcapability' => '',
@@ -37,31 +37,24 @@ $services = ['moodle_enrol_stripepayment' => [
         'shortname' => 'enrolstripepayment', ],
     ];
 $functions = [
-    'moodle_stripepayment_applycoupon' => [
-        'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_applycoupon',
-        'classpath' => 'enrol/stripepayment/externallib.php',
+    'moodle_stripepayment_apply_coupon' => [
+        'classname' => 'enrol_stripepayment\external\apply_coupon',
         'description' => 'Load coupon settings data',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_enrol' => [
-        'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'stripepayment_enrol',
-        'classpath' => 'enrol/stripepayment/externallib.php',
+    'moodle_stripepayment_process_payment' => [
+        'classname' => 'enrol_stripepayment\external\process_payment',
         'description' => 'Update information after Stripe Successful Connect',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true,
     ],
-    'moodle_stripepayment_process_payment' => [
-        'classname' => 'moodle_enrol_stripepayment_external',
-        'methodname' => 'process_payment',
-        'classpath' => 'enrol/stripepayment/externallib.php',
+    'moodle_stripepayment_process_enrolment' => [
+        'classname' => 'enrol_stripepayment\external\process_enrolment',
         'description' => 'Update information after Stripe Successful Payment',
         'type' => 'write',
-        'ajax' => true,
         'loginrequired' => true,
     ],
 

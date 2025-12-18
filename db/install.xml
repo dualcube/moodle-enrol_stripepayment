@@ -4,8 +4,8 @@
     <TABLE NAME="enrol_stripepayment" COMMENT="Holds all known information about Stripe transactions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
-        <FIELD NAME="receiveremail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
-        <FIELD NAME="receiverid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+        <FIELD NAME="customeremail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+        <FIELD NAME="customerid" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="itemname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />

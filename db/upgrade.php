@@ -145,7 +145,6 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
                 // Clear legacy keys after migration.
                 set_config('publishablekey', '', 'enrol_stripepayment');
                 set_config('secretkey', '', 'enrol_stripepayment');
-
             } else if (strpos($legacysecret, 'sk_live_') === 0 && strpos($legacypublishable, 'pk_live_') === 0) {
                 set_config('livepublishablekey', $legacypublishable, 'enrol_stripepayment');
                 set_config('livesecretkey', $legacysecret, 'enrol_stripepayment');
@@ -159,6 +158,22 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
 
         // Stripe savepoint reached.
         upgrade_plugin_savepoint(true, 2025082100, 'enrol', 'stripepayment');
+    }
+
+    if ($oldversion < 2025082108) {
+        $table = new xmldb_table('enrol_stripepayment');
+        // Rename receiverid field to customerid.
+        $field = new xmldb_field('receiverid', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'customerid');
+        }
+        // Rename receiveremail field to customeremail.
+        $field = new xmldb_field('receiveremail', XMLDB_TYPE_CHAR, '255', null, false, false);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'customeremail');
+        }
+
+        upgrade_plugin_savepoint(true, 2025082108, 'enrol', 'stripepayment');
     }
 
     return true;
