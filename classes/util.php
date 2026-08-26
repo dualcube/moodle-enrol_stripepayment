@@ -89,7 +89,7 @@ class util {
             get_string('createusertoken', 'enrol_stripepayment') . ' ' .
             self::generate_link_html($createtoken) . ' . ' .
 
-            get_string('enabledrestprotocol', 'enrol_stripepaymentpro', $for) . ' ' .
+            get_string('enabledrestprotocol', 'enrol_stripepayment', $for) . ' ' .
             self::generate_link_html($restweblink);
     }
 

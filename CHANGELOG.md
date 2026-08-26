@@ -1,9 +1,24 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.6.1 (2026082600)
+ * Fixed : Duplicate-payment guard in process_enrolment queried a nonexistent
+   enrol_stripepaymentpro table instead of enrol_stripepayment, which would throw a DB
+   error on every completed checkout instead of just skipping already-processed transactions.
+ * Fixed : get_webservice_setup_message() looked up a lang string in the wrong plugin
+   component (enrol_stripepaymentpro instead of enrol_stripepayment).
+ * Fixed : Off-by-one indexing into the localized strings array left
+   unknownpaymenterror undefined and invalidserverresponse showing the wrong message;
+   also fixed a bare, unreferenced unknownpaymenterror causing a ReferenceError on that error path.
+ * Updated : Coding style cleanup in the external API classes to match latest Moodle standards.
+
 3.6.0 (2025082100)
  * Added: Multiple instance supporton null.
  * Added: Compatibility with Moodle 5.
  * Added : UI enhancement to clearly indicate Live mode vs Test mode. 
+ * Fixed : stripe_api_request() sent PHP boolean params (allow_promotion_codes,
+   automatic_tax[enabled]) through http_build_query() unconverted, which casts true/false to
+   '1'/'' rather than the literal 'true'/'false' strings Stripe's API requires - Stripe rejected
+   these requests with "Invalid boolean: 1" (e.g. checkout session creation without a coupon).
 
 3.4.8 (2024082100)
  * Fixed :  Error notice Call to a member function js_call_amd() on null.

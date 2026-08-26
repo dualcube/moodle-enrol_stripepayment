@@ -23,25 +23,25 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
- namespace enrol_stripepayment\external;
- use context_course;
- use core\exception\moodle_exception;
- use core_external\external_api;
- use core_external\external_function_parameters;
- use core_external\external_value;
- use core_external\external_single_structure;
- use enrol_stripepayment\util;
- use moodle_url;
- use stdClass;
+namespace enrol_stripepayment\external;
+use context_course;
+use core\exception\moodle_exception;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_value;
+use core_external\external_single_structure;
+use enrol_stripepayment\util;
+use moodle_url;
+use stdClass;
 
- /**
-  * External process payment for stripepayment
-  *
-  * @package    enrol_stripepayment
-  * @author     DualCube <admin@dualcube.com>
-  * @copyright  2025 DualCube Team(https://dualcube.com)
-  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-  */
+/**
+ * External process payment for stripepayment
+ *
+ * @package    enrol_stripepayment
+ * @author     DualCube <admin@dualcube.com>
+ * @copyright  2025 DualCube Team(https://dualcube.com)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class process_enrolment extends external_api {
     /**
      * function for define parameter type for process_payment
@@ -190,7 +190,7 @@ class process_enrolment extends external_api {
             $checkoutsession['payment_status'] === 'paid'
             && $checkoutsession['metadata']['courseid'] == $enrolmentdata->courseid
             && $checkoutsession['metadata']['userid'] == $enrolmentdata->userid
-            && !$DB->record_exists('enrol_stripepaymentpro', ['txnid' => $enrolmentdata->txnid])
+            && !$DB->record_exists('enrol_stripepayment', ['txnid' => $enrolmentdata->txnid])
         ) {
             return true;
         }

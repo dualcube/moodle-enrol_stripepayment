@@ -47,8 +47,8 @@ const init = () => {
             couponapply: strings[3],
             couponappliedsuccessfully: strings[4],
             enrolnow: strings[5],
-            invalidserverresponse: strings[7],
-            unknownpaymenterror: strings[8],
+            invalidserverresponse: strings[6],
+            unknownpaymenterror: strings[7],
         };
     }).catch(error => {
         console.error('Failed to load localized strings:', error);
@@ -160,7 +160,7 @@ const stripePayment = (couponid, instance) => {
             } else if (paymentdata.status === "success" && paymentdata.redirecturl) {
                 window.location.href = paymentdata.redirecturl;
             } else {
-                displayMessage("paymentresponse", unknownpaymenterror, "error");
+                displayMessage("paymentresponse", localized.unknownpaymenterror, "error");
             }
         } catch (err) {
             displayMessage("paymentresponse", err.message, "error");
