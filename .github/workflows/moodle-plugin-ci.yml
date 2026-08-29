@@ -26,10 +26,19 @@ jobs:
         database: [mariadb]
 
     steps:
+      # The repository is named "moodle-enrol_<slug>" by convention; the plugin
+      # directory itself (and everything moodle-plugin-ci expects) is just
+      # "<slug>", so derive it here instead of hardcoding it - this keeps the
+      # workflow correct across forks/renames without any manual edits.
+      - name: Determine plugin slug
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          echo "PLUGIN_SLUG=${REPO_NAME#moodle-enrol_}" >> "$GITHUB_ENV"
+
       - name: Checkout Plugin
         uses: actions/checkout@v4
         with:
-          path: stripepayment
+          path: ${{ env.PLUGIN_SLUG }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -44,21 +53,33 @@ jobs:
         with:
           node-version: '18'
 
+      # moodle-plugin-ci's Mustache Lint step shells out to a Java-based HTML
+      # validator (vnu.jar) to check each template's rendered output. Without
+      # an explicit setup, whether a working `java` ends up on PATH depends on
+      # undocumented runner-image defaults - set up a known-good JDK instead
+      # of relying on that.
+      - name: Setup Java (for Mustache Lint's HTML validator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Install Moodle Node dependencies
         run: npm install
-        working-directory: stripepayment
+        working-directory: ${{ env.PLUGIN_SLUG }}
 
       - name: Build grunt
         run: npm run build
-        working-directory: stripepayment
+        working-directory: ${{ env.PLUGIN_SLUG }}
 
       - name: Install Plugin Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
-        working-directory: stripepayment
+        working-directory: ${{ env.PLUGIN_SLUG }}
 
       - name: Clean Extra Files from Plugin
         run: |
-          rm -rf $(cat stripepayment/exclude.lst | tr '\n' ' ')
+          rm -rf "$PLUGIN_SLUG/.git" "$PLUGIN_SLUG/.github" "$PLUGIN_SLUG/node_modules" "$PLUGIN_SLUG/tests" "$PLUGIN_SLUG/phpunit.xml" "$PLUGIN_SLUG/vendor"
+          rm -f "$PLUGIN_SLUG"/composer.* "$PLUGIN_SLUG"/package*.json "$PLUGIN_SLUG/webpack.config.js" "$PLUGIN_SLUG/.zipignore"
 
       - name: Install moodle-plugin-ci tooling
         run: |
@@ -70,48 +91,60 @@ jobs:
           COMPOSER_NO_INTERACTION: 1
 
       - name: Install moodle-plugin-ci
-        run: moodle-plugin-ci install --plugin ./stripepayment --db-host=127.0.0.1
+        run: moodle-plugin-ci install --plugin "./$PLUGIN_SLUG" --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: PHP Lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phplint stripepayment
+        run: moodle-plugin-ci phplint "$PLUGIN_SLUG"
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0 stripepayment
-      
+        run: moodle-plugin-ci phpcs --max-warnings 0 "$PLUGIN_SLUG"
+
       - name: Moodle PHPDoc Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpdoc --max-warnings 0 stripepayment
+        run: moodle-plugin-ci phpdoc --max-warnings 0 "$PLUGIN_SLUG"
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: moodle-plugin-ci phpmd stripepayment
+        run: moodle-plugin-ci phpmd "$PLUGIN_SLUG"
+
+
+      - name: Mustache Lint
+        if: ${{ !cancelled() }}
+        # No explicit plugin path here (unlike the other steps): mustache lint
+        # renders templates through Moodle's own component/HTML-validator
+        # machinery, which requires the plugin's actual in-Moodle-tree
+        # location, not this checkout's original path. moodle-plugin-ci's
+        # `install` step already recorded that correct path in PLUGIN_DIR
+        # (loaded automatically from ci/.env on every invocation), so passing
+        # our own path here would override it with the wrong one.
+        run: moodle-plugin-ci mustache
 
       - name: PHP Code Beautifier and Fixer
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcbf stripepayment
+        run: moodle-plugin-ci phpcbf "$PLUGIN_SLUG"
 
       - name: Validate Plugin
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci validate stripepayment
+        run: moodle-plugin-ci validate "$PLUGIN_SLUG"
 
       - name: Check Upgrade Savepoints
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci savepoints stripepayment
+        run: moodle-plugin-ci savepoints "$PLUGIN_SLUG"
 
       - name: PHPUnit Tests
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpunit --fail-on-warning stripepayment
+        run: moodle-plugin-ci phpunit --fail-on-warning "$PLUGIN_SLUG"
 
       - name: Run Behat Tests
         id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome --scss-deprecations stripepayment
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations "$PLUGIN_SLUG"
 
 
       - name: Upload Behat Faildump (if failed)
@@ -122,10 +155,10 @@ jobs:
           path: ${{ github.workspace }}/moodledata/behat_dump
           retention-days: 7
           if-no-files-found: ignore
-      
+
       - name: Final Cleanup - Remove Vendor
         if: ${{ always() }}
-        run: rm -rf stripepayment/vendor
+        run: rm -rf "$PLUGIN_SLUG/vendor"
 
       - name: Mark cancelled jobs as failed
         if: ${{ cancelled() }}
@@ -138,9 +171,14 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Determine plugin slug
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          echo "PLUGIN_SLUG=${REPO_NAME#moodle-enrol_}" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
         with:
-          path: stripepayment
+          path: ${{ env.PLUGIN_SLUG }}
 
       - uses: actions/setup-node@v3
         with:
@@ -156,31 +194,52 @@ jobs:
 
       - name: Install Moodle Node dependencies
         run: npm install
-        working-directory: stripepayment
+        working-directory: ${{ env.PLUGIN_SLUG }}
 
       - name: Install Composer Dependencies
         run: composer install --no-dev --prefer-dist --no-progress
-        working-directory: stripepayment
+        working-directory: ${{ env.PLUGIN_SLUG }}
 
       - name: Prepare Release Folder
         run: mkdir -p release
 
       - name: Build Zip using exclude.lst
         run: |
-          zip -r release/stripepayment.zip stripepayment -x@stripepayment/exclude.lst
+          zip -r "release/$PLUGIN_SLUG.zip" "$PLUGIN_SLUG" -x@"$PLUGIN_SLUG/exclude.lst"
 
       - name: Get version from package.json
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-        working-directory: stripepayment
+        working-directory: ${{ env.PLUGIN_SLUG }}
+
+      - name: Determine release date
+        id: reldate
+        run: |
+          DAY=$(date -u +%-d)
+          case $DAY in
+            1|21|31) SUFFIX="st" ;;
+            2|22) SUFFIX="nd" ;;
+            3|23) SUFFIX="rd" ;;
+            *) SUFFIX="th" ;;
+          esac
+          echo "date=${DAY}${SUFFIX} $(date -u +'%B %Y')" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.version.outputs.version }}
-          files: release/stripepayment.zip
+          files: release/${{ env.PLUGIN_SLUG }}.zip
           body: |
-            This is the official release for version v${{ steps.version.outputs.version }}.
-            Thank you for using our Stripepayment plugin!
+            We're pleased to announce the official release of Stripe Payment Gateway for Moodle v${{ steps.version.outputs.version }}.
+
+            Thank you for using our Stripe Payment plugin and for being part of the Moodle community.
+
+            Release Information
+
+            Version: v${{ steps.version.outputs.version }}
+            Release: Official
+            Date: ${{ steps.reldate.outputs.date }}
+
+            Thank you for choosing our plugin. We appreciate your continued support!
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
