@@ -88,20 +88,26 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 
     /**
      * Defines if user can be unenrolled.
-     * @param stdClass $instance of the plugin (unused here - required by enrol_plugin's signature)
+     * @param stdClass $instance of the plugin
      * @return bool(true or false)
      */
     public function allow_unenrol(stdClass $instance) {
+        // Required by enrol_plugin's signature but unused here.
+        unset($instance);
+
         // Users with unenrol cap may unenrol other users manually - requires enrol/stripe:unenrol.
         return true;
     }
 
     /**
      * Defines if user can be managed from admin.
-     * @param stdClass $instance of the plugin (unused here - required by enrol_plugin's signature)
+     * @param stdClass $instance of the plugin
      * @return bool(true or false)
      */
     public function allow_manage(stdClass $instance) {
+        // Required by enrol_plugin's signature but unused here.
+        unset($instance);
+
         // Users with manage cap may tweak period and status - requires enrol/stripe:manage.
         return true;
     }
@@ -331,13 +337,16 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     /**
      * Restore user enrolment.
      *
-     * @param restore_enrolments_structure_step $step (unused here - required by enrol_plugin's signature)
+     * @param restore_enrolments_structure_step $step
      * @param stdClass $data
      * @param stdClass $instance
      * @param int $userid
-     * @param int $oldinstancestatus (unused here - required by enrol_plugin's signature)
+     * @param int $oldinstancestatus
      */
     public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
+        // Required by enrol_plugin's signature but unused here.
+        unset($step, $oldinstancestatus);
+
         $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);
     }
 
@@ -502,7 +511,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * Perform custom validation of the data used to edit the instance.
      *
      * @param array $data array of ("fieldname"=>value) of submitted data
-     * @param array $files array of uploaded files "element_name"=>tmp_file_path (unused - required by enrol_plugin's signature)
+     * @param array $files array of uploaded files "element_name"=>tmp_file_path
      * @param object $instance The instance loaded from the DB
      * @param context $context The context of the instance we are editing
      * @return array of "element_name"=>"error_description" if there are errors,
@@ -510,6 +519,9 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @return array
      */
     public function edit_instance_validation($data, $files, $instance, $context) {
+        // Required by enrol_plugin's signature but unused here.
+        unset($files);
+
         $errors = [];
 
         if (!empty($data['enrolenddate']) && $data['enrolenddate'] < $data['enrolstartdate']) {
