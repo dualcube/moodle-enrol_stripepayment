@@ -1,0 +1,13 @@
+{
+    "extends": "stylelint-config-standard",
+    "ignoreFiles": [
+        "amd/build/**",
+        "node_modules/**",
+        "vendor/**"
+    ],
+    "rules": {
+        "color-function-notation": "legacy",
+        "alpha-value-notation": "number",
+        "media-feature-range-notation": "prefix"
+    }
+}

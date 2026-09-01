@@ -38,16 +38,13 @@ use core\output\notification;
  * The public-method count, class complexity and coupling here are inherent to being a
  * Moodle enrol plugin: enrol_plugin's contract mandates most of these methods stay public
  * overrides, each tied to a different core type (forms, navigation, backup/restore, cron,
- * course_enrolment_manager, ...), so those three PHPMD metrics are suppressed rather than
- * chased with artificial splits that would not reduce the real complexity.
+ * course_enrolment_manager, ...), so PHPMD's noise on those three metrics for this class
+ * is expected rather than a sign anything here should be artificially split.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class enrol_stripepayment_plugin extends enrol_plugin {
     /**
@@ -91,9 +88,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 
     /**
      * Defines if user can be unenrolled.
-     * @param stdClass $instance of the plugin
+     * @param stdClass $instance of the plugin (unused here - required by enrol_plugin's signature)
      * @return bool(true or false)
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $instance is part of enrol_plugin's signature.
      */
     public function allow_unenrol(stdClass $instance) {
         // Users with unenrol cap may unenrol other users manually - requires enrol/stripe:unenrol.
@@ -102,9 +98,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
 
     /**
      * Defines if user can be managed from admin.
-     * @param stdClass $instance of the plugin
+     * @param stdClass $instance of the plugin (unused here - required by enrol_plugin's signature)
      * @return bool(true or false)
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $instance is part of enrol_plugin's signature.
      */
     public function allow_manage(stdClass $instance) {
         // Users with manage cap may tweak period and status - requires enrol/stripe:manage.
@@ -336,12 +331,11 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     /**
      * Restore user enrolment.
      *
-     * @param restore_enrolments_structure_step $step
+     * @param restore_enrolments_structure_step $step (unused here - required by enrol_plugin's signature)
      * @param stdClass $data
      * @param stdClass $instance
      * @param int $userid
-     * @param int $oldinstancestatus
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $step and $oldinstancestatus are part of enrol_plugin's signature.
+     * @param int $oldinstancestatus (unused here - required by enrol_plugin's signature)
      */
     public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
         $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);
@@ -508,13 +502,12 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * Perform custom validation of the data used to edit the instance.
      *
      * @param array $data array of ("fieldname"=>value) of submitted data
-     * @param array $files array of uploaded files "element_name"=>tmp_file_path
+     * @param array $files array of uploaded files "element_name"=>tmp_file_path (unused - required by enrol_plugin's signature)
      * @param object $instance The instance loaded from the DB
      * @param context $context The context of the instance we are editing
      * @return array of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK.
      * @return array
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $files is part of enrol_plugin's signature.
      */
     public function edit_instance_validation($data, $files, $instance, $context) {
         $errors = [];

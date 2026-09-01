@@ -35,10 +35,15 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
 
     if ($oldversion < 2025082100) {
         xmldb_enrol_stripepayment_upgrade_to_2025082100($dbman);
+
+        // Stripe savepoint reached.
+        upgrade_plugin_savepoint(true, 2025082100, 'enrol', 'stripepayment');
     }
 
     if ($oldversion < 2025082108) {
         xmldb_enrol_stripepayment_upgrade_to_2025082108($dbman);
+
+        upgrade_plugin_savepoint(true, 2025082108, 'enrol', 'stripepayment');
     }
 
     return true;
@@ -71,9 +76,6 @@ function xmldb_enrol_stripepayment_upgrade_to_2025082100($dbman) {
     xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'payment_type', 'paymenttype', XMLDB_TYPE_CHAR, '30');
 
     xmldb_enrol_stripepayment_migrate_legacy_keys();
-
-    // Stripe savepoint reached.
-    upgrade_plugin_savepoint(true, 2025082100, 'enrol', 'stripepayment');
 }
 
 /**
@@ -86,8 +88,6 @@ function xmldb_enrol_stripepayment_upgrade_to_2025082108($dbman) {
 
     xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiverid', 'customerid');
     xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiveremail', 'customeremail');
-
-    upgrade_plugin_savepoint(true, 2025082108, 'enrol', 'stripepayment');
 }
 
 /**
