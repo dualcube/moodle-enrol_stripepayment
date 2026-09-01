@@ -27,6 +27,7 @@
 
 
 use core_enrol\output\enrol_page;
+use enrol_stripepayment\stripe_client;
 use enrol_stripepayment\util;
 use core\exception\moodle_exception;
 use core\output\notification;
@@ -34,10 +35,19 @@ use core\output\notification;
 /**
  * Stripe enrolment plugin implementation.
  *
+ * The public-method count, class complexity and coupling here are inherent to being a
+ * Moodle enrol plugin: enrol_plugin's contract mandates most of these methods stay public
+ * overrides, each tied to a different core type (forms, navigation, backup/restore, cron,
+ * course_enrolment_manager, ...), so those three PHPMD metrics are suppressed rather than
+ * chased with artificial splits that would not reduce the real complexity.
+ *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class enrol_stripepayment_plugin extends enrol_plugin {
     /**
@@ -83,6 +93,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * Defines if user can be unenrolled.
      * @param stdClass $instance of the plugin
      * @return bool(true or false)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $instance is part of enrol_plugin's signature.
      */
     public function allow_unenrol(stdClass $instance) {
         // Users with unenrol cap may unenrol other users manually - requires enrol/stripe:unenrol.
@@ -93,6 +104,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * Defines if user can be managed from admin.
      * @param stdClass $instance of the plugin
      * @return bool(true or false)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $instance is part of enrol_plugin's signature.
      */
     public function allow_manage(stdClass $instance) {
         // Users with manage cap may tweak period and status - requires enrol/stripe:manage.
@@ -213,7 +225,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param stdClass $instance
      * @return string
      */
-    public function enrolment_page_message($message, $instance) {
+    protected function enrolment_page_message($message, $instance) {
         global $OUTPUT;
         $notification = new notification($message, 'info', false);
         $notification->set_extra_classes(['mb-0']);
@@ -230,7 +242,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param stdClass $instance
      * @return string
      */
-    public function render_enrol_page($instance) {
+    protected function render_enrol_page($instance) {
         global $OUTPUT, $PAGE;  // Added $PAGE to global declarations.
 
         $course = get_course($instance->courseid);
@@ -329,6 +341,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param stdClass $instance
      * @param int $userid
      * @param int $oldinstancestatus
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $step and $oldinstancestatus are part of enrol_plugin's signature.
      */
     public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
         $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);
@@ -501,6 +514,7 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @return array of "element_name"=>"error_description" if there are errors,
      *         or an empty array if everything is OK.
      * @return array
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter) $files is part of enrol_plugin's signature.
      */
     public function edit_instance_validation($data, $files, $instance, $context) {
         $errors = [];
@@ -597,8 +611,8 @@ class enrol_stripepayment_plugin extends enrol_plugin {
      * @param stdClass $instance The enrolment instance
      * @return array Array with 'accessible' boolean and 'error' message
      */
-    public function validate_instance_accessibility($instance) {
-        $secretkey = util::get_current_secret_key();
+    protected function validate_instance_accessibility($instance) {
+        $secretkey = stripe_client::get_current_secret_key();
 
         if (empty($secretkey)) {
             return ['accessible' => false, 'error' => 'No API key configured'];

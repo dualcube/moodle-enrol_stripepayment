@@ -25,6 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use enrol_stripepayment\stripe_client;
 use enrol_stripepayment\util;
 
 defined('MOODLE_INTERNAL') || die();
@@ -36,7 +37,7 @@ if ($ADMIN->fulltree) {
         get_string('pluginnamedesc', 'enrol_stripepayment')
     ));
 
-    $modestatustext = util::get_mode_status_display();
+    $modestatustext = stripe_client::get_mode_status_display();
 
     $settings->add(new admin_setting_description(
         'enrol_stripepayment/mode_status',

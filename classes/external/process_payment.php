@@ -28,6 +28,7 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
+use enrol_stripepayment\stripe_client;
 use enrol_stripepayment\util;
 use context_course;
 use moodle_url;
@@ -87,7 +88,7 @@ class process_payment extends external_api {
      */
     public static function execute($couponid, $instance) {
         $sessionparams = self::get_session_params($couponid, $instance);
-        $session = util::stripe_api_request('checkout_session_create', '', $sessionparams);
+        $session = stripe_client::stripe_api_request('checkout_session_create', '', $sessionparams);
         return [
             'status' => 'success',
             'redirecturl' => $session['url'],
@@ -106,7 +107,7 @@ class process_payment extends external_api {
         global $USER;
         $course = get_course($instance['courseid']);
         $context = context_course::instance($course->id);
-        $amount = util::get_stripe_amount($instance['cost'], $instance['currency'], false);
+        $amount = util::to_stripe_amount($instance['cost'], $instance['currency']);
         $coursename = format_string($course->fullname, true, ['context' => $context]);
         $customerid = self::get_stripe_customer_id($USER);
         $usertoken = util::get_core()->get_config('webservice_token');
@@ -160,19 +161,19 @@ class process_payment extends external_api {
 
         if ($customerid) {
             try {
-                util::stripe_api_request('customer_retrieve', $customerid);
+                stripe_client::stripe_api_request('customer_retrieve', $customerid);
             } catch (\Exception $e) {
                 $customerid = null;
             }
         } else {
-            $customers = util::stripe_api_request('customer_list', '', [
+            $customers = stripe_client::stripe_api_request('customer_list', '', [
                 'email' => $user->email,
                 'limit' => 1,
             ]);
             if (!empty($customers['data'])) {
                 $customerid = $customers['data'][0]['id'] ?? null;
             } else {
-                $newcustomer = util::stripe_api_request('customer_create', '', [
+                $newcustomer = stripe_client::stripe_api_request('customer_create', '', [
                     'email' => $user->email,
                     'name' => fullname($user),
                 ]);

@@ -30,6 +30,8 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
+use enrol_stripepayment\messenger;
+use enrol_stripepayment\stripe_client;
 use enrol_stripepayment\util;
 use moodle_url;
 use stdClass;
@@ -77,7 +79,7 @@ class process_enrolment extends external_api {
      */
     public static function execute($sessionid, $userid, $couponid, $instanceid) {
         global $PAGE, $DB;
-        $checkoutsession = util::stripe_api_request(
+        $checkoutsession = stripe_client::stripe_api_request(
             'checkout_session_retrieve',
             $sessionid
         );
@@ -100,10 +102,10 @@ class process_enrolment extends external_api {
             try {
                 self::enrol_user_to_course($instance, $user);
                 $DB->insert_record("enrol_stripepayment", $enrolmentdata);
-                util::send_enrollment_notifications($course, $context, $user, util::get_core());
+                messenger::send_enrollment_notifications($course, $context, $user, util::get_core());
                 self::redirect_user_to_course($course, $context, $user);
             } catch (moodle_exception $e) {
-                util::message_stripepayment_error_to_admin($e->getMessage(), ['sessionid' => $sessionid]);
+                messenger::message_stripepayment_error_to_admin($e->getMessage(), ['sessionid' => $sessionid]);
                 throw new moodle_exception('invalidtransaction', 'enrol_stripepayment', '', $e->getMessage());
             }
         }
@@ -126,7 +128,7 @@ class process_enrolment extends external_api {
             ];
         }
 
-        $charge = util::stripe_api_request(
+        $charge = stripe_client::stripe_api_request(
             'payment_intent_retrieve',
             $checkoutsession['payment_intent']
         );
@@ -168,7 +170,9 @@ class process_enrolment extends external_api {
         $data->customeremail  = $user->email;
         $data->customerid     = $checkoutsession['customer'];
         $data->txnid          = $chargeinfo->txnid;
-        $data->price          = $chargeinfo->charge ? ($chargeinfo->charge['amount'] / 100) : 0;
+        $data->price          = $chargeinfo->charge
+            ? util::from_stripe_amount($chargeinfo->charge['amount'], $chargeinfo->charge['currency'] ?? 'USD')
+            : 0;
         $data->memo           = $chargeinfo->charge['payment_method'] ?? 'none';
         $data->paymentstatus  = $chargeinfo->paymentstatus;
         $data->pendingreason  = $chargeinfo->charge['last_payment_error']['message'] ?? 'NA';
@@ -195,7 +199,7 @@ class process_enrolment extends external_api {
             return true;
         }
 
-        util::message_stripepayment_error_to_admin(
+        messenger::message_stripepayment_error_to_admin(
             "Payment status: " . $checkoutsession['payment_status'],
             $enrolmentdata,
         );
