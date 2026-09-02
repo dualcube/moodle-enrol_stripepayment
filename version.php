@@ -24,8 +24,10 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2026082600;
+$plugin->version   = 2026090200;
 $plugin->requires  = 2025041400;
+// Tested against Moodle 5.0 through 5.3, including the 5.3dev branch (branches 500-530).
+$plugin->supported = [500, 530];
 $plugin->component = 'enrol_stripepayment';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.6.1';
+$plugin->release   = '3.6.2';
