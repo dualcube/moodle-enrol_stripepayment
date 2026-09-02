@@ -30,7 +30,7 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
-use enrol_stripepayment\messenger;
+use enrol_stripepayment\enrolment_notifier;
 use enrol_stripepayment\stripe_client;
 use enrol_stripepayment\util;
 use moodle_url;
@@ -102,10 +102,10 @@ class process_enrolment extends external_api {
             try {
                 self::enrol_user_to_course($instance, $user);
                 $DB->insert_record("enrol_stripepayment", $enrolmentdata);
-                messenger::send_enrollment_notifications($course, $context, $user, util::get_core());
+                enrolment_notifier::send_enrollment_notifications($course, $context, $user, util::get_core());
                 self::redirect_user_to_course($course, $context, $user);
             } catch (moodle_exception $e) {
-                messenger::message_stripepayment_error_to_admin($e->getMessage(), ['sessionid' => $sessionid]);
+                enrolment_notifier::message_stripepayment_error_to_admin($e->getMessage(), ['sessionid' => $sessionid]);
                 throw new moodle_exception('invalidtransaction', 'enrol_stripepayment', '', $e->getMessage());
             }
         }
@@ -199,7 +199,7 @@ class process_enrolment extends external_api {
             return true;
         }
 
-        messenger::message_stripepayment_error_to_admin(
+        enrolment_notifier::message_stripepayment_error_to_admin(
             "Payment status: " . $checkoutsession['payment_status'],
             $enrolmentdata,
         );

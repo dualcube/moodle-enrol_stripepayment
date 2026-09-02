@@ -156,6 +156,12 @@ if ($ADMIN->fulltree) {
         0
     ));
     $settings->add(new admin_setting_configcheckbox(
+        'enrol_stripepayment/mailmanagers',
+        get_string('mailmanagers', 'enrol_stripepayment'),
+        get_string('mailmanagers_desc', 'enrol_stripepayment'),
+        0
+    ));
+    $settings->add(new admin_setting_configcheckbox(
         'enrol_stripepayment/mailadmins',
         get_string('mailadmins', 'enrol_stripepayment'),
         '',
