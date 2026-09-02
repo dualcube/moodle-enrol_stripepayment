@@ -40,7 +40,7 @@ use stdClass;
  * on the "Enrolment methods" page (icons, admin nav/edit links, naming).
  *
  * Split out of enrol_stripepayment_plugin (lib.php, which extends
- * {@see instance_lifecycle_base} which extends this class) purely so that no
+ * {@see payment_workflow_base} which extends this class) purely so that no
  * single class carries the full mandatory enrol_plugin override surface: PHP
  * Mess Detector's TooManyPublicMethods/ExcessiveClassComplexity/CouplingBetween
  * Objects rules (and PDepend's metrics generally) analyse each class node

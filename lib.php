@@ -25,12 +25,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use enrol_stripepayment\instance_lifecycle_base;
+use enrol_stripepayment\payment_workflow_base;
 
 /**
  * Stripe enrolment plugin implementation.
  *
- * Extends instance_lifecycle_base (classes/), which extends plugin_base, rather
+ * Extends payment_workflow_base (classes/), which extends plugin_base, rather
  * than enrol_plugin directly: those two classes hold the mandatory enrol_plugin
  * override surface between them, so that no single class carries all of it -
  * see plugin_base's docblock for why.
@@ -40,5 +40,5 @@ use enrol_stripepayment\instance_lifecycle_base;
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_stripepayment_plugin extends instance_lifecycle_base {
+class enrol_stripepayment_plugin extends payment_workflow_base {
 }
