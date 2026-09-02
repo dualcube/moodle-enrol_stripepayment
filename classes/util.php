@@ -34,7 +34,7 @@ use stdClass;
  * Utility class for Stripe payment plugin
  *
  * Stripe API access lives in {@see stripe_client} and enrolment messaging lives in
- * {@see messenger} - keeping those concerns out of this class is what keeps it small.
+ * {@see enrolment_notifier} - keeping those concerns out of this class is what keeps it small.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>

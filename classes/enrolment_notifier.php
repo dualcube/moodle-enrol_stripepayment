@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Messaging helper for the Stripe payment enrolment plugin.
+ * Enrolment notification and admin error messaging for the Stripe payment plugin.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
@@ -31,7 +31,8 @@ use moodle_url;
 use stdClass;
 
 /**
- * Messaging helper for the Stripe payment enrolment plugin.
+ * Sends the Message API notifications the Stripe payment plugin needs: enrolment
+ * notifications to students/teachers/managers/admins, and admin alerts on transaction failure.
  *
  * Holds the Moodle Message API calls that {@see util} used to carry directly - split
  * out on its own so each class stays focused and small.
@@ -41,7 +42,7 @@ use stdClass;
  * @copyright  2026 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class messenger {
+class enrolment_notifier {
     /**
      * send error message to admin using Message API
      * @param string  $subject
@@ -60,7 +61,7 @@ class messenger {
         $messagesubject = get_string('stripeapierror', 'enrol_stripepayment', $subject);
         $fullmessage = $messagebody;
         $fullmessagehtml = '<p>' . nl2br(s($messagebody)) . '</p>';
-        self::send_message(
+        self::send_message_custom(
             $site,
             core_user::get_noreply_user(),
             $admin,
@@ -73,64 +74,21 @@ class messenger {
     }
 
     /**
-     * Send message to user
-     *
-     * @param stdClass $course Course object
-     * @param stdClass $userfrom User sending the message
-     * @param mixed $userto User(s) receiving the message
-     * @param string $subject Message subject
-     * @param string $contexturlname Order details
-     * @param string $shortname Course shortname
-     * @param string $fullmessage Full message text
-     * @param string $fullmessagehtml Full message HTML
-     * @return void
-     */
-    public static function send_message(
-        $course,
-        $userfrom,
-        $userto,
-        $subject,
-        $contexturlname,
-        $shortname,
-        $fullmessage,
-        $fullmessagehtml
-    ) {
-        $recipients = is_array($userto) ? $userto : [$userto];
-        foreach ($recipients as $recipient) {
-            $message = new \core\message\message();
-            $message->courseid = $course->id;
-            $message->component = $shortname;
-            $message->name = $shortname;
-            $message->userfrom = $userfrom;
-            $message->userto = $recipient;
-            $message->subject = $subject;
-            $message->fullmessage = $fullmessage;
-            $message->fullmessageformat = FORMAT_PLAIN;
-            $message->fullmessagehtml = $fullmessagehtml;
-            $message->smallmessage = get_string('newenrolment', 'enrol_stripepayment', $shortname);
-            $message->notification = 1;
-            $message->contexturl = new \core\url('/course/view.php', ['id' => $course->id]);
-            $message->contexturlname = $contexturlname;
-
-            if (!message_send($message)) {
-                debugging("Failed to send stripepayment enrolment notification to user: {$recipient->id}", DEBUG_DEVELOPER);
-            }
-        }
-    }
-
-    /**
-     * Send enrollment notifications to students, teachers, and admins
+     * Send enrollment notifications to students, teachers, managers, and admins
      * @param stdClass $course The course object
      * @param stdClass $context The course context
      * @param stdClass $user The enrolled user
      * @param object $plugin The enrollment plugin instance
      */
     public static function send_enrollment_notifications($course, $context, $user, $plugin) {
-        $teacher = self::get_first_teacher($context);
+        $teachers = self::get_users_with_archetype($context, 'editingteacher');
+        $managers = self::get_users_with_archetype($context, 'manager');
+        $teacher = $teachers ? reset($teachers) : false;
 
         // Notification settings.
         $mailstudents = $plugin->get_config('mailstudents');
         $mailteachers = $plugin->get_config('mailteachers');
+        $mailmanagers = $plugin->get_config('mailmanagers');
         $mailadmins   = $plugin->get_config('mailadmins');
 
         // Common data.
@@ -162,8 +120,15 @@ class messenger {
                 ),
             ],
             'teachers' => [
-                'enabled' => !empty($mailteachers) && !empty($teacher),
-                'recipient' => $teacher,
+                'enabled' => !empty($mailteachers) && !empty($teachers),
+                'recipient' => array_values($teachers),
+                'from' => $user,
+                'subject' => $adminsubject,
+                'message' => $adminmessage,
+            ],
+            'managers' => [
+                'enabled' => !empty($mailmanagers) && !empty($managers),
+                'recipient' => array_values($managers),
                 'from' => $user,
                 'subject' => $adminsubject,
                 'message' => $adminmessage,
@@ -181,31 +146,21 @@ class messenger {
     }
 
     /**
-     * Find the first teacher (by role assignment authority) in the given context, if any.
+     * All users holding a role of the given archetype in this context, including roles
+     * assigned in parent contexts (e.g. a category- or site-level manager, found from a
+     * course context). Keyed by user id, so callers get each user only once even if they
+     * hold more than one role matching the archetype.
      *
      * @param stdClass $context The course context
-     * @return stdClass|false
+     * @param string $archetype Role archetype, e.g. 'editingteacher' or 'manager'
+     * @return stdClass[] users keyed by id
      */
-    private static function get_first_teacher($context) {
-        $users = get_users_by_capability(
-            $context,
-            'moodle/course:update',
-            'u.*',
-            'u.id ASC',
-            '',
-            '',
-            '',
-            '',
-            false,
-            true
-        );
-
-        if (!$users) {
-            return false;
+    private static function get_users_with_archetype($context, $archetype) {
+        $users = [];
+        foreach (get_archetype_roles($archetype) as $role) {
+            $users += get_role_users($role->id, $context, true, 'u.*', 'u.id ASC');
         }
-
-        $users = sort_by_roleassignment_authority($users, $context);
-        return array_shift($users);
+        return $users;
     }
 
     /**
@@ -224,7 +179,7 @@ class messenger {
             $fullmessage = $notify['message'];
             $fullmessagehtml = '<p>' . $fullmessage . '</p>';
 
-            self::send_message(
+            self::send_message_custom(
                 $course,
                 $notify['from'],
                 $notify['recipient'],
@@ -234,6 +189,52 @@ class messenger {
                 $fullmessage,
                 $fullmessagehtml
             );
+        }
+    }
+
+    /**
+     * Send a message to one or more recipients.
+     *
+     * @param stdClass $course Course object
+     * @param stdClass $userfrom User sending the message
+     * @param mixed $userto User(s) receiving the message
+     * @param string $subject Message subject
+     * @param string $contexturlname Order details
+     * @param string $shortname Course shortname
+     * @param string $fullmessage Full message text
+     * @param string $fullmessagehtml Full message HTML
+     * @return void
+     */
+    private static function send_message_custom(
+        $course,
+        $userfrom,
+        $userto,
+        $subject,
+        $contexturlname,
+        $shortname,
+        $fullmessage,
+        $fullmessagehtml
+    ) {
+        $recipients = is_array($userto) ? $userto : [$userto];
+        foreach ($recipients as $recipient) {
+            $message = new \core\message\message();
+            $message->courseid = $course->id;
+            $message->component = $shortname;
+            $message->name = $shortname;
+            $message->userfrom = $userfrom;
+            $message->userto = $recipient;
+            $message->subject = $subject;
+            $message->fullmessage = $fullmessage;
+            $message->fullmessageformat = FORMAT_PLAIN;
+            $message->fullmessagehtml = $fullmessagehtml;
+            $message->smallmessage = get_string('newenrolment', 'enrol_stripepayment', $shortname);
+            $message->notification = 1;
+            $message->contexturl = new \core\url('/course/view.php', ['id' => $course->id]);
+            $message->contexturlname = $contexturlname;
+
+            if (!message_send($message)) {
+                debugging("Failed to send stripepayment enrolment notification to user: {$recipient->id}", DEBUG_DEVELOPER);
+            }
         }
     }
 }
