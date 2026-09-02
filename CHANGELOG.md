@@ -1,5 +1,9 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.6.2 (2026090200)
+ * Added : Tested upto Moodle 5.3(dev).
+ * Fixed : Code cleanup.
+
 3.6.1 (2026082600)
  * Added : Compatibility with Moodle 5.1 and Moodle 5.2.
 
