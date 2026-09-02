@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Enrolment-methods-page presentation for the Stripe enrolment plugin.
+ * Base capability/state-predicate overrides and enrolment-methods-page
+ * presentation for the Stripe enrolment plugin.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
@@ -27,56 +28,32 @@ namespace enrol_stripepayment;
 
 use context_course;
 use core\exception\moodle_exception;
+use enrol_plugin;
 use moodle_url;
 use navigation_node;
 use pix_icon;
 use stdClass;
 
 /**
- * How enrol_stripepayment_plugin instances present themselves on the
- * "Enrolment methods" page: icons, the admin nav/edit links, instance
- * naming, and the capability checks that gate managing an instance.
+ * Holds the simple capability/state-predicate enrol_plugin overrides (allow_*,
+ * can_*, roles_protected, use_standard_editing_ui) plus how instances present
+ * on the "Enrolment methods" page (icons, admin nav/edit links, naming).
  *
- * Split out of {@see \enrol_stripepayment_plugin} purely to keep that
- * mandatory enrol_plugin subclass from being one huge file; every method
- * here is used only by that class.
+ * Split out of enrol_stripepayment_plugin (lib.php, which extends
+ * {@see payment_workflow_base} which extends this class) purely so that no
+ * single class carries the full mandatory enrol_plugin override surface: PHP
+ * Mess Detector's TooManyPublicMethods/ExcessiveClassComplexity/CouplingBetween
+ * Objects rules (and PDepend's metrics generally) analyse each class node
+ * independently and do not merge a subclass's inherited members from a parent
+ * declared in another file. Every method here is still a real enrol_plugin
+ * interface requirement, not something optional or specific to this plugin.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2026 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-trait enrol_navigation_trait {
-    /**
-     * Returns optional enrolment information icons.
-     *
-     * This is used in course list for quick overview of enrolment options.
-     *
-     * We are not using single instance parameter because sometimes
-     * we might want to prevent icon repetition when multiple instances
-     * of one type exist. One instance may also produce several icons.
-     *
-     * @param array $instances all enrol instances of this type in one course
-     * @return array of pix_icon
-     */
-    public function get_info_icons(array $instances) {
-        $found = false;
-        foreach ($instances as $instance) {
-            if ($instance->enrolstartdate != 0 && $instance->enrolstartdate > time()) {
-                continue;
-            }
-            if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
-                continue;
-            }
-            $found = true;
-            break;
-        }
-        if ($found) {
-            return [new pix_icon('icon', get_string('pluginname', 'enrol_stripepayment'), 'enrol_stripepayment')];
-        }
-        return [];
-    }
-
+abstract class plugin_base extends enrol_plugin {
     /**
      * Lists all protected user roles.
      * @return bool(true or false)
@@ -119,6 +96,67 @@ trait enrol_navigation_trait {
      */
     public function show_enrolme_link(stdClass $instance) {
         return $instance->status == ENROL_INSTANCE_ENABLED;
+    }
+
+    /**
+     * We are a good plugin and don't invent our own UI/validation code path.
+     *
+     * @return boolean
+     */
+    public function use_standard_editing_ui() {
+        return true;
+    }
+
+    /**
+     * Is it possible to delete enrol instance via standard UI?
+     *
+     * @param stdClass $instance
+     * @return bool
+     */
+    public function can_delete_instance($instance) {
+        $context = context_course::instance($instance->courseid);
+        return has_capability('enrol/stripepayment:manage', $context);
+    }
+
+    /**
+     * Is it possible to hide/show enrol instance via standard UI?
+     *
+     * @param stdClass $instance
+     * @return bool
+     */
+    public function can_hide_show_instance($instance) {
+        $context = context_course::instance($instance->courseid);
+        return has_capability('enrol/stripepayment:manage', $context);
+    }
+
+    /**
+     * Returns optional enrolment information icons.
+     *
+     * This is used in course list for quick overview of enrolment options.
+     *
+     * We are not using single instance parameter because sometimes
+     * we might want to prevent icon repetition when multiple instances
+     * of one type exist. One instance may also produce several icons.
+     *
+     * @param array $instances all enrol instances of this type in one course
+     * @return array of pix_icon
+     */
+    public function get_info_icons(array $instances) {
+        $found = false;
+        foreach ($instances as $instance) {
+            if ($instance->enrolstartdate != 0 && $instance->enrolstartdate > time()) {
+                continue;
+            }
+            if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
+                continue;
+            }
+            $found = true;
+            break;
+        }
+        if ($found) {
+            return [new pix_icon('icon', get_string('pluginname', 'enrol_stripepayment'), 'enrol_stripepayment')];
+        }
+        return [];
     }
 
     /**
@@ -201,36 +239,5 @@ trait enrol_navigation_trait {
         } else {
             return format_string($instance->name);
         }
-    }
-
-    /**
-     * Is it possible to delete enrol instance via standard UI?
-     *
-     * @param stdClass $instance
-     * @return bool
-     */
-    public function can_delete_instance($instance) {
-        $context = context_course::instance($instance->courseid);
-        return has_capability('enrol/stripepayment:manage', $context);
-    }
-
-    /**
-     * Is it possible to hide/show enrol instance via standard UI?
-     *
-     * @param stdClass $instance
-     * @return bool
-     */
-    public function can_hide_show_instance($instance) {
-        $context = context_course::instance($instance->courseid);
-        return has_capability('enrol/stripepayment:manage', $context);
-    }
-
-    /**
-     * We are a good plugin and don't invent our own UI/validation code path.
-     *
-     * @return boolean
-     */
-    public function use_standard_editing_ui() {
-        return true;
     }
 }
