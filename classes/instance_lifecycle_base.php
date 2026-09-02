@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Edit-instance form and backup/restore/cron lifecycle for the Stripe enrolment plugin.
+ * Course-page checkout, edit-instance form, and backup/cron lifecycle for the
+ * Stripe enrolment plugin.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
@@ -26,6 +27,9 @@
 namespace enrol_stripepayment;
 
 use backup;
+use context_course;
+use core\output\notification;
+use core_enrol\output\enrol_page;
 use MoodleQuickForm;
 use progress_trace;
 use restore_enrolments_structure_step;
@@ -33,25 +37,144 @@ use stdClass;
 use text_progress_trace;
 
 /**
- * Everything about an enrol_stripepayment_plugin instance's data lifecycle: the
- * "Add/edit enrolment method" form (building its fields, validating submitted
- * data), persisting an instance, and the hooks Moodle core calls outside of the
- * course page and edit form - mapping instances/enrolments during course
- * restore, and processing enrolment expirations on cron and manual sync.
+ * Everything else enrol_stripepayment_plugin needs beyond {@see plugin_base}:
+ * the course-page checkout (its eligibility checks in
+ * {@see self::enrol_page_hook()}, the plain-notification and Stripe-checkout
+ * rendering it calls), the "Add/edit enrolment method" form (building its
+ * fields, validating submitted data, persisting an instance), and the hooks
+ * Moodle core calls outside of those two pages - mapping instances/enrolments
+ * during course restore, and processing enrolment expirations on cron and
+ * manual sync.
  *
- * Extends {@see presentation_base} - the top of the chain leading up to
- * enrol_stripepayment_plugin (lib.php). The edit form and backup/cron live
- * together in this one class (rather than each in their own) because PHPMD's
- * DepthOfInheritance rule caps how many links this chain can have - see
- * {@see presentation_base}, the other merged link, and {@see plugin_base}'s
- * docblock for why this is a chain of small classes at all.
+ * Extends {@see plugin_base} - see that class's docblock for why this is a
+ * chain of two small classes rather than one big one.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2025 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class instance_lifecycle_base extends presentation_base {
+abstract class instance_lifecycle_base extends plugin_base {
+    /**
+     * Returns link to page which may be used to add new instance of enrolment plugin in course.
+     * @param stdClass $instance
+     * @return string
+     */
+    public function enrol_page_hook(stdClass $instance) {
+        global $USER, $DB;
+
+        if (!util::can_more_user_enrol($instance)) {
+            return $this->enrolment_page_message(get_string('maxenrolledreached', 'enrol_stripepayment'), $instance);
+        }
+
+        if ($DB->record_exists('user_enrolments', ['userid' => $USER->id, 'enrolid' => $instance->id])) {
+            return '';
+        }
+
+        if ($instance->enrolstartdate != 0 && $instance->enrolstartdate > time()) {
+            return $this->enrolment_page_message(
+                get_string('canntenrolearly', 'enrol_stripepayment', userdate($instance->enrolstartdate)),
+                $instance
+            );
+        }
+
+        if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
+            return $this->enrolment_page_message(
+                get_string('canntenrollate', 'enrol_stripepayment', userdate($instance->enrolenddate)),
+                $instance
+            );
+        }
+
+        if (!$this->validate_instance_accessibility($instance)['accessible']) {
+            return $this->enrolment_page_message(get_string('paymentmethodnotfound', 'enrol_stripepayment'), $instance);
+        }
+
+        return $this->render_enrol_page($instance);
+    }
+
+    /**
+     * Returns notification message.
+     * @param string $message
+     * @param stdClass $instance
+     * @return string
+     */
+    protected function enrolment_page_message($message, $instance) {
+        global $OUTPUT;
+        $notification = new notification($message, 'info', false);
+        $notification->set_extra_classes(['mb-0']);
+        $enrolpage = new enrol_page(
+            instance: $instance,
+            header: $this->get_instance_name($instance),
+            body: $OUTPUT->render($notification)
+        );
+        return $OUTPUT->render($enrolpage);
+    }
+
+    /**
+     * Returns enrol page.
+     * @param stdClass $instance
+     * @return string
+     */
+    protected function render_enrol_page($instance) {
+        global $OUTPUT, $PAGE;  // Added $PAGE to global declarations.
+
+        $course = get_course($instance->courseid);
+        $cost = ((float) $instance->cost <= 0) ? (float) $this->get_config('cost') : (float) $instance->cost;
+        $name = $this->get_instance_name($instance);
+        $cost = format_float($cost, 2, false);
+
+        $templatedata = [
+            'currency' => $instance->currency,
+            'cost' => format_float($cost, 2, true),
+            'coursename' => format_string($course->fullname, true, ['context' => context_course::instance($course->id)]),
+            'instanceid' => $instance->id,
+            'enrolbtncolor' => $this->get_config('enrolbtncolor'),
+            'enablecouponsection' => $this->get_config('enablecouponsection'),
+        ];
+
+        $body = $OUTPUT->render_from_template('enrol_stripepayment/enrol_page', $templatedata);
+
+        $PAGE->requires->js_call_amd(
+            'enrol_stripepayment/stripe_payment',
+            'stripePayment',
+            [
+                null, // Couponid starts as null.
+                [
+                    'id' => $instance->id,
+                    'cost' => $instance->cost,
+                    'currency' => $instance->currency,
+                    'courseid' => $instance->courseid,
+                ],
+            ]
+        );
+
+        $enrolpage = new enrol_page(
+            instance: $instance,
+            header: $name,
+            body: $body
+        );
+        return $OUTPUT->render($enrolpage);
+    }
+
+    /**
+     * Validate if current API keys can access the products/prices for an instance - NEW METHOD.
+     *
+     * @param stdClass $instance The enrolment instance
+     * @return array Array with 'accessible' boolean and 'error' message
+     */
+    protected function validate_instance_accessibility($instance) {
+        $secretkey = stripe_client::get_current_secret_key();
+
+        if (empty($secretkey)) {
+            return ['accessible' => false, 'error' => 'No API key configured'];
+        }
+
+        // If instance doesn't have custom price IDs, it's accessible (will create new prices).
+        if (empty($instance->customtext1)) {
+            return ['accessible' => true, 'error' => ''];
+        }
+    }
+
     /**
      * Add elements to the edit instance form.
      *

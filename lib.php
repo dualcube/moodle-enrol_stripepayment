@@ -25,16 +25,15 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 use enrol_stripepayment\instance_lifecycle_base;
 
 /**
  * Stripe enrolment plugin implementation.
  *
- * Extends instance_lifecycle_base (classes/) rather than enrol_plugin directly:
- * that class (and the ones it extends in turn - see plugin_base's docblock for
- * why) hold the mandatory enrol_plugin override surface, so that no single class
- * carries all of it.
+ * Extends instance_lifecycle_base (classes/), which extends plugin_base, rather
+ * than enrol_plugin directly: those two classes hold the mandatory enrol_plugin
+ * override surface between them, so that no single class carries all of it -
+ * see plugin_base's docblock for why.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>

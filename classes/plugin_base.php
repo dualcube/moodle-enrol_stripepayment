@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Base capability and state-predicate overrides for the Stripe enrolment plugin.
+ * Base capability/state-predicate overrides and enrolment-methods-page
+ * presentation for the Stripe enrolment plugin.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
@@ -26,20 +27,25 @@
 namespace enrol_stripepayment;
 
 use context_course;
+use core\exception\moodle_exception;
 use enrol_plugin;
+use moodle_url;
+use navigation_node;
+use pix_icon;
 use stdClass;
 
 /**
- * Holds the simple capability/state-predicate enrol_plugin overrides
- * (allow_*, can_*, roles_protected, use_standard_editing_ui).
+ * Holds the simple capability/state-predicate enrol_plugin overrides (allow_*,
+ * can_*, roles_protected, use_standard_editing_ui) plus how instances present
+ * on the "Enrolment methods" page (icons, admin nav/edit links, naming).
  *
- * The bottom of a small inheritance chain leading up to enrol_stripepayment_plugin
- * (lib.php) - {@see presentation_base} and {@see instance_lifecycle_base} each add
- * more concerns on top - purely so that no single class carries the full mandatory
- * enrol_plugin override surface: PHP Mess Detector's
- * TooManyPublicMethods rule (and PDepend's coupling metrics generally) analyse each
- * class node independently and do not merge a subclass's inherited members from a
- * parent declared in another file. Every method here is still a real enrol_plugin
+ * Split out of enrol_stripepayment_plugin (lib.php, which extends
+ * {@see instance_lifecycle_base} which extends this class) purely so that no
+ * single class carries the full mandatory enrol_plugin override surface: PHP
+ * Mess Detector's TooManyPublicMethods/ExcessiveClassComplexity/CouplingBetween
+ * Objects rules (and PDepend's metrics generally) analyse each class node
+ * independently and do not merge a subclass's inherited members from a parent
+ * declared in another file. Every method here is still a real enrol_plugin
  * interface requirement, not something optional or specific to this plugin.
  *
  * @package    enrol_stripepayment
@@ -121,5 +127,117 @@ abstract class plugin_base extends enrol_plugin {
     public function can_hide_show_instance($instance) {
         $context = context_course::instance($instance->courseid);
         return has_capability('enrol/stripepayment:manage', $context);
+    }
+
+    /**
+     * Returns optional enrolment information icons.
+     *
+     * This is used in course list for quick overview of enrolment options.
+     *
+     * We are not using single instance parameter because sometimes
+     * we might want to prevent icon repetition when multiple instances
+     * of one type exist. One instance may also produce several icons.
+     *
+     * @param array $instances all enrol instances of this type in one course
+     * @return array of pix_icon
+     */
+    public function get_info_icons(array $instances) {
+        $found = false;
+        foreach ($instances as $instance) {
+            if ($instance->enrolstartdate != 0 && $instance->enrolstartdate > time()) {
+                continue;
+            }
+            if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
+                continue;
+            }
+            $found = true;
+            break;
+        }
+        if ($found) {
+            return [new pix_icon('icon', get_string('pluginname', 'enrol_stripepayment'), 'enrol_stripepayment')];
+        }
+        return [];
+    }
+
+    /**
+     * Sets up navigation entries.
+     *
+     * @param navigation_node $instancesnode
+     * @param stdClass $instance
+     * @return void
+     */
+    public function add_course_navigation($instancesnode, stdClass $instance) {
+        if ($instance->enrol !== 'stripepayment') {
+             throw new moodle_exception('invalidenroltype', 'enrol_stripepayment');
+        }
+        if (has_capability('enrol/stripepayment:manage', context_course::instance($instance->courseid))) {
+            $managelink = new moodle_url(
+                '/enrol/editinstance.php',
+                [
+                    'courseid' => $instance->courseid,
+                    'id' => $instance->id,
+                    'type' => 'stripepayment',
+                ]
+            );
+            $instancesnode->add($this->get_instance_name($instance), $managelink, navigation_node::TYPE_SETTING);
+        }
+    }
+
+    /**
+     * Returns edit icons for the page with list of instances
+     * @param stdClass $instance
+     * @return array
+     */
+    public function get_action_icons(stdClass $instance) {
+        global $OUTPUT;
+        if ($instance->enrol !== 'stripepayment') {
+            throw new moodle_exception('invalidenrolinstance', 'enrol_stripepayment');
+        }
+        $icons = [];
+        if (has_capability('enrol/stripepayment:manage', context_course::instance($instance->courseid))) {
+            $linkparams = [
+                'courseid' => $instance->courseid,
+                'id' => $instance->id,
+                'type' => $instance->enrol,
+            ];
+            $editlink = new moodle_url('/enrol/editinstance.php', $linkparams);
+            $icon = new pix_icon('t/edit', get_string('edit'), 'core', ['class' => 'iconsmall']);
+            $icons[] = $OUTPUT->action_icon($editlink, $icon);
+        }
+        return $icons;
+    }
+
+    /**
+     * Returns link to page which may be used to add new instance of enrolment plugin in course.
+     * @param int $courseid
+     * @return moodle_url page url
+     */
+    public function get_newinstance_link($courseid) {
+        $context = context_course::instance($courseid, MUST_EXIST);
+        if (!has_capability('moodle/course:enrolconfig', $context) || !has_capability('enrol/stripepayment:manage', $context)) {
+            return null;
+        }
+        // Multiple instances supported - different cost for different roles.
+        return new moodle_url('/enrol/editinstance.php', ['courseid' => $courseid, 'type' => 'stripepayment']);
+    }
+
+    /**
+     * Returns localised name of enrol instance
+     *
+     * @param stdClass $instance (null is accepted too)
+     * @return string
+     */
+    public function get_instance_name($instance) {
+        global $DB;
+        if (empty($instance->name)) {
+            if (!empty($instance->roleid) && $role = $DB->get_record('role', ['id' => $instance->roleid])) {
+                $role = ' (' . role_get_name($role, context_course::instance($instance->courseid, IGNORE_MISSING)) . ')';
+            } else {
+                $role = '';
+            }
+            return get_string('pluginname', 'enrol_' . $this->get_name()) . $role;
+        } else {
+            return format_string($instance->name);
+        }
     }
 }
