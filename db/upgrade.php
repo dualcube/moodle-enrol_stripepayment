@@ -34,60 +34,44 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2025082100) {
-        xmldb_enrol_stripepayment_upgrade_to_2025082100($dbman);
+        // Drop legacy fields unused by Stripe payment processing, rename the
+        // rest to the plugin's current naming, and migrate legacy API keys.
+        $table = new xmldb_table('enrol_stripepayment');
+
+        xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'business');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'tax', 'price');
+        xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_name1');
+        xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_selection1_x');
+        xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_name2');
+        xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_selection2_x');
+        xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'parent_txn_id');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiver_email', 'receiveremail');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiver_id', 'receiverid');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'item_name', 'itemname');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'coupon_id', 'couponid');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'payment_status', 'paymentstatus');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'pending_reason', 'pendingreason');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'reason_code', 'reasoncode', XMLDB_TYPE_CHAR, '30');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'txn_id', 'txnid');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'payment_type', 'paymenttype', XMLDB_TYPE_CHAR, '30');
+
+        xmldb_enrol_stripepayment_migrate_legacy_keys();
 
         // Stripe savepoint reached.
         upgrade_plugin_savepoint(true, 2025082100, 'enrol', 'stripepayment');
     }
 
     if ($oldversion < 2025082108) {
-        xmldb_enrol_stripepayment_upgrade_to_2025082108($dbman);
+        // Rename the receiver_* fields to customer_*.
+        $table = new xmldb_table('enrol_stripepayment');
+
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiverid', 'customerid');
+        xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiveremail', 'customeremail');
 
         upgrade_plugin_savepoint(true, 2025082108, 'enrol', 'stripepayment');
     }
 
     return true;
-}
-
-/**
- * Upgrade step 2025082100: drop legacy fields unused by Stripe payment processing,
- * rename the rest to the plugin's current naming, and migrate legacy API keys.
- *
- * @param database_manager $dbman
- */
-function xmldb_enrol_stripepayment_upgrade_to_2025082100($dbman) {
-    $table = new xmldb_table('enrol_stripepayment');
-
-    xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'business');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'tax', 'price');
-    xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_name1');
-    xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_selection1_x');
-    xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_name2');
-    xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'option_selection2_x');
-    xmldb_enrol_stripepayment_upgrade_drop_field($dbman, $table, 'parent_txn_id');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiver_email', 'receiveremail');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiver_id', 'receiverid');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'item_name', 'itemname');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'coupon_id', 'couponid');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'payment_status', 'paymentstatus');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'pending_reason', 'pendingreason');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'reason_code', 'reasoncode', XMLDB_TYPE_CHAR, '30');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'txn_id', 'txnid');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'payment_type', 'paymenttype', XMLDB_TYPE_CHAR, '30');
-
-    xmldb_enrol_stripepayment_migrate_legacy_keys();
-}
-
-/**
- * Upgrade step 2025082108: rename the receiver_* fields to customer_*.
- *
- * @param database_manager $dbman
- */
-function xmldb_enrol_stripepayment_upgrade_to_2025082108($dbman) {
-    $table = new xmldb_table('enrol_stripepayment');
-
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiverid', 'customerid');
-    xmldb_enrol_stripepayment_upgrade_rename_field($dbman, $table, 'receiveremail', 'customeremail');
 }
 
 /**
