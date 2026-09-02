@@ -26,29 +26,20 @@
  */
 
 
-use enrol_stripepayment\enrol_lifecycle_trait;
-use enrol_stripepayment\enrol_navigation_trait;
-use enrol_stripepayment\instance_form_trait;
-use enrol_stripepayment\payment_page_trait;
+use enrol_stripepayment\instance_lifecycle_base;
 
 /**
  * Stripe enrolment plugin implementation.
  *
- * enrol_plugin's contract mandates most of this class's behaviour be public
- * overrides, each tied to a different core type (forms, navigation,
- * backup/restore, cron, course_enrolment_manager, ...). The method bodies
- * live in per-concern traits under classes/ (navigation/icons, the course-page
- * checkout, the edit-instance form, and backup/cron) purely to keep this file
- * from being one huge one; every trait is used only by this class.
+ * Extends instance_lifecycle_base (classes/) rather than enrol_plugin directly:
+ * that class (and the ones it extends in turn - see plugin_base's docblock for
+ * why) hold the mandatory enrol_plugin override surface, so that no single class
+ * carries all of it.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
  * @copyright  2019 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class enrol_stripepayment_plugin extends enrol_plugin {
-    use enrol_navigation_trait;
-    use payment_page_trait;
-    use instance_form_trait;
-    use enrol_lifecycle_trait;
+class enrol_stripepayment_plugin extends instance_lifecycle_base {
 }

@@ -15,33 +15,43 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Edit-instance form building, validation and saving for the Stripe enrolment plugin.
+ * Edit-instance form and backup/restore/cron lifecycle for the Stripe enrolment plugin.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
- * @copyright  2026 DualCube Team(https://dualcube.com)
+ * @copyright  2025 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace enrol_stripepayment;
 
+use backup;
 use MoodleQuickForm;
+use progress_trace;
+use restore_enrolments_structure_step;
+use stdClass;
+use text_progress_trace;
 
 /**
- * The "Add/edit enrolment method" form: building its fields, validating
- * submitted data, and persisting an instance once the form's cost field
- * has been unformatted back to a plain float.
+ * Everything about an enrol_stripepayment_plugin instance's data lifecycle: the
+ * "Add/edit enrolment method" form (building its fields, validating submitted
+ * data), persisting an instance, and the hooks Moodle core calls outside of the
+ * course page and edit form - mapping instances/enrolments during course
+ * restore, and processing enrolment expirations on cron and manual sync.
  *
- * Split out of {@see \enrol_stripepayment_plugin} purely to keep that
- * mandatory enrol_plugin subclass from being one huge file; every method
- * here is used only by that class.
+ * Extends {@see presentation_base} - the top of the chain leading up to
+ * enrol_stripepayment_plugin (lib.php). The edit form and backup/cron live
+ * together in this one class (rather than each in their own) because PHPMD's
+ * DepthOfInheritance rule caps how many links this chain can have - see
+ * {@see presentation_base}, the other merged link, and {@see plugin_base}'s
+ * docblock for why this is a chain of small classes at all.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
- * @copyright  2026 DualCube Team(https://dualcube.com)
+ * @copyright  2025 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-trait instance_form_trait {
+abstract class instance_lifecycle_base extends presentation_base {
     /**
      * Add elements to the edit instance form.
      *
@@ -218,5 +228,70 @@ trait instance_form_trait {
             $fields['cost'] = unformat_float($fields['cost']);
         }
         return parent::add_instance($course, $fields);
+    }
+
+    /**
+     * Restore instance and map settings.
+     *
+     * @param restore_enrolments_structure_step $step
+     * @param stdClass $data
+     * @param stdClass $course
+     * @param int $oldid
+     */
+    public function restore_instance(restore_enrolments_structure_step $step, stdClass $data, $course, $oldid) {
+        global $DB;
+        if ($step->get_task()->get_target() == backup::TARGET_NEW_COURSE) {
+            $merge = false;
+        } else {
+            $merge = [
+                'courseid'   => $data->courseid,
+                'enrol'      => $this->get_name(),
+                'roleid'     => $data->roleid,
+                'cost'       => $data->cost,
+                'currency'   => $data->currency,
+            ];
+        }
+        if ($merge && $instances = $DB->get_records('enrol', $merge, 'id')) {
+            $instance = reset($instances);
+            $instanceid = $instance->id;
+        } else {
+            $instanceid = $this->add_instance($course, (array)$data);
+        }
+        $step->set_mapping('enrol', $oldid, $instanceid);
+    }
+
+    /**
+     * Restore user enrolment.
+     *
+     * @param restore_enrolments_structure_step $step
+     * @param stdClass $data
+     * @param stdClass $instance
+     * @param int $userid
+     * @param int $oldinstancestatus
+     */
+    public function restore_user_enrolment(restore_enrolments_structure_step $step, $data, $instance, $userid, $oldinstancestatus) {
+        // Required by enrol_plugin's signature but unused here.
+        unset($step, $oldinstancestatus);
+
+        $this->enrol_user($instance, $userid, null, $data->timestart, $data->timeend, $data->status);
+    }
+
+    /**
+     * Set up cron for the plugin (if any).
+     *
+     */
+    public function cron() {
+        $trace = new text_progress_trace();
+        $this->process_expirations($trace);
+    }
+
+    /**
+     * Execute synchronisation.
+     * @param progress_trace $trace
+     * @return int exit code, 0 means ok
+     */
+    public function sync(progress_trace $trace) {
+        $this->process_expirations($trace);
+        return 0;
     }
 }
