@@ -351,38 +351,6 @@ class enrol_stripepayment_plugin extends enrol_plugin {
     }
 
     /**
-     * Gets an array of the user enrolment actions
-     *
-     * @param course_enrolment_manager $manager
-     * @param stdClass $ue A user enrolment object
-     * @return array An array of user_enrolment_actions
-     */
-    public function get_user_enrolment_actions(course_enrolment_manager $manager, $ue) {
-        $actions = [];
-        $context = $manager->get_context();
-        $instance = $ue->enrolmentinstance;
-        $params = $manager->get_moodlepage()->url->params();
-        $params['ue'] = $ue->id;
-        if ($this->allow_manage($instance) && has_capability('enrol/stripepayment:manage', $context)) {
-            $actions[] = new user_enrolment_action(
-                new pix_icon('t/edit', ''),
-                get_string('edit'),
-                new moodle_url('/enrol/editenrolment.php', $params),
-                ['class' => 'editenrollink', 'rel' => $ue->id]
-            );
-        }
-        if ($this->allow_unenrol($instance) && has_capability('enrol/stripepayment:unenrol', $context)) {
-            $actions[] = new user_enrolment_action(
-                new pix_icon('t/delete', ''),
-                get_string('unenrol', 'enrol'),
-                new moodle_url('/enrol/unenroluser.php', $params),
-                ['class' => 'unenrollink', 'rel' => $ue->id]
-            );
-        }
-        return $actions;
-    }
-
-    /**
      * Set up cron for the plugin (if any).
      *
      */
