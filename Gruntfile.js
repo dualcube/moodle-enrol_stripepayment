@@ -6,6 +6,19 @@ const commonjs = require('@rollup/plugin-commonjs');
 const { terser } = require('rollup-plugin-terser');
 
 module.exports = function (grunt) {
+    grunt.loadNpmTasks('grunt-stylelint');
+
+    grunt.initConfig({
+        stylelint: {
+            options: {
+                configFile: path.join(__dirname, '.stylelintrc.json'),
+            },
+            css: {
+                src: ['**/*.css', '!node_modules/**', '!vendor/**', '!amd/build/**'],
+            },
+        },
+    });
+
     grunt.registerTask('amd', 'Build AMD modules', async function () {
         const done = this.async();
         const srcDir = 'amd/src';

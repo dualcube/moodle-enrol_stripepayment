@@ -30,6 +30,7 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
 use core_external\external_single_structure;
+use enrol_stripepayment\stripe_client;
 use enrol_stripepayment\util;
 
 /**
@@ -105,36 +106,49 @@ class apply_coupon extends external_api {
      * @return array
      */
     private static function validate_and_get_coupon($couponid, $instanceid) {
-        // Input validation.
+        self::validate_coupon_request($couponid, $instanceid);
+
+        $coupon = stripe_client::stripe_api_request('coupon_retrieve', $couponid);
+
+        self::validate_coupon_state($coupon);
+
+        return $coupon;
+    }
+
+    /**
+     * Validate the raw coupon/instance input before contacting Stripe.
+     * @param string $couponid
+     * @param int $instanceid
+     */
+    private static function validate_coupon_request($couponid, $instanceid) {
         if (empty($couponid) || trim($couponid) === '') {
             throw new moodle_exception('couponcodeempty', 'enrol_stripepayment');
         }
 
-        // Validate instanceid.
         if (!is_numeric($instanceid) || $instanceid <= 0) {
             throw new moodle_exception('invalidinstanceformat', 'enrol_stripepayment');
         }
+    }
 
-        $coupon = util::stripe_api_request('coupon_retrieve', $couponid);
-
-        // Enhanced coupon validation.
+    /**
+     * Validate that a coupon fetched from Stripe is usable: exists, unexpired, under its limit.
+     * @param array $coupon
+     */
+    private static function validate_coupon_state($coupon) {
         if (!$coupon || (isset($coupon['valid']) && !$coupon['valid'])) {
             throw new moodle_exception('invalidcoupon', 'enrol_stripepayment');
         }
 
-        // Check if coupon has expired.
         if (isset($coupon['redeem_by']) && $coupon['redeem_by'] < time()) {
             throw new moodle_exception('couponhasexpired', 'enrol_stripepayment');
         }
 
-        // Check if coupon has usage limits.
         if (
             isset($coupon['max_redemptions']) && isset($coupon['times_redeemed'])
             && $coupon['times_redeemed'] >= $coupon['max_redemptions']
         ) {
             throw new moodle_exception('couponlimitexceeded', 'enrol_stripepayment');
         }
-        return $coupon;
     }
 
     /**

@@ -66,8 +66,8 @@
     }
 
     .stripepayment-couponsection {
-        margin: 18px 0 12px 0;
-        padding: 15px 0 12px 0;
+        margin: 18px 0 12px;
+        padding: 15px 0 12px;
         border-top: 1px solid #eee;
     }
 
@@ -90,6 +90,7 @@
         border-radius: 4px;
         font-size: 14px;
         box-sizing: border-box;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .stripepayment-applybtn {
@@ -102,6 +103,7 @@
         cursor: pointer;
         white-space: nowrap;
         min-width: 80px;
+        transition: all 0.2s ease;
     }
 
     .stripepayment-applybtn:hover {
@@ -120,11 +122,6 @@
         border-radius: 4px;
         margin: 10px 0;
         font-size: 14px;
-    }
-
-    .stripepayment-pay-btn:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
     }
 
     /* Responsive Design */
@@ -195,8 +192,8 @@
         }
 
         .stripepayment-couponsection {
-            margin: 15px 0 10px 0;
-            padding: 12px 0 10px 0;
+            margin: 15px 0 10px;
+            padding: 12px 0 10px;
         }
     }
 
@@ -210,15 +207,6 @@
         outline: none;
         border-color: #0070f3;
         box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
-    }
-
-    /* Smooth transitions */
-    .stripepayment-applybtn, .stripepayment-pay-btn {
-        transition: all 0.2s ease;
-    }
-
-    .stripepayment-couponsection input {
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     /* Payment button styling */
@@ -255,5 +243,5 @@
 
     /* Utility classes */
     .stripepayment-hidden {
-        display: none ;
+        display: none;
     }
