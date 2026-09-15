@@ -1,5 +1,7 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.6.3 (2026091500)
+ * Fixed : No email/popup enrolment notifications were sent (issue #188).
 3.6.2 (2026090200)
  * Added : Tested upto Moodle 5.3(dev).
  * Fixed : Code cleanup.

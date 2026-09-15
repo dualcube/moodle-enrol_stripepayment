@@ -219,8 +219,8 @@ class enrolment_notifier {
         foreach ($recipients as $recipient) {
             $message = new \core\message\message();
             $message->courseid = $course->id;
-            $message->component = $shortname;
-            $message->name = $shortname;
+            $message->component = 'enrol_stripepayment';
+            $message->name = 'stripepayment_enrolment';
             $message->userfrom = $userfrom;
             $message->userto = $recipient;
             $message->subject = $subject;
