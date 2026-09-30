@@ -150,6 +150,7 @@ $string['stripepayment:enrol'] = 'Stripe Payment';
 $string['stripepayment:manage'] = 'Manage stripepayment';
 $string['stripepayment:unenrol'] = 'Unenrol stripepayment';
 $string['stripepayment:unenrolself'] = 'Unenrolself stripepayment';
+$string['subtotal'] = 'Subtotal';
 $string['testapikeys'] = 'Test Mode API Keys';
 $string['testapikeysdesc'] = 'These keys are used when Test Mode is selected. Test keys start with "pk_test_" and "sk_test_".';
 $string['testmode'] = 'Test Mode';

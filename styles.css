@@ -6,33 +6,13 @@
         margin: 0 auto;
     }
 
-    .stripepayment-currencybox {
-        margin-bottom: 8px;
-    }
-
-    .stripepayment-currencyselected {
-        display: inline-flex;
-        align-items: center;
-        border: 2px solid #ccc;
-        padding: 6px 12px;
-        border-radius: 6px;
-        background: #f1f1f1;
-        font-weight: bold;
-    }
-
-    .stripepayment-currencyselected img {
-        width: 20px;
-        height: 14px;
-        margin-right: 6px;
-    }
-
     .stripepayment-note {
         font-size: 12px;
         color: gray;
         margin-bottom: 20px;
     }
 
-    .stripepayment-item, .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
+    .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
         display: flex;
         justify-content: space-between;
         margin-bottom: 6px;
@@ -40,9 +20,10 @@
 
     .stripepayment-itemtitle {
         font-weight: bold;
+        margin-bottom: 6px;
     }
 
-    .stripepayment-itemsubtitle, .stripepayment-discountnote {
+    .stripepayment-discountnote {
         font-size: 13px;
         color: gray;
         margin-bottom: 12px;
@@ -132,16 +113,6 @@
             padding: 15px 10px;
         }
 
-        .stripepayment-currencyselected {
-            font-size: 14px;
-            padding: 8px 12px;
-        }
-
-        .stripepayment-currencyselected img {
-            width: 18px;
-            height: 12px;
-        }
-
         .stripepayment-itemtitle {
             font-size: 14px;
         }
@@ -172,12 +143,7 @@
             padding: 10px 5px;
         }
 
-        .stripepayment-currencyselected {
-            font-size: 13px;
-            padding: 6px 10px;
-        }
-
-        .stripepayment-item, .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
+        .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
             font-size: 14px;
         }
 
@@ -209,36 +175,22 @@
         box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
     }
 
-    /* Payment button styling */
+    /*
+     * Payment button sizing/layout only - colours, border, hover/active/disabled
+     * states are intentionally left to the theme's own .btn.btn-primary rules
+     * so this button matches every other button on the page.
+     */
     .stripepayment-pay-btn {
         margin-top: 18px;
         width: 100%;
-        background-color: #0070f3;
-        color: white;
-        border: none;
-        padding: 12px 0;
-        font-size: 16px;
-        font-weight: bold;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .stripepayment-pay-btn:hover {
-        background-color: #005fd1;
-        filter: brightness(0.9);
     }
 
     .stripepayment-pay-btn:active {
         transform: translateY(1px);
-        background-color: #004bb5;
-        filter: brightness(0.8);
     }
 
-    .stripepayment-pay-btn:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-        transform: none;
+    .stripepayment-cardfooter {
+        margin-top: 16px;
     }
 
     /* Utility classes */

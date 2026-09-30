@@ -21,7 +21,6 @@
 
     Example context (json):
     {
-        "hascost": true,
         "cost": "10.00",
         "currency": "USD",
         "coursename": "Course Name",
@@ -30,22 +29,12 @@
     }
 }}
 <div class="stripepayment-paymentcontainer">
-    <div class="stripepayment-currencybox">
-        <span class="currencyselected">
-            {{currency}} {{cost}}
-        </span>
-    </div>
-
-    <div class="stripepayment-item">
-        <div class="stripepayment-itemtitle">{{coursename}}</div>
-        <div class="stripepayment-itemprice">{{currency}} {{cost}}</div>
-    </div>
-    <p class="stripepayment-itemsubtitle">{{coursename}}</p>
+    <div class="stripepayment-itemtitle">{{coursename}}</div>
 
     <div class="stripepayment-line"></div>
 
     <div class="stripepayment-subtotal">
-        <span>{{# str }} enrolnow, enrol_stripepayment {{/ str }}</span>
+        <span>{{# str }} subtotal, enrol_stripepayment {{/ str }}</span>
         <span id="subtotalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
@@ -76,10 +65,12 @@
 
     <!-- Container for displaying payment response/errors -->
     <div id="paymentresponse-{{instanceid}}" class="stripepayment-error-message stripepayment-hidden"></div>
+</div>
 
-    <!-- Single enrollment button that handles paid enrollment -->
+<!-- Footer styling matches the other .card-footer enrolment method containers on this page -->
+<div class="card-footer stripepayment-cardfooter">
     <div id="enrollmentbutton-{{instanceid}}">
-        <button id="enrolbutton-{{instanceid}}" class="stripepayment-pay-btn">
+        <button id="enrolbutton-{{instanceid}}" class="stripepayment-pay-btn btn btn-primary">
             {{# str }} enrolnow, enrol_stripepayment {{/ str }}
         </button>
     </div>
