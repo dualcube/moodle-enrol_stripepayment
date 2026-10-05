@@ -1,199 +1,26 @@
-    .stripepayment-paymentcontainer {
-        background: transparent;
-        padding: 20px 0;
-        width: 100%;
-        max-width: 400px;
-        margin: 0 auto;
-    }
+.stripepayment-paymentcontainer {
+    width: 100%;
+}
 
-    .stripepayment-note {
-        font-size: 12px;
-        color: gray;
-        margin-bottom: 20px;
-    }
+.stripepayment-couponsection {
+    margin: 12px 0;
+}
 
-    .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 6px;
-    }
+.stripepayment-coupon-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+}
 
-    .stripepayment-itemtitle {
-        font-weight: bold;
-        margin-bottom: 6px;
-    }
+.stripepayment-coupon-input-group input {
+    flex: 1;
+    min-width: 0;
+}
 
-    .stripepayment-discountnote {
-        font-size: 13px;
-        color: gray;
-        margin-bottom: 12px;
-    }
+.stripepayment-couponmessage {
+    font-size: 12px;
+}
 
-    .stripepayment-line {
-        height: 1px;
-        background: #eee;
-        margin: 12px 0;
-    }
-
-    .stripepayment-tag {
-        background: #f1f1f1;
-        padding: 3px 8px;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-
-    .stripepayment-discountamount {
-        color:rgb(167, 167, 167);
-    }
-
-    .stripepayment-couponsection {
-        margin: 18px 0 12px;
-        padding: 15px 0 12px;
-        border-top: 1px solid #eee;
-    }
-
-    .stripepayment-total {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1px solid #eee;
-    }
-
-    .stripepayment-coupon-input-group {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 8px;
-    }
-
-    .stripepayment-couponsection input {
-        flex: 1;
-        padding: 8px 12px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
-        box-sizing: border-box;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .stripepayment-applybtn {
-        background-color: #6c757d;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        font-size: 14px;
-        border-radius: 4px;
-        cursor: pointer;
-        white-space: nowrap;
-        min-width: 80px;
-        transition: all 0.2s ease;
-    }
-
-    .stripepayment-applybtn:hover {
-        background-color: #5a6268;
-    }
-
-    .stripepayment-couponmessage {
-        font-size: 12px;
-        margin-top: 5px;
-    }
-
-    .stripepayment-error-message {
-        background-color: #f8d7da;
-        color: #721c24;
-        padding: 8px 12px;
-        border-radius: 4px;
-        margin: 10px 0;
-        font-size: 14px;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-        .stripepayment-paymentcontainer {
-            width: 100%;
-            max-width: 100%;
-            padding: 15px 10px;
-        }
-
-        .stripepayment-itemtitle {
-            font-size: 14px;
-        }
-
-        .stripepayment-coupon-input-group {
-            gap: 6px;
-        }
-
-        .stripepayment-couponsection input {
-            padding: 10px 12px;
-            font-size: 16px; /* Prevents zoom on iOS */
-        }
-
-        .stripepayment-applybtn {
-            padding: 10px 12px;
-            font-size: 16px;
-            min-width: 70px;
-        }
-
-        .stripepayment-pay-btn {
-            padding: 14px 0;
-            font-size: 18px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .stripepayment-paymentcontainer {
-            padding: 10px 5px;
-        }
-
-        .stripepayment-subtotal, .stripepayment-discount, .stripepayment-total {
-            font-size: 14px;
-        }
-
-        .stripepayment-coupon-input-group {
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .stripepayment-applybtn {
-            width: 100%;
-            min-width: auto;
-        }
-
-        .stripepayment-couponsection {
-            margin: 15px 0 10px;
-            padding: 12px 0 10px;
-        }
-    }
-
-    /* Interactive Elements */
-    .stripepayment-applybtn:active {
-        transform: translateY(1px);
-        background-color: #495057;
-    }
-
-    .stripepayment-couponsection input:focus {
-        outline: none;
-        border-color: #0070f3;
-        box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.2);
-    }
-
-    /*
-     * Payment button sizing/layout only - colours, border, hover/active/disabled
-     * states are intentionally left to the theme's own .btn.btn-primary rules
-     * so this button matches every other button on the page.
-     */
-    .stripepayment-pay-btn {
-        margin-top: 18px;
-        width: 100%;
-    }
-
-    .stripepayment-pay-btn:active {
-        transform: translateY(1px);
-    }
-
-    .stripepayment-cardfooter {
-        margin-top: 16px;
-    }
-
-    /* Utility classes */
-    .stripepayment-hidden {
-        display: none;
-    }
+.stripepayment-hidden {
+    display: none;
+}

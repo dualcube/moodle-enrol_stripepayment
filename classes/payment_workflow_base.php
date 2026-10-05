@@ -28,8 +28,10 @@ namespace enrol_stripepayment;
 use backup;
 use context_course;
 use core\output\notification;
+use core\output\single_button;
 use core_enrol\output\enrol_page;
 use MoodleQuickForm;
+use moodle_url;
 use progress_trace;
 use restore_enrolments_structure_step;
 use stdClass;
@@ -133,6 +135,14 @@ abstract class payment_workflow_base extends plugin_base {
 
         $body = $OUTPUT->render_from_template('enrol_stripepayment/enrol_page', $templatedata);
 
+        $enrolbutton = new single_button(
+            new moodle_url('/course/view.php', ['id' => $instance->courseid]),
+            get_string('enrolnow', 'enrol_stripepayment'),
+            'get',
+            single_button::BUTTON_PRIMARY
+        );
+        $enrolbutton->formid = 'stripepayment-enrol-' . $instance->id;
+
         $PAGE->requires->js_call_amd(
             'enrol_stripepayment/stripe_payment',
             'stripePayment',
@@ -150,7 +160,8 @@ abstract class payment_workflow_base extends plugin_base {
         $enrolpage = new enrol_page(
             instance: $instance,
             header: $name,
-            body: $body
+            body: $body,
+            buttons: [$enrolbutton]
         );
         return $OUTPUT->render($enrolpage);
     }

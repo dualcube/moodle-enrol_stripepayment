@@ -65,6 +65,9 @@ const processPayment = (couponid, instance) =>
 const stripePayment = (couponid, instance) => {
     const cache = new Map();
     const getElement = (id) => {
+        if (id === "enrolbutton") {
+            return document.querySelector(`#stripepayment-enrol-${instance['id']} button`);
+        }
         const fullid = `${id}-${instance['id']}`;
         if (!cache.has(fullid)) {
             cache.set(fullid, document.getElementById(fullid));
@@ -150,7 +153,8 @@ const stripePayment = (couponid, instance) => {
         }
         setButton("enrolbutton", false, localized.enrolnow);
     };
-    const EnrollHandler = async () => {
+    const EnrollHandler = async (event) => {
+        event.preventDefault();
         clearError("paymentresponse");
         setButton("enrolbutton", true, localized.pleasewait);
         try {
