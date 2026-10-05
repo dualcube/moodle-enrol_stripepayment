@@ -28,23 +28,23 @@
         "enablecouponsection": true
     }
 }}
-<div class="stripepayment-paymentcontainer">
+<div>
     <div class="d-flex justify-content-between mb-2">
         <span>{{# str }} subtotal, enrol_stripepayment {{/ str }}</span>
         <span id="subtotalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
     {{#enablecouponsection}}
-    <div class="stripepayment-couponsection">
-        <div class="stripepayment-coupon-input-group" id="couponinputgroup">
-            <input type="text" id="coupon-{{instanceid}}" placeholder="{{# str }} entercoupon, enrol_stripepayment {{/ str }}">
+    <div class="mb-3">
+        <div class="input-group mb-1" id="couponinputgroup">
+            <input type="text" class="form-control" id="coupon-{{instanceid}}" placeholder="{{# str }} entercoupon, enrol_stripepayment {{/ str }}">
             <button id="apply-{{instanceid}}" class="btn btn-secondary">{{# str }} apply, enrol_stripepayment {{/ str }}</button>
         </div>
-        <div id="showmessage-{{instanceid}}" class="stripepayment-couponmessage"></div>
+        <div id="showmessage-{{instanceid}}" class="small"></div>
     </div>
     {{/enablecouponsection}}
 
-    <div id="discountsection-{{instanceid}}" class="stripepayment-hidden mb-2">
+    <div id="discountsection-{{instanceid}}" class="d-none mb-2">
         <div class="d-flex justify-content-between">
             <span class="badge bg-secondary" id="discounttag-{{instanceid}}">{{# str }} discount, enrol_stripepayment {{/ str }}</span>
             <span id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
@@ -57,7 +57,7 @@
         <span id="totalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
-    <div id="paymentresponse-{{instanceid}}" class="alert alert-danger stripepayment-hidden mt-2 mb-0"></div>
+    <div id="paymentresponse-{{instanceid}}" class="alert alert-danger d-none mt-2 mb-0"></div>
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
