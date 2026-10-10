@@ -129,7 +129,6 @@ $string['privacy:metadata:enrol_stripepayment:stripe_com:email'] = 'User email i
 $string['privacy:metadata:enrol_stripepayment:timeupdated'] = 'The time the transaction was last updated.';
 $string['privacy:metadata:enrol_stripepayment:txnid'] = 'The transaction ID from Stripe.';
 $string['privacy:metadata:enrol_stripepayment:userid'] = 'The ID of the user making the payment.';
-$string['processingpayment'] = 'Confirming your payment, please wait...';
 $string['productdescription'] = 'A moodle course named {$a}';
 $string['status'] = 'Allow stripe enrolments';
 $string['status_desc'] = 'Allow users to use stripe to enrol into a course by default.';

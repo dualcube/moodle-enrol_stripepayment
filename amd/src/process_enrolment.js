@@ -14,10 +14,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Confirms a Stripe Checkout session and completes enrolment from the return-URL
- * landing page (process_enrolment.php), the same way stripe_payment.js drives
- * apply_coupon/process_payment: a webservice call over core/ajax, authenticated by
- * the browser's own session - never a site-wide token.
+ * Confirms a Stripe Checkout session and completes enrolment.
+ *
+ * Loaded on whatever page Stripe's success_url sends the browser back to (see
+ * enrol_stripepayment_before_footer() in lib.php) - not a page this plugin owns, so
+ * there's no container of our own to report errors into; core/notification's standard
+ * exception display is used instead. Confirmation itself goes through
+ * moodle_stripepayment_process_enrolment over core/ajax, authenticated by the browser's
+ * own session - never a site-wide token - the same pattern stripe_payment.js uses for
+ * apply_coupon/process_payment.
  *
  * @module enrol_stripepayment/process_enrolment
  * @package    enrol_stripepayment
@@ -27,27 +32,28 @@
  */
 
 import ajax from 'core/ajax';
+import Notification from 'core/notification';
 
 const { call: fetchMany } = ajax;
 
 const processEnrolment = (sessionid) =>
     fetchMany([{ methodname: "moodle_stripepayment_process_enrolment", args: { sessionid } }])[0];
 
-const showError = (message) => {
-    const container = document.getElementById('stripepayment-processing-error');
-    if (container) {
-        container.textContent = message;
-        container.classList.remove('d-none');
-    }
+// Drop stripe_session_id from the visible URL immediately, so a page refresh (or the
+// browser restoring this tab later) can't re-trigger confirmation with a session Stripe
+// has already settled.
+const stripSessionIdFromUrl = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('stripe_session_id');
+    window.history.replaceState({}, document.title, url.toString());
 };
 
 const init = (sessionid) => {
+    stripSessionIdFromUrl();
     processEnrolment(sessionid).then((result) => {
         window.location.href = result.redirecturl;
         return null;
-    }).catch((error) => {
-        showError(error.message);
-    });
+    }).catch(Notification.exception);
 };
 
 export default {

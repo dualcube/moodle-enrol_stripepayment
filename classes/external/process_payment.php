@@ -179,10 +179,15 @@ class process_payment extends external_api {
                 'expectedcurrency' => $currency,
             ],
             'mode' => 'payment',
-            // Stripe substitutes the literal "{CHECKOUT_SESSION_ID}" token itself; it must
-            // reach Stripe un-encoded, so it's appended after moodle_url has built the rest
-            // of the URL rather than being passed in as one of its params.
-            'success_url' => new moodle_url('/enrol/stripepayment/process_enrolment.php') . '?session_id={CHECKOUT_SESSION_ID}',
+            // Straight back to the course page, not a page of this plugin's own: there's
+            // no plugin-owned landing page in this flow, only
+            // enrol_stripepayment_before_footer() (lib.php) picking the session id back
+            // up from the URL on whatever page the browser lands on. Stripe substitutes
+            // the literal "{CHECKOUT_SESSION_ID}" token itself; it must reach Stripe
+            // un-encoded, so it's appended after moodle_url has built the rest of the URL
+            // rather than being passed in as one of its params.
+            'success_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid])
+                . '&stripe_session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid]),
         ];
 
