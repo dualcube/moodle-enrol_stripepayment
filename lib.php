@@ -44,14 +44,8 @@ class enrol_stripepayment_plugin extends payment_workflow_base {
 }
 
 /**
- * Loads the AMD module that confirms a Stripe Checkout session, when the page the
- * browser has just returned to carries one.
- *
- * Stripe's success_url points straight at the course page (see
- * process_payment::get_session_params()) with a stripe_session_id param appended, rather
- * than at a plugin page of our own - there's no plugin-owned entry point in that flow
- * for a webservice call, loginrequired check or anything else to hang off, only this
- * standard "contribute to every page's footer" callback.
+ * Loads the AMD module that confirms a Stripe Checkout session, if the current page
+ * came back from one (see process_payment::get_session_params()'s success_url).
  *
  * @return void
  */

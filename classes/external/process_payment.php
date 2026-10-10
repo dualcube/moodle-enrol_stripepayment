@@ -172,20 +172,13 @@ class process_payment extends external_api {
                 'instanceid' => $instance->id,
                 'couponid' => $couponid,
                 'userid' => $USER->id,
-                // Recorded here, server-side, at the moment the price was computed, so
-                // process_enrolment can later confirm Stripe actually captured this exact
-                // amount rather than trusting anything echoed back from the browser.
+                // Used by process_enrolment to verify the amount actually captured.
                 'expectedamount' => $amount,
                 'expectedcurrency' => $currency,
             ],
             'mode' => 'payment',
-            // Straight back to the course page, not a page of this plugin's own: there's
-            // no plugin-owned landing page in this flow, only
-            // enrol_stripepayment_before_footer() (lib.php) picking the session id back
-            // up from the URL on whatever page the browser lands on. Stripe substitutes
-            // the literal "{CHECKOUT_SESSION_ID}" token itself; it must reach Stripe
-            // un-encoded, so it's appended after moodle_url has built the rest of the URL
-            // rather than being passed in as one of its params.
+            // Stripe's {CHECKOUT_SESSION_ID} token must reach it un-encoded, so it's
+            // appended as a raw string rather than passed as a moodle_url param.
             'success_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid])
                 . '&stripe_session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid]),

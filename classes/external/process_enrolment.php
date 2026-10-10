@@ -70,18 +70,9 @@ class process_enrolment extends external_api {
     }
 
     /**
-     * After the user returns from Stripe Checkout, retrieve the session, confirm it
-     * was genuinely paid at the price we expected, and enrol the student.
-     *
-     * instanceid and couponid are deliberately not accepted as parameters here: both
-     * are read back from the Checkout Session's own metadata (set server-side, by us,
-     * when the session was created in process_payment) rather than from anything the
-     * browser could have appended to the return URL.
-     *
-     * This is an AJAX webservice function like apply_coupon and process_payment - called
-     * over core/ajax with the user's own session, never a site-wide token - so, unlike a
-     * plain page, it must return data rather than redirect()/echo output itself; the
-     * caller (amd/src/process_enrolment.js) does the actual browser navigation.
+     * Retrieve the Checkout Session, confirm it was genuinely paid at the expected
+     * price, and enrol the student. instanceid/couponid come from the session's own
+     * metadata, not from the caller.
      *
      * @param string $sessionid Stripe Checkout session id
      * @param int $userid The authenticated user completing checkout
@@ -204,13 +195,8 @@ class process_enrolment extends external_api {
     }
 
     /**
-     * Validate payment status
-     *
-     * Besides the status/course/user checks this plugin has always made, this also
-     * confirms Stripe actually captured the exact amount and currency recorded in the
-     * session's own metadata at creation time (see process_payment::get_session_params) -
-     * without this, nothing stops a tampered checkout flow from paying less than the
-     * instance's real price and still being treated as a valid purchase.
+     * Validate payment status: status/course/user match, plus the amount/currency
+     * Stripe actually captured against what process_payment recorded as expected.
      *
      * @param array $checkoutsession
      * @param object $enrolmentdata
@@ -259,12 +245,8 @@ class process_enrolment extends external_api {
     }
 
     /**
-     * Build the success result once enrol_user() has run.
-     *
-     * \core\notification::success()/warning() queue a session-flash message - the same
-     * mechanism redirect($url, $message) relies on - so the message still shows up once
-     * the client-side redirect (in amd/src/process_enrolment.js) lands on the destination
-     * page, even though this function itself never redirects or renders anything.
+     * Build the success result once enrol_user() has run, queuing a flash notification
+     * (shown once the client redirects to redirecturl) the same way redirect() would.
      *
      * @param object $course
      * @param object $context

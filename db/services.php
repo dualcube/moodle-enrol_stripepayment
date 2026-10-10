@@ -50,11 +50,7 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
-    // Deliberately absent from the moodle_enrol_stripepayment service's 'functions' list
-    // above: that list is what a REST/mobile token can be issued against, and this
-    // function - the one that actually enrols the user - has no legitimate need for
-    // token access. 'ajax' => true alone is enough for amd/src/process_enrolment.js to
-    // call it over core/ajax, authenticated by the browser's own session instead.
+    // Not added to the service's 'functions' list above - ajax-only, no REST/token access.
     'moodle_stripepayment_process_enrolment' => [
         'classname' => 'enrol_stripepayment\external\process_enrolment',
         'description' => 'Confirm a Stripe Checkout session and complete enrolment',

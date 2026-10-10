@@ -14,15 +14,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Confirms a Stripe Checkout session and completes enrolment.
- *
- * Loaded on whatever page Stripe's success_url sends the browser back to (see
- * enrol_stripepayment_before_footer() in lib.php) - not a page this plugin owns, so
- * there's no container of our own to report errors into; core/notification's standard
- * exception display is used instead. Confirmation itself goes through
- * moodle_stripepayment_process_enrolment over core/ajax, authenticated by the browser's
- * own session - never a site-wide token - the same pattern stripe_payment.js uses for
- * apply_coupon/process_payment.
+ * Confirms a Stripe Checkout session and completes enrolment, via
+ * moodle_stripepayment_process_enrolment over core/ajax.
  *
  * @module enrol_stripepayment/process_enrolment
  * @package    enrol_stripepayment
@@ -39,9 +32,7 @@ const { call: fetchMany } = ajax;
 const processEnrolment = (sessionid) =>
     fetchMany([{ methodname: "moodle_stripepayment_process_enrolment", args: { sessionid } }])[0];
 
-// Drop stripe_session_id from the visible URL immediately, so a page refresh (or the
-// browser restoring this tab later) can't re-trigger confirmation with a session Stripe
-// has already settled.
+// Avoid re-triggering confirmation on refresh.
 const stripSessionIdFromUrl = () => {
     const url = new URL(window.location.href);
     url.searchParams.delete('stripe_session_id');
