@@ -63,7 +63,8 @@ class process_enrolment extends external_api {
     public static function execute_returns() {
         return new external_single_structure(
             [
-                'status' => new external_value(PARAM_RAW, 'status: true if success'),
+                'status' => new external_value(PARAM_RAW, 'status: success or error'),
+                'redirecturl' => new external_value(PARAM_URL, 'Where the browser should go next'),
             ]
         );
     }
@@ -77,8 +78,14 @@ class process_enrolment extends external_api {
      * when the session was created in process_payment) rather than from anything the
      * browser could have appended to the return URL.
      *
+     * This is an AJAX webservice function like apply_coupon and process_payment - called
+     * over core/ajax with the user's own session, never a site-wide token - so, unlike a
+     * plain page, it must return data rather than redirect()/echo output itself; the
+     * caller (amd/src/process_enrolment.js) does the actual browser navigation.
+     *
      * @param string $sessionid Stripe Checkout session id
      * @param int $userid The authenticated user completing checkout
+     * @return array
      */
     public static function execute($sessionid, $userid) {
         global $PAGE, $DB;
@@ -105,17 +112,22 @@ class process_enrolment extends external_api {
             $checkoutsession
         );
 
-        if (self::validate_payment_status($checkoutsession, $enrolmentdata)) {
-            $PAGE->set_context($context);
-            try {
-                self::enrol_user_to_course($instance, $user);
-                $DB->insert_record("enrol_stripepayment", $enrolmentdata);
-                enrolment_notifier::send_enrollment_notifications($course, $context, $user, util::get_core());
-                self::redirect_user_to_course($course, $context, $user);
-            } catch (moodle_exception $e) {
-                enrolment_notifier::message_stripepayment_error_to_admin($e->getMessage(), ['sessionid' => $sessionid]);
-                throw new moodle_exception('invalidtransaction', 'enrol_stripepayment', '', $e->getMessage());
-            }
+        if (!self::validate_payment_status($checkoutsession, $enrolmentdata)) {
+            return [
+                'status' => 'error',
+                'redirecturl' => (new moodle_url('/'))->out(false),
+            ];
+        }
+
+        $PAGE->set_context($context);
+        try {
+            self::enrol_user_to_course($instance, $user);
+            $DB->insert_record("enrol_stripepayment", $enrolmentdata);
+            enrolment_notifier::send_enrollment_notifications($course, $context, $user, util::get_core());
+            return self::build_success_result($course, $context, $user);
+        } catch (moodle_exception $e) {
+            enrolment_notifier::message_stripepayment_error_to_admin($e->getMessage(), ['sessionid' => $sessionid]);
+            throw new moodle_exception('invalidtransaction', 'enrol_stripepayment', '', $e->getMessage());
         }
     }
 
@@ -202,6 +214,7 @@ class process_enrolment extends external_api {
      *
      * @param array $checkoutsession
      * @param object $enrolmentdata
+     * @return bool
      */
     private static function validate_payment_status($checkoutsession, $enrolmentdata) {
         global $DB;
@@ -222,7 +235,7 @@ class process_enrolment extends external_api {
             $enrolmentdata,
         );
 
-        redirect(new moodle_url('/'));
+        return false;
     }
 
     /**
@@ -246,27 +259,35 @@ class process_enrolment extends external_api {
     }
 
     /**
-     * Redirect user to course page
+     * Build the success result once enrol_user() has run.
+     *
+     * \core\notification::success()/warning() queue a session-flash message - the same
+     * mechanism redirect($url, $message) relies on - so the message still shows up once
+     * the client-side redirect (in amd/src/process_enrolment.js) lands on the destination
+     * page, even though this function itself never redirects or renders anything.
+     *
      * @param object $course
      * @param object $context
      * @param object $user
+     * @return array
      */
-    private static function redirect_user_to_course($course, $context, $user) {
-        global $PAGE, $OUTPUT;
-
+    private static function build_success_result($course, $context, $user) {
         $destination = new moodle_url('/course/view.php', ['id' => $course->id]);
         $fullname = format_string($course->fullname, true, ['context' => $context]);
 
         if (is_enrolled($context, $user, '', true)) {
-            redirect($destination, get_string('paymentthanks', '', $fullname));
+            \core\notification::success(get_string('paymentthanks', '', $fullname));
+        } else {
+            $orderdetails = (object)[
+                'teacher'  => get_string('defaultcourseteacher'),
+                'fullname' => $fullname,
+            ];
+            \core\notification::warning(get_string('paymentsorry', '', $orderdetails));
         }
 
-        $PAGE->set_url($destination);
-        echo $OUTPUT->header();
-        $orderdetails = (object)[
-            'teacher'  => get_string('defaultcourseteacher'),
-            'fullname' => $fullname,
+        return [
+            'status' => 'success',
+            'redirecturl' => $destination->out(false),
         ];
-        notice(get_string('paymentsorry', '', $orderdetails), $destination);
     }
 }

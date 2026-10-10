@@ -15,11 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Handles the browser's return from a Stripe Checkout session and completes enrolment.
+ * Landing page for the browser's return from a Stripe Checkout session.
  *
- * Stripe redirects the paying user's own browser here after checkout. This runs inside
- * that user's authenticated Moodle session - no webservice token is ever placed in this
- * URL, unlike the REST-based callback this replaced.
+ * Stripe redirects the paying user's own browser here after checkout. This page itself
+ * does no processing - it just authenticates the user via their normal Moodle session
+ * (no webservice token is ever placed in this URL) and hands the session id to
+ * amd/src/process_enrolment.js, which confirms the payment and completes enrolment the
+ * same way apply_coupon/process_payment work: a moodle_stripepayment_process_enrolment
+ * call over core/ajax, authenticated by that same session.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
@@ -29,10 +32,16 @@
 
 require(__DIR__ . '/../../config.php');
 
-use enrol_stripepayment\external\process_enrolment;
-
 $sessionid = required_param('session_id', PARAM_TEXT);
 
 require_login();
 
-process_enrolment::execute($sessionid, $USER->id);
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url('/enrol/stripepayment/process_enrolment.php', ['session_id' => $sessionid]);
+$PAGE->set_title(get_string('pluginname', 'enrol_stripepayment'));
+$PAGE->requires->js_call_amd('enrol_stripepayment/process_enrolment', 'init', [$sessionid]);
+
+echo $OUTPUT->header();
+echo html_writer::tag('p', get_string('processingpayment', 'enrol_stripepayment'));
+echo html_writer::div('', 'alert alert-danger d-none', ['id' => 'stripepayment-processing-error']);
+echo $OUTPUT->footer();
