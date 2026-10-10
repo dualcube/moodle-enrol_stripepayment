@@ -28,8 +28,10 @@ namespace enrol_stripepayment;
 use backup;
 use context_course;
 use core\output\notification;
+use core\output\single_button;
 use core_enrol\output\enrol_page;
 use MoodleQuickForm;
+use moodle_url;
 use progress_trace;
 use restore_enrolments_structure_step;
 use stdClass;
@@ -118,12 +120,12 @@ abstract class payment_workflow_base extends plugin_base {
         global $OUTPUT, $PAGE;  // Added $PAGE to global declarations.
 
         $course = get_course($instance->courseid);
-        $cost = ((float) $instance->cost <= 0) ? (float) $this->get_config('cost') : (float) $instance->cost;
+        $cost = util::get_instance_cost($instance);
         $name = $this->get_instance_name($instance);
         $cost = format_float($cost, 2, false);
 
         $templatedata = [
-            'currency' => $instance->currency,
+            'currency' => util::get_instance_currency($instance),
             'cost' => format_float($cost, 2, true),
             'coursename' => format_string($course->fullname, true, ['context' => context_course::instance($course->id)]),
             'instanceid' => $instance->id,
@@ -133,24 +135,28 @@ abstract class payment_workflow_base extends plugin_base {
 
         $body = $OUTPUT->render_from_template('enrol_stripepayment/enrol_page', $templatedata);
 
+        $enrolbutton = new single_button(
+            new moodle_url('/course/view.php', ['id' => $instance->courseid]),
+            get_string('enrolnow', 'enrol_stripepayment'),
+            'get',
+            single_button::BUTTON_PRIMARY
+        );
+        $enrolbutton->formid = 'stripepayment-enrol-' . $instance->id;
+
         $PAGE->requires->js_call_amd(
             'enrol_stripepayment/stripe_payment',
             'stripePayment',
             [
                 null, // Couponid starts as null.
-                [
-                    'id' => $instance->id,
-                    'cost' => $instance->cost,
-                    'currency' => $instance->currency,
-                    'courseid' => $instance->courseid,
-                ],
+                $instance->id,
             ]
         );
 
         $enrolpage = new enrol_page(
             instance: $instance,
             header: $name,
-            body: $body
+            body: $body,
+            buttons: [$enrolbutton]
         );
         return $OUTPUT->render($enrolpage);
     }

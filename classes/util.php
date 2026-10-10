@@ -27,7 +27,6 @@ namespace enrol_stripepayment;
 
 
 use core\lang_string;
-use moodle_url;
 use stdClass;
 
 /**
@@ -49,47 +48,6 @@ class util {
      */
     public static function get_core() {
         return enrol_get_plugin('stripepayment');
-    }
-
-    /**
-     * Create a link to a URL with optional text
-     *
-     * @param moodle_url|string $url The URL to link to
-     * @param string|null $text The text to display (optional)
-     * @return string The HTML link
-     */
-    public static function generate_link_html($url, ?string $text = null) {
-        // If no text is provided, default to "from here" string.
-        if ($text === null) {
-            $text = get_string('fromhere', 'enrol_stripepayment');
-        }
-
-        return '<a href="' . $url . '" target="_blank">' . $text . '</a>';
-    }
-
-    /**
-     * Get the message to display when web services are not set up.
-     *
-     * @param string $for The entity for which the message is being displayed
-     * @return string The message
-     */
-    public static function get_webservice_setup_message($for) {
-
-        // Predefined URLs.
-        $webservicesoverview = new moodle_url('/admin/search.php', ['query' => 'enablewebservices']);
-        $restweblink = new moodle_url('/admin/settings.php', ['section' => 'webserviceprotocols']);
-        $createtoken = new moodle_url('/admin/webservice/tokens.php');
-
-        return
-            get_string('enablewebservicesfirst', 'enrol_stripepayment') . ' ' .
-            get_string('enabledrestprotocol', 'enrol_stripepayment') . ' ' .
-            self::generate_link_html($webservicesoverview) . ' . ' .
-
-            get_string('createusertoken', 'enrol_stripepayment') . ' ' .
-            self::generate_link_html($createtoken) . ' . ' .
-
-            get_string('enabledrestprotocol', 'enrol_stripepayment', $for) . ' ' .
-            self::generate_link_html($restweblink);
     }
 
     /**
@@ -146,6 +104,32 @@ class util {
             }
         }
         return true;
+    }
+
+    /**
+     * Resolve the price to charge for an enrol instance.
+     *
+     * Always call this with an $instance loaded from the database by id - never with
+     * client-supplied cost data. The client must never be trusted to say what something
+     * costs; only the instance's own `cost` field (falling back to the plugin's
+     * site-wide default) is authoritative.
+     *
+     * @param stdClass $instance enrol instance record
+     * @return float
+     */
+    public static function get_instance_cost(stdClass $instance) {
+        $cost = (float) $instance->cost;
+        return $cost > 0 ? $cost : (float) self::get_core()->get_config('cost');
+    }
+
+    /**
+     * Resolve the currency to charge for an enrol instance.
+     *
+     * @param stdClass $instance enrol instance record
+     * @return string
+     */
+    public static function get_instance_currency(stdClass $instance) {
+        return $instance->currency ?: 'USD';
     }
 
     /**

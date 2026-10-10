@@ -196,12 +196,6 @@ if ($ADMIN->fulltree) {
         $options
     ));
 
-    $settings->add(new admin_setting_configtext(
-        'enrol_stripepayment/webservice_token',
-        get_string('webservicetokenstring', 'enrol_stripepayment'),
-        util::get_webservice_setup_message('moodle_enrol_stripepayment'),
-        ''
-    ));
     // Enrol instance defaults.
     $settings->add(new admin_setting_heading(
         'enrol_stripepayment_defaults',

@@ -1,5 +1,18 @@
 ##Stripe Payment Moodle Plugin Change Log
 
+3.6.5 (2026101000)
+ * Security fix (High, CVSS 4.0 7.1) : The checkout price (cost and currency) was
+   taken from the webservice request instead of being read from the enrol instance
+   on the server, so a user could edit that request to pay less than the configured
+   course price and still be enrolled. The price is now always computed server-side
+   from the instance id alone, and the price actually captured by Stripe is verified
+   against it before enrolling. Also: the success-URL callback no longer carries the
+   site's webservice token - it now completes enrolment through the paying user's own
+   authenticated session instead, via a new process_enrolment.php page; the coupon
+   code is read back from the Checkout Session's own metadata rather than from the
+   return URL. Existing installs: the now-unused webservice_token setting is cleared
+   on upgrade. Reported by kta1kri - thank you for the responsible disclosure.
+
 3.6.4 (2026093000)
  * Fixed : Simplified checkout text to make pricing easier to understand(issue #190).
 

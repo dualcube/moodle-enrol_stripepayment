@@ -28,7 +28,6 @@ defined('MOODLE_INTERNAL') || die();
 $services = ['moodle_enrol_stripepayment' => [
     'functions' => [
             'moodle_stripepayment_apply_coupon',
-            'moodle_stripepayment_process_enrolment',
             'moodle_stripepayment_process_payment',
         ],
         'requiredcapability' => '',
@@ -51,11 +50,12 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
+    // Not added to the service's 'functions' list above - ajax-only, no REST/token access.
     'moodle_stripepayment_process_enrolment' => [
         'classname' => 'enrol_stripepayment\external\process_enrolment',
-        'description' => 'Update information after Stripe Successful Payment',
+        'description' => 'Confirm a Stripe Checkout session and complete enrolment',
         'type' => 'write',
+        'ajax' => true,
         'loginrequired' => true,
     ],
-
 ];

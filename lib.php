@@ -42,3 +42,20 @@ use enrol_stripepayment\payment_workflow_base;
  */
 class enrol_stripepayment_plugin extends payment_workflow_base {
 }
+
+/**
+ * Loads the AMD module that confirms a Stripe Checkout session, if the current page
+ * came back from one (see process_payment::get_session_params()'s success_url).
+ *
+ * @return void
+ */
+function enrol_stripepayment_before_footer() {
+    global $PAGE;
+
+    $sessionid = optional_param('stripe_session_id', '', PARAM_ALPHANUMEXT);
+    if ($sessionid === '') {
+        return;
+    }
+
+    $PAGE->requires->js_call_amd('enrol_stripepayment/process_enrolment', 'init', [$sessionid]);
+}

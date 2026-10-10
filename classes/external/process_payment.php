@@ -24,6 +24,7 @@
  */
 
 namespace enrol_stripepayment\external;
+use core\exception\moodle_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
@@ -48,15 +49,8 @@ class process_payment extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters(
             [
-                'couponid' => new external_value(PARAM_RAW, 'Update coupon id'),
-                'instance' => new external_single_structure(
-                    [
-                        'id' => new external_value(PARAM_INT),
-                        'cost' => new external_value(PARAM_INT),
-                        'currency' => new external_value(PARAM_RAW),
-                        'courseid' => new external_value(PARAM_INT),
-                    ]
-                ),
+                'couponid' => new external_value(PARAM_RAW, 'Coupon code to apply at checkout, or empty for none'),
+                'instanceid' => new external_value(PARAM_INT, 'The enrol instance id'),
             ]
         );
     }
@@ -83,10 +77,12 @@ class process_payment extends external_api {
      * process payment using stripe checkout session
      *
      * @param string $couponid Coupon code
-     * @param object $instance Instance
+     * @param int $instanceid Enrol instance id
      * @return array
      */
-    public static function execute($couponid, $instance) {
+    public static function execute($couponid, $instanceid) {
+        $instance = self::get_enrol_instance($instanceid);
+        self::require_enrolable($instance);
         $sessionparams = self::get_session_params($couponid, $instance);
         $session = stripe_client::stripe_api_request('checkout_session_create', '', $sessionparams);
         return [
@@ -97,20 +93,62 @@ class process_payment extends external_api {
     }
 
     /**
+     * Load an enabled enrol instance by id.
+     *
+     * The client only ever gets to say which instance it means (by id) - every
+     * price-relevant field (cost, currency) is then read back from this record, never
+     * from the request, so a tampered client value can't change what gets charged.
+     *
+     * @param int $instanceid
+     * @return \stdClass
+     */
+    private static function get_enrol_instance($instanceid) {
+        global $DB;
+        $instance = $DB->get_record('enrol', ['id' => $instanceid, 'enrol' => 'stripepayment'], '*', IGNORE_MISSING);
+        if (!$instance) {
+            throw new moodle_exception('enrollmentinstancenotfound', 'enrol_stripepayment');
+        }
+        return $instance;
+    }
+
+    /**
+     * Re-check, server-side, the same eligibility rules the enrolment page itself enforces
+     * before showing the checkout button - a direct webservice call must not be able to
+     * start a checkout the UI would have refused to offer.
+     *
+     * @param \stdClass $instance
+     */
+    private static function require_enrolable($instance) {
+        if ($instance->status != ENROL_INSTANCE_ENABLED) {
+            throw new moodle_exception('paymentmethodnotfound', 'enrol_stripepayment');
+        }
+        if ($instance->enrolstartdate != 0 && $instance->enrolstartdate > time()) {
+            throw new moodle_exception('canntenrolearly', 'enrol_stripepayment', '', userdate($instance->enrolstartdate));
+        }
+        if ($instance->enrolenddate != 0 && $instance->enrolenddate < time()) {
+            throw new moodle_exception('canntenrollate', 'enrol_stripepayment', '', userdate($instance->enrolenddate));
+        }
+        if (!util::can_more_user_enrol($instance)) {
+            throw new moodle_exception('maxenrolledreached', 'enrol_stripepayment');
+        }
+    }
+
+    /**
      * Get checkout session params
      *
      * @param string $couponid Coupon code
-     * @param array $instance Instance
+     * @param \stdClass $instance enrol instance record
      * @return array
      */
     private static function get_session_params($couponid, $instance) {
         global $USER;
-        $course = get_course($instance['courseid']);
+        $course = get_course($instance->courseid);
         $context = context_course::instance($course->id);
-        $amount = util::to_stripe_amount($instance['cost'], $instance['currency']);
+        $cost = util::get_instance_cost($instance);
+        $currency = util::get_instance_currency($instance);
+        $amount = util::to_stripe_amount($cost, $currency);
         $coursename = format_string($course->fullname, true, ['context' => $context]);
         $customerid = self::get_stripe_customer_id($USER);
-        $usertoken = util::get_core()->get_config('webservice_token');
         $sessionparams = [
             'customer' => $customerid,
             'payment_intent_data' => ['description' => get_string('intentdescription', 'enrol_stripepayment', $coursename)],
@@ -119,11 +157,11 @@ class process_payment extends external_api {
                 'price_data' => [
                     'product_data' => [
                         'name' => $coursename,
-                        'metadata' => ['product_id' => $instance['courseid']],
+                        'metadata' => ['product_id' => $instance->courseid],
                         'description' => get_string('productdescription', 'enrol_stripepayment', $coursename),
                     ],
                     'unit_amount' => $amount,
-                    'currency' => $instance['currency'],
+                    'currency' => $currency,
                 ],
                 'quantity' => 1,
             ]],
@@ -131,18 +169,19 @@ class process_payment extends external_api {
             'metadata' => [
                 'courseshortname' => format_string($course->shortname, true, ['context' => $context]),
                 'courseid' => $course->id,
+                'instanceid' => $instance->id,
                 'couponid' => $couponid,
                 'userid' => $USER->id,
+                // Used by process_enrolment to verify the amount actually captured.
+                'expectedamount' => $amount,
+                'expectedcurrency' => $currency,
             ],
             'mode' => 'payment',
-            'success_url' => new moodle_url('/webservice/rest/server.php', ['wstoken' => $usertoken])
-                . '&wsfunction=moodle_stripepayment_process_enrolment'
-                . '&moodlewsrestformat=json'
-                . '&sessionid={CHECKOUT_SESSION_ID}'
-                . '&userid=' . $USER->id
-                . '&couponid=' . $couponid
-                . '&instanceid=' . $instance['id'],
-            'cancel_url' => new moodle_url('/course/view.php', ['id' => $instance['courseid']]),
+            // Stripe's {CHECKOUT_SESSION_ID} token must reach it un-encoded, so it's
+            // appended as a raw string rather than passed as a moodle_url param.
+            'success_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid])
+                . '&stripe_session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid]),
         ];
 
         return $sessionparams;
