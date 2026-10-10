@@ -15,19 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Stripe enrolment plugin version specification.
+ * Handles the browser's return from a Stripe Checkout session and completes enrolment.
+ *
+ * Stripe redirects the paying user's own browser here after checkout. This runs inside
+ * that user's authenticated Moodle session - no webservice token is ever placed in this
+ * URL, unlike the REST-based callback this replaced.
  *
  * @package    enrol_stripepayment
  * @author     DualCube <admin@dualcube.com>
- * @copyright  2019 DualCube Team(https://dualcube.com)
+ * @copyright  2026 DualCube Team(https://dualcube.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2026101000;
-$plugin->requires  = 2025041400;
-// Tested against Moodle 5.0 through 5.3, including the 5.3dev branch (branches 500-530).
-$plugin->supported = [500, 530];
-$plugin->component = 'enrol_stripepayment';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '3.6.5';
+require(__DIR__ . '/../../config.php');
+
+use enrol_stripepayment\external\process_enrolment;
+
+$sessionid = required_param('session_id', PARAM_TEXT);
+
+require_login();
+
+process_enrolment::execute($sessionid, $USER->id);

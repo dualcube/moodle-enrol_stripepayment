@@ -71,6 +71,16 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025082108, 'enrol', 'stripepayment');
     }
 
+    if ($oldversion < 2026101000) {
+        // The Stripe Checkout success callback no longer goes through a webservice
+        // token (see classes/external/process_payment.php) - this site setting is
+        // unused from here on, so clear the token out rather than leave a live
+        // credential sitting in config that nothing uses any more.
+        unset_config('webservice_token', 'enrol_stripepayment');
+
+        upgrade_plugin_savepoint(true, 2026101000, 'enrol', 'stripepayment');
+    }
+
     return true;
 }
 

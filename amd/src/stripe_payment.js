@@ -56,19 +56,19 @@ const init = () => {
 };
 
 // Repository functions
-const applyCoupon = (couponid, instance) =>
-    fetchMany([{ methodname: "moodle_stripepayment_apply_coupon", args: { couponid, instance } }])[0];
+const applyCoupon = (couponid, instanceid) =>
+    fetchMany([{ methodname: "moodle_stripepayment_apply_coupon", args: { couponid, instanceid } }])[0];
 
-const processPayment = (couponid, instance) =>
-    fetchMany([{ methodname: "moodle_stripepayment_process_payment", args: { couponid, instance } }])[0];
+const processPayment = (couponid, instanceid) =>
+    fetchMany([{ methodname: "moodle_stripepayment_process_payment", args: { couponid, instanceid } }])[0];
 
-const stripePayment = (couponid, instance) => {
+const stripePayment = (couponid, instanceid) => {
     const cache = new Map();
     const getElement = (id) => {
         if (id === "enrolbutton") {
-            return document.querySelector(`#stripepayment-enrol-${instance['id']} button`);
+            return document.querySelector(`#stripepayment-enrol-${instanceid} button`);
         }
-        const fullid = `${id}-${instance['id']}`;
+        const fullid = `${id}-${instanceid}`;
         if (!cache.has(fullid)) {
             cache.set(fullid, document.getElementById(fullid));
         }
@@ -126,7 +126,7 @@ const stripePayment = (couponid, instance) => {
         }
         setButton("apply", true, localized.couponappling);
         try {
-            const data = await applyCoupon(couponcode, instance);
+            const data = await applyCoupon(couponcode, instanceid);
             if (data?.discountedprice !== undefined) {
                 couponid = couponcode;
                 toggleElement("coupon", false);
@@ -158,7 +158,7 @@ const stripePayment = (couponid, instance) => {
         clearError("paymentresponse");
         setButton("enrolbutton", true, localized.pleasewait);
         try {
-            const paymentdata = await processPayment(couponid, instance);
+            const paymentdata = await processPayment(couponid, instanceid);
             if (paymentdata.error?.message) {
                 displayMessage("paymentresponse", paymentdata.error.message, "error");
             } else if (paymentdata.status === "success" && paymentdata.redirecturl) {

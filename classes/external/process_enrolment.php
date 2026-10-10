@@ -51,10 +51,8 @@ class process_enrolment extends external_api {
     public static function execute_parameters() {
         return new external_function_parameters(
             [
-                'sessionid' => new external_value(PARAM_TEXT, 'The item id to operate on'),
-                'userid' => new external_value(PARAM_INT, 'Update data user id'),
-                'couponid'  => new external_value(PARAM_RAW, 'The item id to operate coupon id'),
-                'instanceid'  => new external_value(PARAM_INT, 'The item id to operate instance id'),
+                'sessionid' => new external_value(PARAM_TEXT, 'The Stripe Checkout session id'),
+                'userid' => new external_value(PARAM_INT, 'The authenticated user completing checkout'),
             ]
         );
     }
@@ -71,21 +69,31 @@ class process_enrolment extends external_api {
     }
 
     /**
-     * after creating checkout charge the payment intent and after payment enrol the student to the course
-     * @param number $sessionid
-     * @param number $userid
-     * @param number $couponid
-     * @param number $instanceid
+     * After the user returns from Stripe Checkout, retrieve the session, confirm it
+     * was genuinely paid at the price we expected, and enrol the student.
+     *
+     * instanceid and couponid are deliberately not accepted as parameters here: both
+     * are read back from the Checkout Session's own metadata (set server-side, by us,
+     * when the session was created in process_payment) rather than from anything the
+     * browser could have appended to the return URL.
+     *
+     * @param string $sessionid Stripe Checkout session id
+     * @param int $userid The authenticated user completing checkout
      */
-    public static function execute($sessionid, $userid, $couponid, $instanceid) {
+    public static function execute($sessionid, $userid) {
         global $PAGE, $DB;
         $checkoutsession = stripe_client::stripe_api_request(
             'checkout_session_retrieve',
             $sessionid
         );
+        $instanceid = (int) ($checkoutsession['metadata']['instanceid'] ?? 0);
+        $couponid = $checkoutsession['metadata']['couponid'] ?? '';
         $chargeinfo = self::extract_charge_info($checkoutsession);
         $user = \core_user::get_user($userid);
         $instance = $DB->get_record("enrol", ["id" => $instanceid, "status" => 0]);
+        if (!$instance) {
+            throw new moodle_exception('enrollmentinstancenotfound', 'enrol_stripepayment');
+        }
         $course = get_course($instance->courseid);
         $context = context_course::instance($course->id);
         $enrolmentdata = self::prepare_enrollment_data(
@@ -185,6 +193,13 @@ class process_enrolment extends external_api {
 
     /**
      * Validate payment status
+     *
+     * Besides the status/course/user checks this plugin has always made, this also
+     * confirms Stripe actually captured the exact amount and currency recorded in the
+     * session's own metadata at creation time (see process_payment::get_session_params) -
+     * without this, nothing stops a tampered checkout flow from paying less than the
+     * instance's real price and still being treated as a valid purchase.
+     *
      * @param array $checkoutsession
      * @param object $enrolmentdata
      */
@@ -194,6 +209,9 @@ class process_enrolment extends external_api {
             $checkoutsession['payment_status'] === 'paid'
             && $checkoutsession['metadata']['courseid'] == $enrolmentdata->courseid
             && $checkoutsession['metadata']['userid'] == $enrolmentdata->userid
+            && isset($checkoutsession['metadata']['expectedamount'], $checkoutsession['metadata']['expectedcurrency'])
+            && (int) $checkoutsession['amount_total'] === (int) $checkoutsession['metadata']['expectedamount']
+            && strtoupper($checkoutsession['currency']) === strtoupper($checkoutsession['metadata']['expectedcurrency'])
             && !$DB->record_exists('enrol_stripepayment', ['txnid' => $enrolmentdata->txnid])
         ) {
             return true;
