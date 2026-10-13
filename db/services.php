@@ -29,6 +29,7 @@ $services = ['moodle_enrol_stripepayment' => [
     'functions' => [
             'moodle_stripepayment_apply_coupon',
             'moodle_stripepayment_process_payment',
+            'moodle_stripepayment_process_enrolment',
         ],
         'requiredcapability' => '',
         'restrictedusers' => 0,
@@ -50,7 +51,8 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true,
     ],
-    // Not added to the service's 'functions' list above - ajax-only, no REST/token access.
+    // Kept REST-reachable (token-based) so success_url's baked into Checkout Sessions
+    // created by older plugin versions still complete enrolment after an upgrade.
     'moodle_stripepayment_process_enrolment' => [
         'classname' => 'enrol_stripepayment\external\process_enrolment',
         'description' => 'Confirm a Stripe Checkout session and complete enrolment',
