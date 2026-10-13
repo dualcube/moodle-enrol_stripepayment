@@ -172,8 +172,9 @@ class process_payment extends external_api {
                 'instanceid' => $instance->id,
                 'couponid' => $couponid,
                 'userid' => $USER->id,
-                // Used by process_enrolment to verify the amount actually captured.
-                'expectedamount' => $amount,
+                // Used by process_enrolment to verify the amount actually captured;
+                // reflects the coupon discount, not the instance's full price.
+                'expectedamount' => util::get_expected_stripe_amount($instance, $couponid),
                 'expectedcurrency' => $currency,
             ],
             'mode' => 'payment',

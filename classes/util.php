@@ -177,6 +177,31 @@ class util {
     }
 
     /**
+     * Resolve the Stripe amount actually expected once a coupon (if any) is applied,
+     * so process_enrolment can verify what Stripe captured against the discounted
+     * price rather than the instance's full price.
+     *
+     * @param stdClass $instance enrol instance record
+     * @param string $couponid Coupon code, or empty for none
+     * @return int
+     */
+    public static function get_expected_stripe_amount(stdClass $instance, $couponid) {
+        $cost = self::get_instance_cost($instance);
+        $currency = self::get_instance_currency($instance);
+        if ($couponid === '') {
+            return (int) self::to_stripe_amount($cost, $currency);
+        }
+        $coupon = stripe_client::stripe_api_request('coupon_retrieve', $couponid);
+        if (isset($coupon['percent_off'])) {
+            $cost -= $cost * ($coupon['percent_off'] / 100);
+        } else if (isset($coupon['amount_off'])) {
+            $cost -= $coupon['amount_off'] / 100;
+        }
+        $cost = max(0, $cost);
+        return (int) self::to_stripe_amount($cost, $currency);
+    }
+
+    /**
      * Get minimum amount for currency
      *
      * @param string $currency

@@ -205,7 +205,7 @@ class process_enrolment extends external_api {
     private static function validate_payment_status($checkoutsession, $enrolmentdata) {
         global $DB;
         if (
-            $checkoutsession['payment_status'] === 'paid'
+            in_array($checkoutsession['payment_status'], ['paid', 'no_payment_required'], true)
             && $checkoutsession['metadata']['courseid'] == $enrolmentdata->courseid
             && $checkoutsession['metadata']['userid'] == $enrolmentdata->userid
             && isset($checkoutsession['metadata']['expectedamount'], $checkoutsession['metadata']['expectedcurrency'])
