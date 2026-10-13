@@ -178,11 +178,14 @@ class process_payment extends external_api {
                 'expectedcurrency' => $currency,
             ],
             'mode' => 'payment',
+            // enrol/index.php, not course/view.php: the user isn't enrolled yet at this
+            // point, so course/view.php would bounce them straight to enrol/index.php
+            // (dropping stripe_session_id) before the confirmation JS ever got to run.
             // Stripe's {CHECKOUT_SESSION_ID} token must reach it un-encoded, so it's
             // appended as a raw string rather than passed as a moodle_url param.
-            'success_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid])
+            'success_url' => new moodle_url('/enrol/index.php', ['id' => $instance->courseid])
                 . '&stripe_session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => new moodle_url('/course/view.php', ['id' => $instance->courseid]),
+            'cancel_url' => new moodle_url('/enrol/index.php', ['id' => $instance->courseid]),
         ];
 
         return $sessionparams;
