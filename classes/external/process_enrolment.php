@@ -52,7 +52,12 @@ class process_enrolment extends external_api {
         return new external_function_parameters(
             [
                 'sessionid' => new external_value(PARAM_TEXT, 'The Stripe Checkout session id'),
-                'userid' => new external_value(PARAM_INT, 'The authenticated user completing checkout'),
+                'userid' => new external_value(
+                    PARAM_INT,
+                    'The user completing checkout; defaults to the current user',
+                    VALUE_DEFAULT,
+                    0
+                ),
             ]
         );
     }
@@ -75,11 +80,12 @@ class process_enrolment extends external_api {
      * metadata, not from the caller.
      *
      * @param string $sessionid Stripe Checkout session id
-     * @param int $userid The authenticated user completing checkout
+     * @param int $userid The user completing checkout; 0 defaults to the current user
      * @return array
      */
     public static function execute($sessionid, $userid) {
-        global $PAGE, $DB;
+        global $PAGE, $DB, $USER;
+        $userid = $userid ?: $USER->id;
         $checkoutsession = stripe_client::stripe_api_request(
             'checkout_session_retrieve',
             $sessionid
