@@ -188,7 +188,7 @@ class util {
     public static function get_expected_stripe_amount(stdClass $instance, $couponid) {
         $cost = self::get_instance_cost($instance);
         $currency = self::get_instance_currency($instance);
-        if ($couponid === '') {
+        if (empty($couponid)) {
             return (int) self::to_stripe_amount($cost, $currency);
         }
         $coupon = stripe_client::stripe_api_request('coupon_retrieve', $couponid);
