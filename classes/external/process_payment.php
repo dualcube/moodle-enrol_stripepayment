@@ -178,7 +178,7 @@ class process_payment extends external_api {
                 'expectedcurrency' => $currency,
             ],
             'mode' => 'payment',
-            // enrol/index.php, not course/view.php: the user isn't enrolled yet at this
+            // Uses enrol/index.php, not course/view.php: the user isn't enrolled yet at this
             // point, so course/view.php would bounce them straight to enrol/index.php
             // (dropping stripe_session_id) before the confirmation JS ever got to run.
             // Stripe's {CHECKOUT_SESSION_ID} token must reach it un-encoded, so it's
