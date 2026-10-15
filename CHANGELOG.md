@@ -1,6 +1,6 @@
 ##Stripe Payment Moodle Plugin Change Log
 
-3.6.5 (2026151000)
+3.6.5 (2026101500)
  * Added : Server-side validation for payment amounts, currency, and coupons.
  * Fixed : Improved the Stripe enrolment interface to reduce repeated course price information and improve enrol button styling and layout consistency.
  * Fixed : A security vulnerability that allowed course price manipulation during Stripe checkout, reported by kta1kri.
