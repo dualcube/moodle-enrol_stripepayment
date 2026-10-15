@@ -49,14 +49,7 @@ class apply_coupon extends external_api {
         return new external_function_parameters(
             [
                 'couponid' => new external_value(PARAM_RAW, 'The coupon id to operate on'),
-                'instance' => new external_single_structure(
-                    [
-                        'id' => new external_value(PARAM_INT),
-                        'cost' => new external_value(PARAM_INT),
-                        'currency' => new external_value(PARAM_RAW),
-                        'courseid' => new external_value(PARAM_INT),
-                    ]
-                ),
+                'instanceid' => new external_value(PARAM_INT, 'The enrol instance id'),
             ]
         );
     }
@@ -79,15 +72,13 @@ class apply_coupon extends external_api {
     /**
      * function for couponsettings with validation
      * @param string $couponid
-     * @param object $instance
+     * @param int $instanceid
      * @return array
      */
-    public static function execute($couponid, $instance) {
-        if (!$instance) {
-            throw new moodle_exception('enrollmentinstancenotfound', 'enrol_stripepayment');
-        }
+    public static function execute($couponid, $instanceid) {
+        $instance = self::get_enrol_instance($instanceid);
 
-        $coupon = self::validate_and_get_coupon($couponid, $instance['id']);
+        $coupon = self::validate_and_get_coupon($couponid, $instance->id);
         $discount = self::calculate_discount($coupon, $instance);
 
         return [
@@ -100,13 +91,36 @@ class apply_coupon extends external_api {
     }
 
     /**
+     * Load an enabled enrol instance by id.
+     *
+     * The client only ever gets to say which instance it means (by id) - every
+     * price-relevant field (cost, currency) is then read back from this record, never
+     * from the request, so a tampered client value can't change what gets charged.
+     *
+     * @param int $instanceid
+     * @return \stdClass
+     */
+    private static function get_enrol_instance($instanceid) {
+        global $DB;
+        $instance = $DB->get_record('enrol', ['id' => $instanceid, 'enrol' => 'stripepayment'], '*', IGNORE_MISSING);
+        if (!$instance) {
+            throw new moodle_exception('enrollmentinstancenotfound', 'enrol_stripepayment');
+        }
+        return $instance;
+    }
+
+    /**
      * function for validating coupon
      * @param string $couponid
      * @param int $instanceid
      * @return array
      */
     private static function validate_and_get_coupon($couponid, $instanceid) {
-        self::validate_coupon_request($couponid, $instanceid);
+        // Required by the signature above (kept for symmetry with the other instance-scoped
+        // validators in this class) but unused here: couponid alone is enough to validate.
+        unset($instanceid);
+
+        self::validate_coupon_request($couponid);
 
         $coupon = stripe_client::stripe_api_request('coupon_retrieve', $couponid);
 
@@ -116,17 +130,12 @@ class apply_coupon extends external_api {
     }
 
     /**
-     * Validate the raw coupon/instance input before contacting Stripe.
+     * Validate the raw coupon input before contacting Stripe.
      * @param string $couponid
-     * @param int $instanceid
      */
-    private static function validate_coupon_request($couponid, $instanceid) {
+    private static function validate_coupon_request($couponid) {
         if (empty($couponid) || trim($couponid) === '') {
             throw new moodle_exception('couponcodeempty', 'enrol_stripepayment');
-        }
-
-        if (!is_numeric($instanceid) || $instanceid <= 0) {
-            throw new moodle_exception('invalidinstanceformat', 'enrol_stripepayment');
         }
     }
 
@@ -154,12 +163,12 @@ class apply_coupon extends external_api {
     /**
      * function for calculating discount
      * @param array $coupon
-     * @param object $instance
+     * @param \stdClass $instance enrol instance record
      * @return array
      */
     private static function calculate_discount($coupon, $instance) {
-        $cost = (float)$instance['cost'] > 0 ? (float)$instance['cost'] : (float)util::get_core()->get_config('cost');
-        $currency = $instance['currency'] ?: 'USD';
+        $cost = util::get_instance_cost($instance);
+        $currency = util::get_instance_currency($instance);
         if (isset($coupon['currency']) && strtoupper($coupon['currency']) !== strtoupper($currency)) {
             throw new moodle_exception('couponcurrencymismatch', 'enrol_stripepayment');
         }

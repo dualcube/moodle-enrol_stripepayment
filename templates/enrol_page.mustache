@@ -28,52 +28,36 @@
         "enablecouponsection": true
     }
 }}
-<div class="stripepayment-paymentcontainer">
-    <div class="stripepayment-itemtitle">{{coursename}}</div>
-
-    <div class="stripepayment-line"></div>
-
-    <div class="stripepayment-subtotal">
+<div>
+    <div class="d-flex justify-content-between mb-2">
         <span>{{# str }} subtotal, enrol_stripepayment {{/ str }}</span>
         <span id="subtotalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
-    <!-- Coupon input section -->
     {{#enablecouponsection}}
-    <div class="stripepayment-couponsection">
-        <div class="stripepayment-coupon-input-group" id="couponinputgroup">
-            <input type="text" id="coupon-{{instanceid}}" placeholder="{{# str }} entercoupon, enrol_stripepayment {{/ str }}">
-            <button id="apply-{{instanceid}}" class="stripepayment-applybtn">{{# str }} apply, enrol_stripepayment {{/ str }}</button>
+    <div class="mb-3">
+        <div class="input-group mb-1" id="couponinputgroup">
+            <input type="text" class="form-control" id="coupon-{{instanceid}}" placeholder="{{# str }} entercoupon, enrol_stripepayment {{/ str }}">
+            <button id="apply-{{instanceid}}" class="btn btn-secondary">{{# str }} apply, enrol_stripepayment {{/ str }}</button>
         </div>
-        <div id="showmessage-{{instanceid}}" class="stripepayment-couponmessage"></div>
+        <div id="showmessage-{{instanceid}}" class="small"></div>
     </div>
     {{/enablecouponsection}}
 
-    <!-- Discount section (hidden by default, shown when coupon is applied) -->
-    <div id="discountsection-{{instanceid}}" class="stripepayment-hidden">
-        <div class="stripepayment-discount">
-            <span class="stripepayment-tag" id="discounttag-{{instanceid}}">{{# str }} discount, enrol_stripepayment {{/ str }}</span>
-            <span class="stripepayment-discountamount" id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
+    <div id="discountsection-{{instanceid}}" class="d-none mb-2">
+        <div class="d-flex justify-content-between">
+            <span class="badge bg-secondary" id="discounttag-{{instanceid}}">{{# str }} discount, enrol_stripepayment {{/ str }}</span>
+            <span id="discountamountdisplay-{{instanceid}}">-{{currency}} 0.00</span>
         </div>
-        <p class="stripepayment-discountnote" id="discountnote-{{instanceid}}">{{# str }} discountapplied, enrol_stripepayment {{/ str }}</p>
+        <p class="small text-muted mb-0" id="discountnote-{{instanceid}}">{{# str }} discountapplied, enrol_stripepayment {{/ str }}</p>
     </div>
 
-    <div class="stripepayment-total" id="total-{{instanceid}}">
-        <strong>{{# str }} totaldue, enrol_stripepayment {{/ str }}</strong>
-        <strong id="totalamount-{{instanceid}}">{{currency}} {{cost}}</strong>
+    <div class="d-flex justify-content-between fw-bold border-top pt-2" id="total-{{instanceid}}">
+        <span>{{# str }} totaldue, enrol_stripepayment {{/ str }}</span>
+        <span id="totalamount-{{instanceid}}">{{currency}} {{cost}}</span>
     </div>
 
-    <!-- Container for displaying payment response/errors -->
-    <div id="paymentresponse-{{instanceid}}" class="stripepayment-error-message stripepayment-hidden"></div>
-</div>
-
-<!-- Footer styling matches the other .card-footer enrolment method containers on this page -->
-<div class="card-footer stripepayment-cardfooter">
-    <div id="enrollmentbutton-{{instanceid}}">
-        <button id="enrolbutton-{{instanceid}}" class="stripepayment-pay-btn btn btn-primary">
-            {{# str }} enrolnow, enrol_stripepayment {{/ str }}
-        </button>
-    </div>
+    <div id="paymentresponse-{{instanceid}}" class="alert alert-danger d-none mt-2 mb-0"></div>
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
