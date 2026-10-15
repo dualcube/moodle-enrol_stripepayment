@@ -71,11 +71,11 @@ function xmldb_enrol_stripepayment_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025082108, 'enrol', 'stripepayment');
     }
 
-    if ($oldversion < 2026151000) {
+    if ($oldversion < 2026101500) {
         // No longer used - the success callback doesn't go through a webservice token.
         unset_config('webservice_token', 'enrol_stripepayment');
 
-        upgrade_plugin_savepoint(true, 2026151000, 'enrol', 'stripepayment');
+        upgrade_plugin_savepoint(true, 2026101500, 'enrol', 'stripepayment');
     }
 
     return true;
